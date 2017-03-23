@@ -25,10 +25,14 @@ export function programWithFlags<flags, model, msg>(
   return html.programWithFlags(component, flags, subscriptions)
 }
 
-export function run<model, msg>(program: Program<model, msg>, render: (dom: Dom) => void): Observable<model> {
-  return html.run(program, render)
+export function run<model, msg>(program: Program<model, msg>, renderer: html.Renderer<Dom>): Observable<model> {
+  return html.run(program, renderer)
 }
 
-export function render(node: HTMLElement): (dom: Dom) => void {
-  return dom => ReactDOM.render(dom, node)
+export function render(node: HTMLElement): html.Renderer<Dom> {
+  return {
+    render(dom) {
+      return ReactDOM.render(dom, node)
+    }
+  }
 }

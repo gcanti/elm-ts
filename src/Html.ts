@@ -10,6 +10,10 @@ import {
 
 export type Html<dom, msg> = (dispatch: Dispatch<msg>) => dom
 
+export interface Renderer<dom> {
+  render(dom: dom): void
+}
+
 export function map<dom, a, msg>(f: (a: a) => msg, ha: Html<dom, a>): Html<dom, msg> {
   return dispatch => ha(a => dispatch(f(a)))
 }
@@ -33,8 +37,8 @@ export function programWithFlags<flags, model, msg, dom>(
   return { dispatch, cmd$, sub$, model$, html$ }
 }
 
-export function run<model, msg, dom>(program: Program<model, msg, dom>, render: (dom: dom) => void): Observable<model> {
+export function run<model, msg, dom>(program: Program<model, msg, dom>, renderer: Renderer<dom>): Observable<model> {
   const { dispatch, html$ } = program
-  html$.subscribe(html => render(html(dispatch)))
+  html$.subscribe(html => renderer.render(html(dispatch)))
   return headlessRun(program)
 }
