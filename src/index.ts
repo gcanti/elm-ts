@@ -1,9 +1,11 @@
-import * as Cmd from '../src/Cmd'
-import * as Sub from '../src/Sub'
-import * as Html from '../src/Html'
+import * as platform from '../src/Platform'
+import * as cmd from '../src/Cmd'
+import * as sub from '../src/Sub'
+import * as html from '../src/Html'
 
 export {
-  Cmd as cmd,
-  Sub as sub,
-  Html as html
+  platform,
+  cmd,
+  sub,
+  html
 }
