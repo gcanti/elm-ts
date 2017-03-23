@@ -2,13 +2,13 @@ import { Observable } from 'rxjs/Observable'
 import 'rxjs/add/observable/merge'
 import 'rxjs/add/observable/empty'
 import 'rxjs/add/operator/map'
-import { IO } from 'fp-ts/lib/IO'
+import { Task } from 'fp-ts/lib/Task'
 import { Option } from 'fp-ts/lib/Option'
 
-export type Cmd<msg> = Observable<IO<Option<msg>>>
+export type Cmd<msg> = Observable<Task<Option<msg>>>
 
 export function map<a, msg>(f: (a: a) => msg, cmd: Cmd<a>): Cmd<msg> {
-  return cmd.map(io => io.map(option => option.map(f)))
+  return cmd.map(task => task.map(option => option.map(f)))
 }
 
 export function batch<msg>(arr: Array<Cmd<msg>>): Cmd<msg> {

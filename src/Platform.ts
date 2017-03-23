@@ -36,7 +36,7 @@ export function programWithFlags<flags, model, msg>(
 
 export function run<model, msg>(program: Program<model, msg>): Observable<model> {
   const { dispatch, cmd$, sub$, model$ } = program
-  cmd$.subscribe(io => io.run().map(dispatch))
+  cmd$.subscribe(task => task.run().then(o => o.map(dispatch)))
   sub$.subscribe(dispatch)
   return model$
 }
