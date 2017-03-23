@@ -1,5 +1,5 @@
 import { cmd } from '../src'
-import { Html } from '../src/react'
+import { Html } from '../src/React'
 import { Lens } from 'monocle-ts'
 import * as React from 'react'
 

@@ -1,5 +1,5 @@
 import { cmd } from '../src'
-import { Html } from '../src/react'
+import { Html } from '../src/React'
 import * as React from 'react'
 
 export type Model = number
