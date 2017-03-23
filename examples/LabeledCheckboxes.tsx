@@ -1,4 +1,5 @@
-import { cmd, html } from '../src'
+import { cmd } from '../src'
+import { Html } from '../src/react'
 import { Lens } from 'monocle-ts'
 import * as React from 'react'
 
@@ -42,7 +43,7 @@ export function update(msg: Msg, model: Model): [Model, cmd.Cmd<Msg>] {
   }
 }
 
-export function view(model: Model): html.Html<Msg> {
+export function view(model: Model): Html<Msg> {
   return dispatch => (
     <fieldset>
       {checkbox({ type: 'ToggleNotifications' }, 'Email Notifications')(dispatch)}
@@ -52,7 +53,7 @@ export function view(model: Model): html.Html<Msg> {
   )
 }
 
-function checkbox<msg>(msg: msg, label: string): html.Html<msg> {
+function checkbox<msg>(msg: msg, label: string): Html<msg> {
   return dispatch => (
     <label>
       <input type='checkbox' onClick={() => dispatch(msg)} />

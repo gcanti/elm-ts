@@ -1,4 +1,5 @@
-import { cmd, html } from '../src'
+import { cmd } from '../src'
+import { Html } from '../src/react'
 import * as React from 'react'
 
 export type Model = number
@@ -24,7 +25,7 @@ export function update(msg: Msg, model: Model): [Model, cmd.Cmd<Msg>] {
   }
 }
 
-export function view(model: Model): html.Html<Msg> {
+export function view(model: Model): Html<Msg> {
   return dispatch => (
     <div>Count: {model}
       <button onClick={() => dispatch({ type: 'Increment' })}>+</button>
