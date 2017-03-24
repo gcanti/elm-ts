@@ -28,6 +28,7 @@
   "dependencies": {
     "axios": "^0.15.3",
     "fp-ts": "^0.1.1",
+    "history": "^4.6.1",
     "io-ts": "^0.2.3",
     "monocle-ts": "^0.0.4",
     "react": "^15.4.2",
@@ -35,6 +36,7 @@
     "rxjs": "^5.2.0"
   },
   "devDependencies": {
+    "@types/history": "^4.5.0",
     "@types/mocha": "^2.2.38",
     "@types/node": "^7.0.4",
     "@types/react": "^15.0.5",

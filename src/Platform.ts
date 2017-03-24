@@ -1,7 +1,6 @@
 import { Observable } from 'rxjs/Observable'
 import { BehaviorSubject } from 'rxjs/BehaviorSubject'
-import 'rxjs/add/operator/merge'
-import 'rxjs/add/operator/mergeMap'
+import 'rxjs/add/operator/concatMap'
 import { Cmd } from './Cmd'
 import { Sub, none } from './Sub'
 
@@ -28,9 +27,9 @@ export function programWithFlags<flags, model, msg>(
   const { init, update } = component
   const state$ = new BehaviorSubject(init(flags))
   const dispatch: Dispatch<msg> = msg => state$.next(update(msg, state$.value[0]))
-  const cmd$ = state$.mergeMap(state => state[1])
+  const cmd$ = state$.concatMap(state => state[1])
   const model$ = state$.map(state => state[0])
-  const sub$ = model$.mergeMap(subscriptions)
+  const sub$ = model$.concatMap(subscriptions)
   return { dispatch, cmd$, sub$, model$ }
 }
 
