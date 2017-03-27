@@ -49,7 +49,7 @@ export function programWithFlags<flags, model, msg, dom>(
   const onChangeLocation$ = location$.map(location => locationToMessage(location))
   const subs = (model: model): Sub<msg> => batch([
     subscriptions(model),
-    onChangeLocation$.take(1)
+    onChangeLocation$
   ])
   const init = (flags: flags): [model, Cmd<msg>] => component.init(flags, getLocation())
   return htmlProgramWithFlags({
