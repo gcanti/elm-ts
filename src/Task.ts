@@ -17,7 +17,7 @@ export function perform<a, msg>(f: (a: a) => msg, task: Task<a>): Cmd<msg> {
 }
 
 export function sequence<a>(tasks: Array<Task<a>>): Task<Array<a>> {
-  return seq(task, array, tasks) as Task<Array<a>>
+  return seq(task, array)(tasks)
 }
 
 export function attempt<e, a, msg>(f: (e: Either<e, a>) => msg, task: Task<Either<e, a>>): Cmd<msg> {
