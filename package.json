@@ -27,10 +27,10 @@
   "homepage": "https://github.com/gcanti/elm-ts",
   "dependencies": {
     "axios": "^0.15.3",
-    "fp-ts": "^0.1.1",
+    "fp-ts": "gcanti/fp-ts#amazing",
     "history": "^4.6.1",
     "io-ts": "^0.2.3",
-    "monocle-ts": "^0.0.4",
+    "monocle-ts": "gcanti/monocle-ts#fp-ts0.2",
     "react": "^15.4.2",
     "react-dom": "^15.4.2",
     "rxjs": "^5.2.0"
