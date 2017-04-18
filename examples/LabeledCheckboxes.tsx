@@ -56,7 +56,7 @@ export function view(model: Model): Html<Msg> {
 function checkbox<msg>(msg: msg, label: string): Html<msg> {
   return dispatch => (
     <label>
-      <input type='checkbox' onClick={() => dispatch(msg)} />
+      <input type="checkbox" onClick={() => dispatch(msg)} />
       {label}
     </label>
   )

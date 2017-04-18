@@ -1,17 +1,23 @@
-import * as platform from '../src/Platform'
 import * as cmd from '../src/Cmd'
-import * as sub from '../src/Sub'
-import * as html from '../src/Html'
-import * as task from '../src/Task'
-import * as http from '../src/Http'
 import * as decode from '../src/Decode'
+import * as html from '../src/Html'
+import * as http from '../src/Http'
+import * as navigation from '../src/Navigation'
+import * as platform from '../src/Platform'
+import * as react from '../src/React'
+import * as sub from '../src/Sub'
+import * as task from '../src/Task'
+import * as time from '../src/Time'
 
 export {
-  platform,
   cmd,
-  sub,
+  decode,
   html,
-  task,
   http,
-  decode
+  navigation,
+  platform,
+  react,
+  sub,
+  task,
+  time
 }
