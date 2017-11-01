@@ -4,8 +4,8 @@ import { Lens } from 'monocle-ts'
 import * as React from 'react'
 
 export type Model = {
-  notifications: boolean,
-  autoplay: boolean,
+  notifications: boolean
+  autoplay: boolean
   location: boolean
 }
 
@@ -21,10 +21,7 @@ export function init(flags: Flags): [Model, cmd.Cmd<Msg>] {
   return [flags, cmd.none]
 }
 
-export type Msg =
-  | { type: 'ToggleNotifications' }
-  | { type: 'ToggleAutoplay' }
-  | { type: 'ToggleLocation' }
+export type Msg = { type: 'ToggleNotifications' } | { type: 'ToggleAutoplay' } | { type: 'ToggleLocation' }
 
 const notificationsLens = Lens.fromProp<Model, 'notifications'>('notifications')
 const autoplayLens = Lens.fromProp<Model, 'autoplay'>('autoplay')
@@ -34,12 +31,12 @@ const toggle = (b: boolean): boolean => !b
 
 export function update(msg: Msg, model: Model): [Model, cmd.Cmd<Msg>] {
   switch (msg.type) {
-    case 'ToggleNotifications' :
-      return [notificationsLens.modify(toggle, model), cmd.none]
-    case 'ToggleAutoplay' :
-      return [autoplayLens.modify(toggle, model), cmd.none]
-    case 'ToggleLocation' :
-      return [locationLens.modify(toggle, model), cmd.none]
+    case 'ToggleNotifications':
+      return [notificationsLens.modify(toggle)(model), cmd.none]
+    case 'ToggleAutoplay':
+      return [autoplayLens.modify(toggle)(model), cmd.none]
+    case 'ToggleLocation':
+      return [locationLens.modify(toggle)(model), cmd.none]
   }
 }
 

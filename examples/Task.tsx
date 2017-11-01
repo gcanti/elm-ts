@@ -15,27 +15,28 @@ export function init(flags: Flags): [Model, cmd.Cmd<Msg>] {
   return [none, perform(newTime, now())]
 }
 
-export type NewTime = { type: 'NewTime', time: Time }
+export type NewTime = { type: 'NewTime'; time: Time }
 
-export type Msg =
-  | { type: 'Click' }
-  | NewTime
+export type Msg = { type: 'Click' } | NewTime
 
 function newTime(time: Time): NewTime {
   return { type: 'NewTime', time }
 }
 
 function delay<A>(n: number, task: Task<A>): Task<A> {
-  return new Task<A>(() => new Promise(resolve => {
-    setTimeout(() => task.run().then(resolve), n)
-  }))
+  return new Task<A>(
+    () =>
+      new Promise(resolve => {
+        setTimeout(() => task.run().then(resolve), n)
+      })
+  )
 }
 
 export function update(msg: Msg, model: Model): [Model, cmd.Cmd<Msg>] {
   switch (msg.type) {
-    case 'Click' :
+    case 'Click':
       return [none, perform(newTime, delay(1000, now()))]
-    case 'NewTime' :
+    case 'NewTime':
       return [some(msg.time), cmd.none]
   }
 }
@@ -48,7 +49,8 @@ const displayLoading = () => 'loading...'
 
 export function view(model: Model): Html<Msg> {
   return dispatch => (
-    <div>Time: {model.fold(displayLoading, displayTime)}
+    <div>
+      Time: {model.fold(displayLoading, displayTime)}
       <button onClick={() => dispatch({ type: 'Click' })}>New time</button>
     </div>
   )

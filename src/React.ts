@@ -17,11 +17,10 @@ export interface Program<model, msg> extends html.Program<model, msg, Dom> {}
 export interface Component<flags, model, msg> extends html.Component<flags, model, msg, Dom> {}
 
 export function programWithFlags<flags, model, msg>(
-    component: Component<flags, model, msg>,
-    flags: flags,
-    subscriptions?: (model: model) => Sub<msg>
-  ): Program<model, msg> {
-
+  component: Component<flags, model, msg>,
+  flags: flags,
+  subscriptions?: (model: model) => Sub<msg>
+): Program<model, msg> {
   return html.programWithFlags(component, flags, subscriptions)
 }
 

@@ -8,9 +8,7 @@ import { sequence as seq } from 'fp-ts/lib/Traversable'
 import * as array from 'fp-ts/lib/Array'
 import { Either } from 'fp-ts/lib/Either'
 
-export {
-  Task
-}
+export { Task }
 
 export function perform<a, msg>(f: (a: a) => msg, task: Task<a>): Cmd<msg> {
   return Observable.of(task.map(a => some(f(a))))

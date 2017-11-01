@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { Optional } from 'monocle-ts'
+import { Lens } from 'monocle-ts'
 import * as t from 'io-ts'
 import { cmd, http, decode } from '../src'
 import { Html } from '../src/React'
@@ -11,7 +11,7 @@ import { Option, none, some } from 'fp-ts/lib/Option'
 export type Result = Either<http.HttpError, string>
 
 export type Model = {
-  topic: string,
+  topic: string
   gifUrl: Option<Result>
 }
 
@@ -27,17 +27,15 @@ export function init(flags: Flags): [Model, cmd.Cmd<Msg>] {
 }
 
 export type MorePlease = { type: 'MorePlease' }
-export type NewGif = { type: 'NewGif', result: Result }
+export type NewGif = { type: 'NewGif'; result: Result }
 
-export type Msg =
-  | MorePlease
-  | NewGif
+export type Msg = MorePlease | NewGif
 
 function newGif(result: Result): NewGif {
   return { type: 'NewGif', result }
 }
 
-const gifUrlOptional = Optional.fromProp<Model, 'gifUrl'>('gifUrl')
+const gifUrlLens = Lens.fromProp<Model, 'gifUrl'>('gifUrl')
 
 const ApiPayloadSchema = t.interface({
   data: t.interface({
@@ -55,10 +53,10 @@ function getRandomGif(topic: string): cmd.Cmd<Msg> {
 
 export function update(msg: Msg, model: Model): [Model, cmd.Cmd<Msg>] {
   switch (msg.type) {
-    case 'MorePlease' :
-      return [gifUrlOptional.set(none, model), getRandomGif(model.topic)]
-    case 'NewGif' :
-      return [gifUrlOptional.set(some(msg.result), model), cmd.none]
+    case 'MorePlease':
+      return [gifUrlLens.set(none)(model), getRandomGif(model.topic)]
+    case 'NewGif':
+      return [gifUrlLens.set(some(msg.result))(model), cmd.none]
   }
   throw 'err'
 }
@@ -69,10 +67,7 @@ export function view(model: Model): Html<Msg> {
       <h2>{model.topic}</h2>
       {model.gifUrl.fold(
         () => <span>loading...</span>,
-        e => e.fold(
-          error => <span>Error: {error.type}</span>,
-          gifUrl => <img src={gifUrl} />
-        )
+        e => e.fold(error => <span>Error: {error.type}</span>, gifUrl => <img src={gifUrl} />)
       )}
       <button onClick={() => dispatch({ type: 'MorePlease' })}>New Gif</button>
     </div>
