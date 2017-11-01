@@ -1,19 +1,15 @@
 {
   "name": "elm-ts",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "A porting to TypeScript featuring fp-ts, io-ts, monocle-ts, rxjs5 and React",
-  "files": [
-    "lib",
-    "lib-jsnext"
-  ],
+  "files": ["lib"],
   "main": "lib/index.js",
-  "jsnext:main": "lib-jsnext/index.js",
   "typings": "lib/index.d.ts",
   "scripts": {
     "lint": "tslint src/**/*.ts test/**/*.ts",
     "mocha": "mocha -r ts-node/register test/*.ts",
     "test": "npm run lint && npm run mocha",
-    "build": "rm -rf lib/* && tsc && tsc -m es6 --outDir lib-jsnext"
+    "build": "rm -rf lib/* && tsc"
   },
   "repository": {
     "type": "git",
@@ -26,37 +22,30 @@
   },
   "homepage": "https://github.com/gcanti/elm-ts",
   "dependencies": {
-    "axios": "^0.15.3",
-    "fp-ts": "^0.2.1",
-    "history": "^4.6.1",
-    "io-ts": "^0.3.0",
-    "monocle-ts": "^0.1.1",
-    "react": "^15.4.2",
-    "react-dom": "^15.4.2",
-    "rxjs": "^5.2.0"
+    "axios": "0.17.0",
+    "fp-ts": "^0.6.1",
+    "history": "4.7.2",
+    "io-ts": "^0.8.0",
+    "monocle-ts": "^0.5.0",
+    "react": "16.0.0",
+    "react-dom": "16.0.0",
+    "rxjs": "5.5.2"
   },
   "devDependencies": {
-    "@types/history": "^4.5.0",
-    "@types/mocha": "^2.2.38",
-    "@types/node": "^7.0.4",
-    "@types/react": "^15.0.5",
-    "@types/react-dom": "^0.14.22",
-    "awesome-typescript-loader": "^3.1.2",
-    "mocha": "^3.2.0",
-    "ts-node": "^2.0.0",
-    "tslint": "^4.4.2",
-    "tslint-config-standard": "^4.0.0",
-    "typescript": "^2.2.0",
+    "@types/history": "4.6.1",
+    "@types/mocha": "2.2.40",
+    "@types/node": "7.0.8",
+    "@types/react": "16.0.19",
+    "@types/react-dom": "16.0.2",
+    "awesome-typescript-loader": "3.3.0",
+    "mocha": "3.2.0",
+    "prettier": "1.7.0",
+    "ts-node": "3.3.0",
+    "tslint": "4.4.2",
+    "tslint-config-standard": "4.0.0",
+    "typescript": "2.6.1",
     "webpack": "^1.14.0"
   },
-  "tags": [
-    "typescript",
-    "elm",
-    "fp-ts"
-  ],
-  "keywords": [
-    "typescript",
-    "elm",
-    "fp-ts"
-  ]
+  "tags": ["typescript", "elm", "fp-ts"],
+  "keywords": ["typescript", "elm", "fp-ts"]
 }

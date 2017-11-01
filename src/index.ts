@@ -9,15 +9,4 @@ import * as sub from '../src/Sub'
 import * as task from '../src/Task'
 import * as time from '../src/Time'
 
-export {
-  cmd,
-  decode,
-  html,
-  http,
-  navigation,
-  platform,
-  react,
-  sub,
-  task,
-  time
-}
+export { cmd, decode, html, http, navigation, platform, react, sub, task, time }

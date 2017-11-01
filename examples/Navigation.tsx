@@ -4,8 +4,8 @@ import { Location, push } from '../src/Navigation'
 import * as React from 'react'
 
 const routes = {
-  'RouteA': true,
-  'RouteB': true
+  RouteA: true,
+  RouteB: true
 }
 
 type Route = keyof typeof routes
@@ -35,34 +35,35 @@ export function init(flags: Flags, location: Location): [Model, cmd.Cmd<Msg>] {
   return [getRoute(location), cmd.none]
 }
 
-export type Msg =
-  | { type: 'RouteA' }
-  | { type: 'RouteB' }
-  | { type: 'Push', url: Route }
+export type Msg = { type: 'RouteA' } | { type: 'RouteB' } | { type: 'Push'; url: Route }
 
 export function update(msg: Msg, model: Model): [Model, cmd.Cmd<Msg>] {
   switch (msg.type) {
-    case 'RouteA' :
+    case 'RouteA':
       return ['RouteA', cmd.none]
-    case 'RouteB' :
+    case 'RouteB':
       return ['RouteB', cmd.none]
-    case 'Push' :
+    case 'Push':
       return [model, push(msg.url)]
   }
 }
 
 function RouteA(): Html<Msg> {
-  return dispatch => <div>RouteA <button onClick={() => dispatch({ type: 'Push', url: 'RouteB' })}>RouteB</button></div>
+  return dispatch => (
+    <div>
+      RouteA <button onClick={() => dispatch({ type: 'Push', url: 'RouteB' })}>RouteB</button>
+    </div>
+  )
 }
 
 function RouteB(): Html<Msg> {
-  return dispatch => <div>RouteB <button onClick={() => dispatch({ type: 'Push', url: 'RouteA' })}>RouteA</button></div>
+  return dispatch => (
+    <div>
+      RouteB <button onClick={() => dispatch({ type: 'Push', url: 'RouteA' })}>RouteA</button>
+    </div>
+  )
 }
 
 export function view(model: Model): Html<Msg> {
-  return dispatch => (
-    <div>
-      { model === 'RouteA' ? RouteA()(dispatch) : RouteB()(dispatch) }
-    </div>
-  )
+  return dispatch => <div>{model === 'RouteA' ? RouteA()(dispatch) : RouteB()(dispatch)}</div>
 }

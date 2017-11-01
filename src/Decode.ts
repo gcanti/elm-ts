@@ -1,6 +1,6 @@
 import { Either } from 'fp-ts/lib/Either'
 import * as t from 'io-ts'
-import { pathReporterFailure } from 'io-ts/lib/reporters/default'
+import { failure } from 'io-ts/lib/PathReporter'
 
 export type JSONObject = { [key: string]: JSON }
 export interface JSONArray extends Array<JSON> {}
@@ -15,7 +15,7 @@ export function decodeJSON<a>(decoder: Decoder<a>, value: JSON): Either<string, 
 }
 
 export function validationToEither<a>(validation: t.Validation<a>): Either<string, a> {
-  return validation.mapLeft(errors => pathReporterFailure(errors).join(''))
+  return validation.mapLeft(errors => failure(errors).join(''))
 }
 
 export function fromType<a>(type: t.Type<a>): Decoder<a> {
