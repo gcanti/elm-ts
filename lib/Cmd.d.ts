@@ -1,0 +1,10 @@
+import { Observable } from 'rxjs/Observable';
+import 'rxjs/add/observable/merge';
+import 'rxjs/add/observable/empty';
+import 'rxjs/add/operator/map';
+import { Task } from 'fp-ts/lib/Task';
+import { Option } from 'fp-ts/lib/Option';
+export declare type Cmd<msg> = Observable<Task<Option<msg>>>;
+export declare function map<a, msg>(f: (a: a) => msg, cmd: Cmd<a>): Cmd<msg>;
+export declare function batch<msg>(arr: Array<Cmd<msg>>): Cmd<msg>;
+export declare const none: Cmd<any>;
