@@ -18,7 +18,7 @@ export function validationToEither<a>(validation: t.Validation<a>): Either<strin
   return validation.mapLeft(errors => failure(errors).join(''))
 }
 
-export function fromType<a>(type: t.Type<a>): Decoder<a> {
+export function fromType<a>(type: t.Type<any, a>): Decoder<a> {
   return {
     decode(value) {
       return validationToEither(t.validate(value, type))
