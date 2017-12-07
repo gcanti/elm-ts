@@ -7,7 +7,7 @@ export interface JSONArray extends Array<JSON> {}
 export type JSON = null | string | number | boolean | JSONArray | JSONObject
 
 export interface Decoder<a> {
-  decode(value: JSON): Either<string, a>
+  decode: (value: JSON) => Either<string, a>
 }
 
 export function decodeJSON<a>(decoder: Decoder<a>, value: JSON): Either<string, a> {
@@ -18,10 +18,14 @@ export function validationToEither<a>(validation: t.Validation<a>): Either<strin
   return validation.mapLeft(errors => failure(errors).join(''))
 }
 
+export function map<a, b>(f: (a: a) => b, fa: Decoder<a>): Decoder<b> {
+  return {
+    decode: value => fa.decode(value).map(f)
+  }
+}
+
 export function fromType<a>(type: t.Type<any, a>): Decoder<a> {
   return {
-    decode(value) {
-      return validationToEither(t.validate(value, type))
-    }
+    decode: value => validationToEither(t.validate(value, type))
   }
 }
