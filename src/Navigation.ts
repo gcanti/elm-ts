@@ -8,7 +8,7 @@ import { Task } from 'fp-ts/lib/Task'
 import * as option from 'fp-ts/lib/Option'
 import { Cmd } from './Cmd'
 import { Sub, none, batch } from './Sub'
-import { Html, Program, programWithFlags as htmlProgramWithFlags } from './Html'
+import * as html from './Html'
 import { Location as HistoryLocation } from 'history'
 import createHashHistory from 'history/createHashHistory'
 
@@ -35,28 +35,24 @@ export function push<msg>(url: string): Cmd<msg> {
   )
 }
 
-export interface Component<flags, model, msg, dom> {
-  init: (flags: flags, location: Location) => [model, Cmd<msg>]
-  update: (msg: msg, model: model) => [model, Cmd<msg>]
-  view: (model: model) => Html<dom, msg>
+export function program<model, msg, dom>(
+  locationToMessage: (location: Location) => msg,
+  init: (location: Location) => [model, Cmd<msg>],
+  update: (msg: msg, model: model) => [model, Cmd<msg>],
+  view: (model: model) => html.Html<dom, msg>,
+  subscriptions: (model: model) => Sub<msg> = () => none
+): html.Program<model, msg, dom> {
+  const onChangeLocation$ = location$.map(location => locationToMessage(location))
+  const subs = (model: model): Sub<msg> => batch([subscriptions(model), onChangeLocation$])
+  return html.program(init(getLocation()), update, view, subs)
 }
 
 export function programWithFlags<flags, model, msg, dom>(
   locationToMessage: (location: Location) => msg,
-  component: Component<flags, model, msg, dom>,
-  flags: flags,
+  init: (flags: flags) => (location: Location) => [model, Cmd<msg>],
+  update: (msg: msg, model: model) => [model, Cmd<msg>],
+  view: (model: model) => html.Html<dom, msg>,
   subscriptions: (model: model) => Sub<msg> = () => none
-): Program<model, msg, dom> {
-  const onChangeLocation$ = location$.map(location => locationToMessage(location))
-  const subs = (model: model): Sub<msg> => batch([subscriptions(model), onChangeLocation$])
-  const init = (flags: flags): [model, Cmd<msg>] => component.init(flags, getLocation())
-  return htmlProgramWithFlags(
-    {
-      init,
-      update: component.update,
-      view: component.view
-    },
-    flags,
-    subs
-  )
+): (flags: flags) => html.Program<model, msg, dom> {
+  return flags => program(locationToMessage, init(flags), update, view)
 }
