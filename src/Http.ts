@@ -116,3 +116,15 @@ export function get<a>(url: string, decoder: Decoder<a>): Request<a> {
     withCredentials: false
   }
 }
+
+export function post<a>(url: string, body: any, decoder: Decoder<a>): Request<a> {
+  return {
+    method: 'POST',
+    headers: {},
+    url,
+    body,
+    expect: expectJson(decoder),
+    timeout: none,
+    withCredentials: false
+  }
+}
