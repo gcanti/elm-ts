@@ -4,13 +4,7 @@ import * as React from 'react'
 
 export type Model = number
 
-export type Flags = Model
-
-export const flags: Flags = 0
-
-export function init(flags: Flags): [Model, cmd.Cmd<Msg>] {
-  return [flags, cmd.none]
-}
+export const init: [Model, cmd.Cmd<Msg>] = [0, cmd.none]
 
 export type Msg = { type: 'Increment' } | { type: 'Decrement' }
 

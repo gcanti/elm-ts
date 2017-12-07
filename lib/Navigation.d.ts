@@ -4,13 +4,9 @@ import 'rxjs/add/operator/skip';
 import 'rxjs/add/operator/take';
 import { Cmd } from './Cmd';
 import { Sub } from './Sub';
-import { Html, Program } from './Html';
+import * as html from './Html';
 import { Location as HistoryLocation } from 'history';
 export declare type Location = HistoryLocation;
 export declare function push<msg>(url: string): Cmd<msg>;
-export interface Component<flags, model, msg, dom> {
-    init: (flags: flags, location: Location) => [model, Cmd<msg>];
-    update: (msg: msg, model: model) => [model, Cmd<msg>];
-    view: (model: model) => Html<dom, msg>;
-}
-export declare function programWithFlags<flags, model, msg, dom>(locationToMessage: (location: Location) => msg, component: Component<flags, model, msg, dom>, flags: flags, subscriptions?: (model: model) => Sub<msg>): Program<model, msg, dom>;
+export declare function program<model, msg, dom>(locationToMessage: (location: Location) => msg, init: (location: Location) => [model, Cmd<msg>], update: (msg: msg, model: model) => [model, Cmd<msg>], view: (model: model) => html.Html<dom, msg>, subscriptions?: (model: model) => Sub<msg>): html.Program<model, msg, dom>;
+export declare function programWithFlags<flags, model, msg, dom>(locationToMessage: (location: Location) => msg, init: (flags: flags) => (location: Location) => [model, Cmd<msg>], update: (msg: msg, model: model) => [model, Cmd<msg>], view: (model: model) => html.Html<dom, msg>, subscriptions?: (model: model) => Sub<msg>): (flags: flags) => html.Program<model, msg, dom>;
