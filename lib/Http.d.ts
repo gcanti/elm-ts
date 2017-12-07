@@ -48,3 +48,4 @@ export declare type Response<body> = {
 export declare function toTask<a>(req: Request<a>): Task<Either<HttpError, a>>;
 export declare function send<a, msg>(f: (e: Either<HttpError, a>) => msg, req: Request<a>): Cmd<msg>;
 export declare function get<a>(url: string, decoder: Decoder<a>): Request<a>;
+export declare function post<a>(url: string, body: any, decoder: Decoder<a>): Request<a>;
