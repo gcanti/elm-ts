@@ -26,12 +26,31 @@ export function expectJson<a>(decoder: Decoder<a>): Expect<a> {
   return decoder.decode
 }
 
-export type HttpError =
-  | { type: 'BadUrl'; value: string }
-  | { type: 'Timeout' }
-  | { type: 'NetworkError'; value: string }
-  | { type: 'BadStatus'; response: Response<string> }
-  | { type: 'BadPayload'; value: string; response: Response<string> }
+export class BadUrl {
+  readonly _tag: 'BadUrl' = 'BadUrl'
+  constructor(readonly value: string) {}
+}
+
+export class Timeout {
+  readonly _tag: 'Timeout' = 'Timeout'
+}
+
+export class NetworkError {
+  readonly _tag: 'NetworkError' = 'NetworkError'
+  constructor(readonly value: string) {}
+}
+
+export class BadStatus {
+  readonly _tag: 'BadStatus' = 'BadStatus'
+  constructor(readonly response: Response<string>) {}
+}
+
+export class BadPayload {
+  readonly _tag: 'BadPayload' = 'BadPayload'
+  constructor(readonly value: string, readonly response: Response<string>) {}
+}
+
+export type HttpError = BadUrl | Timeout | NetworkError | BadStatus | BadPayload
 
 export type Response<body> = {
   url: string
@@ -56,29 +75,22 @@ function axiosResponseToResponse(res: AxiosResponse): Response<string> {
 }
 
 function axiosResponseToEither<a>(res: AxiosResponse, expect: Expect<a>): Either<HttpError, a> {
-  return expect(res.data).mapLeft(
-    errors =>
-      ({
-        type: 'BadPayload',
-        value: errors,
-        response: axiosResponseToResponse(res)
-      } as HttpError)
-  )
+  return expect(res.data).mapLeft(errors => new BadPayload(errors, axiosResponseToResponse(res)))
 }
 
 function axiosErrorToEither<a>(e: Error | { response: AxiosResponse }): Either<HttpError, a> {
   if (e instanceof Error) {
     if ((e as any).code === 'ECONNABORTED') {
-      return left<HttpError, a>({ type: 'Timeout' })
+      return left(new Timeout())
     }
-    return left<HttpError, a>({ type: 'NetworkError', value: e.message })
+    return left(new NetworkError(e.message))
   }
   const res = e.response
   switch (res.status) {
     case 404:
-      return left<HttpError, a>({ type: 'BadUrl', value: res.config.url! })
+      return left(new BadUrl(res.config.url!))
     default:
-      return left<HttpError, a>({ type: 'BadStatus', response: axiosResponseToResponse(res) })
+      return left(new BadStatus(axiosResponseToResponse(res)))
   }
 }
 
@@ -86,8 +98,8 @@ function getPromiseAxiosResponse(config: AxiosRequestConfig): Promise<AxiosRespo
   return axios(config) as any
 }
 
-export function toTask<a>(req: Request<a>): Task<Either<HttpError, a>> {
-  return new Task<Either<HttpError, a>>(() =>
+function requestToTask<a>(req: Request<a>): Task<Either<HttpError, a>> {
+  return new Task(() =>
     getPromiseAxiosResponse({
       method: req.method,
       headers: req.headers,
@@ -102,7 +114,7 @@ export function toTask<a>(req: Request<a>): Task<Either<HttpError, a>> {
 }
 
 export function send<a, msg>(f: (e: Either<HttpError, a>) => msg, req: Request<a>): Cmd<msg> {
-  return attempt(f, toTask(req))
+  return attempt(f, requestToTask(req))
 }
 
 export function get<a>(url: string, decoder: Decoder<a>): Request<a> {
