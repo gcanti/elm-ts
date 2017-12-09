@@ -15,4 +15,4 @@ export function batch<msg>(arr: Array<Cmd<msg>>): Cmd<msg> {
   return Observable.merge(...arr)
 }
 
-export const none: Cmd<any> = Observable.empty()
+export const none: Cmd<never> = Observable.empty()
