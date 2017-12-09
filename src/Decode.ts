@@ -14,10 +14,6 @@ export function decodeJSON<a>(decoder: Decoder<a>, value: JSON): Either<string, 
   return decoder.decode(value)
 }
 
-export function validationToEither<a>(validation: t.Validation<a>): Either<string, a> {
-  return validation.mapLeft(errors => failure(errors).join(''))
-}
-
 export function map<a, b>(f: (a: a) => b, fa: Decoder<a>): Decoder<b> {
   return {
     decode: value => fa.decode(value).map(f)
@@ -26,6 +22,6 @@ export function map<a, b>(f: (a: a) => b, fa: Decoder<a>): Decoder<b> {
 
 export function fromType<a>(type: t.Type<any, a>): Decoder<a> {
   return {
-    decode: value => validationToEither(t.validate(value, type))
+    decode: value => t.validate(value, type).mapLeft(errors => failure(errors).join('\n'))
   }
 }
