@@ -37,7 +37,7 @@ export function run<model, msg>(program: Program<model, msg>, renderer: html.Ren
   return html.run(program, renderer)
 }
 
-export function render(node: HTMLElement): html.Renderer<dom> {
+export function render(node: Element): html.Renderer<dom> {
   return {
     render(dom) {
       return ReactDOM.render(dom, node)
