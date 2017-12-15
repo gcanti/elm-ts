@@ -40,7 +40,6 @@ export function program<model, msg>(
     .distinctUntilChanged(modelCompare)
     .map(state => state[0])
     .share()
-    .startWith(init[0])
   const sub$ = model$.switchMap(model => subscriptions(model))
   return { dispatch, cmd$, sub$, model$ }
 }
