@@ -1,5 +1,5 @@
 import { Either } from 'fp-ts/lib/Either';
-import * as t from 'io-ts';
+import { Type } from 'io-ts';
 export declare type JSONObject = {
     [key: string]: JSON;
 };
@@ -11,4 +11,4 @@ export interface Decoder<a> {
 }
 export declare function decodeJSON<a>(decoder: Decoder<a>, value: JSON): Either<string, a>;
 export declare function map<a, b>(f: (a: a) => b, fa: Decoder<a>): Decoder<b>;
-export declare function fromType<a>(type: t.Type<any, a>): Decoder<a>;
+export declare function fromType<a>(type: Type<any, a>): Decoder<a>;

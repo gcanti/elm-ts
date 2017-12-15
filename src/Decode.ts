@@ -1,5 +1,5 @@
 import { Either } from 'fp-ts/lib/Either'
-import * as t from 'io-ts'
+import { Type, validate } from 'io-ts'
 import { failure } from 'io-ts/lib/PathReporter'
 
 export type JSONObject = { [key: string]: JSON }
@@ -20,8 +20,8 @@ export function map<a, b>(f: (a: a) => b, fa: Decoder<a>): Decoder<b> {
   }
 }
 
-export function fromType<a>(type: t.Type<any, a>): Decoder<a> {
+export function fromType<a>(type: Type<any, a>): Decoder<a> {
   return {
-    decode: value => t.validate(value, type).mapLeft(errors => failure(errors).join('\n'))
+    decode: value => validate(value, type).mapLeft(errors => failure(errors).join('\n'))
   }
 }

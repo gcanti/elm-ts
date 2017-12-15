@@ -1,6 +1,6 @@
 import { Observable } from 'rxjs/Observable'
 import { ReactElement } from 'react'
-import * as ReactDOM from 'react-dom'
+import { render as ReactDOMrender } from 'react-dom'
 import { Cmd } from './Cmd'
 import { Sub } from './Sub'
 import * as html from './Html'
@@ -40,7 +40,7 @@ export function run<model, msg>(program: Program<model, msg>, renderer: html.Ren
 export function render(node: Element): html.Renderer<dom> {
   return {
     render(dom) {
-      return ReactDOM.render(dom, node)
+      return ReactDOMrender(dom, node)
     }
   }
 }
