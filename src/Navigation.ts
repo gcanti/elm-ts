@@ -5,7 +5,7 @@ import 'rxjs/add/operator/skip'
 import 'rxjs/add/operator/take'
 import { Subject } from 'rxjs/Subject'
 import { Task } from 'fp-ts/lib/Task'
-import * as option from 'fp-ts/lib/Option'
+import { none as optionNone } from 'fp-ts/lib/Option'
 import { Cmd } from './Cmd'
 import { Sub, none, batch } from './Sub'
 import * as html from './Html'
@@ -30,7 +30,7 @@ export function push<msg>(url: string): Cmd<msg> {
   return Observable.of(
     new Task(() => {
       history.push(url)
-      return Promise.resolve(option.none)
+      return Promise.resolve(optionNone)
     })
   )
 }

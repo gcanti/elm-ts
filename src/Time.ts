@@ -1,7 +1,7 @@
 import { Observable } from 'rxjs/Observable'
 import 'rxjs/add/observable/interval'
 import 'rxjs/add/operator/map'
-import { Task } from './Task'
+import { Task } from 'fp-ts/lib/Task'
 import { Sub } from './Sub'
 
 export type Time = number
