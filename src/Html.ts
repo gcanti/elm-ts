@@ -2,15 +2,12 @@ import { Observable } from 'rxjs/Observable'
 import { Cmd } from './Cmd'
 import { Sub, none } from './Sub'
 import * as platform from './Platform'
+import { Reader } from 'fp-ts/lib/Reader'
 
-export type Html<dom, msg> = (dispatch: platform.Dispatch<msg>) => dom
+export interface Html<dom, msg> extends Reader<platform.Dispatch<msg>, dom> {}
 
 export interface Renderer<dom> {
   render(dom: dom): void
-}
-
-export function map<dom, a, msg>(f: (a: a) => msg, ha: Html<dom, a>): Html<dom, msg> {
-  return dispatch => ha(a => dispatch(f(a)))
 }
 
 export interface Program<model, msg, dom> extends platform.Program<model, msg> {
@@ -39,6 +36,6 @@ export function programWithFlags<flags, model, msg, dom>(
 
 export function run<model, msg, dom>(program: Program<model, msg, dom>, renderer: Renderer<dom>): Observable<model> {
   const { dispatch, html$ } = program
-  html$.subscribe(html => renderer.render(html(dispatch)))
+  html$.subscribe(html => renderer.render(html.run(dispatch)))
   return platform.run(program)
 }

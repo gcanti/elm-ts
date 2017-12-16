@@ -2,11 +2,12 @@ import { Observable } from 'rxjs/Observable';
 import { Cmd } from './Cmd';
 import { Sub } from './Sub';
 import * as platform from './Platform';
-export declare type Html<dom, msg> = (dispatch: platform.Dispatch<msg>) => dom;
+import { Reader } from 'fp-ts/lib/Reader';
+export interface Html<dom, msg> extends Reader<platform.Dispatch<msg>, dom> {
+}
 export interface Renderer<dom> {
     render(dom: dom): void;
 }
-export declare function map<dom, a, msg>(f: (a: a) => msg, ha: Html<dom, a>): Html<dom, msg>;
 export interface Program<model, msg, dom> extends platform.Program<model, msg> {
     html$: Observable<Html<dom, msg>>;
 }

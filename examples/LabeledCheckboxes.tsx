@@ -1,5 +1,5 @@
 import { cmd } from '../src'
-import { Html } from '../src/React'
+import { Html, Reader } from '../src/React'
 import { Lens } from 'monocle-ts'
 import * as React from 'react'
 
@@ -41,20 +41,20 @@ export function update(msg: Msg, model: Model): [Model, cmd.Cmd<Msg>] {
 }
 
 export function view(model: Model): Html<Msg> {
-  return dispatch => (
+  return new Reader(dispatch => (
     <fieldset>
-      {checkbox({ type: 'ToggleNotifications' }, 'Email Notifications')(dispatch)}
-      {checkbox({ type: 'ToggleAutoplay' }, 'Video Autoplay')(dispatch)}
-      {checkbox({ type: 'ToggleLocation' }, 'Use Location')(dispatch)}
+      {checkbox({ type: 'ToggleNotifications' }, 'Email Notifications').run(dispatch)}
+      {checkbox({ type: 'ToggleAutoplay' }, 'Video Autoplay').run(dispatch)}
+      {checkbox({ type: 'ToggleLocation' }, 'Use Location').run(dispatch)}
     </fieldset>
-  )
+  ))
 }
 
 function checkbox<msg>(msg: msg, label: string): Html<msg> {
-  return dispatch => (
+  return new Reader(dispatch => (
     <label>
       <input type="checkbox" onClick={() => dispatch(msg)} />
       {label}
     </label>
-  )
+  ))
 }
