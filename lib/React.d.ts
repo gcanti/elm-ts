@@ -4,9 +4,11 @@ import { ReactElement } from 'react';
 import { Cmd } from './Cmd';
 import { Sub } from './Sub';
 import * as html from './Html';
+import { Reader } from 'fp-ts/lib/Reader';
+export { Reader };
 export declare type dom = ReactElement<any>;
-export declare type Html<msg> = html.Html<dom, msg>;
-export declare function map<a, msg>(f: (a: a) => msg, ha: Html<a>): Html<msg>;
+export interface Html<msg> extends html.Html<dom, msg> {
+}
 export interface Program<model, msg> extends html.Program<model, msg, dom> {
 }
 export declare function program<model, msg>(init: [model, Cmd<msg>], update: (msg: msg, model: model) => [model, Cmd<msg>], view: (model: model) => html.Html<dom, msg>, subscriptions?: (model: model) => Sub<msg>): Program<model, msg>;

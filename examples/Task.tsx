@@ -1,5 +1,5 @@
 import { cmd } from '../src'
-import { Html } from '../src/React'
+import { Html, Reader } from '../src/React'
 import * as React from 'react'
 import { Task, perform } from '../src/Task'
 import { Time, now } from '../src/Time'
@@ -48,10 +48,10 @@ function displayTime(time: Time): string {
 const displayLoading = () => 'loading...'
 
 export function view(model: Model): Html<Msg> {
-  return dispatch => (
+  return new Reader(dispatch => (
     <div>
       Time: {model.fold(displayLoading, displayTime)}
       <button onClick={() => dispatch({ type: 'Click' })}>New time</button>
     </div>
-  )
+  ))
 }

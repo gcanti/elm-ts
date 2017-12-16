@@ -7,6 +7,8 @@ import { sequence as seq } from 'fp-ts/lib/Traversable'
 import { array } from 'fp-ts/lib/Array'
 import { Either } from 'fp-ts/lib/Either'
 
+export { Task }
+
 const sequenceTasks = seq(task, array)
 
 export function perform<a, msg>(f: (a: a) => msg, task: Task<a>): Cmd<msg> {

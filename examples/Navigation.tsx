@@ -1,5 +1,5 @@
 import { cmd } from '../src'
-import { Html } from '../src/React'
+import { Html, Reader } from '../src/React'
 import { Location, push } from '../src/Navigation'
 import * as React from 'react'
 
@@ -49,21 +49,21 @@ export function update(msg: Msg, model: Model): [Model, cmd.Cmd<Msg>] {
 }
 
 function RouteA(): Html<Msg> {
-  return dispatch => (
+  return new Reader(dispatch => (
     <div>
       RouteA <button onClick={() => dispatch({ type: 'Push', url: 'RouteB' })}>RouteB</button>
     </div>
-  )
+  ))
 }
 
 function RouteB(): Html<Msg> {
-  return dispatch => (
+  return new Reader(dispatch => (
     <div>
       RouteB <button onClick={() => dispatch({ type: 'Push', url: 'RouteA' })}>RouteA</button>
     </div>
-  )
+  ))
 }
 
 export function view(model: Model): Html<Msg> {
-  return dispatch => <div>{model === 'RouteA' ? RouteA()(dispatch) : RouteB()(dispatch)}</div>
+  return new Reader(dispatch => <div>{model === 'RouteA' ? RouteA().run(dispatch) : RouteB().run(dispatch)}</div>)
 }
