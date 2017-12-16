@@ -33,13 +33,16 @@
     "@types/history": "4.6.2"
   },
   "devDependencies": {
+    "@types/blessed": "^0.1.8",
     "@types/mocha": "2.2.40",
     "@types/node": "7.0.8",
     "@types/react": "16.0.27",
     "@types/react-dom": "16.0.3",
     "awesome-typescript-loader": "3.4.1",
+    "blessed": "^0.1.81",
     "mocha": "3.2.0",
     "prettier": "1.9.1",
+    "react-blessed": "^0.2.1",
     "ts-node": "3.3.0",
     "tslint": "4.4.2",
     "tslint-config-standard": "4.0.0",

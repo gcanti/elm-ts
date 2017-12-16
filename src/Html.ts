@@ -7,7 +7,7 @@ import { Reader } from 'fp-ts/lib/Reader'
 export interface Html<dom, msg> extends Reader<platform.Dispatch<msg>, dom> {}
 
 export interface Renderer<dom> {
-  render(dom: dom): void
+  (dom: dom): void
 }
 
 export interface Program<model, msg, dom> extends platform.Program<model, msg> {
@@ -36,6 +36,6 @@ export function programWithFlags<flags, model, msg, dom>(
 
 export function run<model, msg, dom>(program: Program<model, msg, dom>, renderer: Renderer<dom>): Observable<model> {
   const { dispatch, html$ } = program
-  html$.subscribe(html => renderer.render(html.run(dispatch)))
+  html$.subscribe(html => renderer(html.run(dispatch)))
   return platform.run(program)
 }

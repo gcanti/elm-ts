@@ -6,7 +6,7 @@ import { Reader } from 'fp-ts/lib/Reader';
 export interface Html<dom, msg> extends Reader<platform.Dispatch<msg>, dom> {
 }
 export interface Renderer<dom> {
-    render(dom: dom): void;
+    (dom: dom): void;
 }
 export interface Program<model, msg, dom> extends platform.Program<model, msg> {
     html$: Observable<Html<dom, msg>>;
