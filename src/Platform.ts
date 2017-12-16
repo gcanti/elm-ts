@@ -8,7 +8,9 @@ import 'rxjs/add/operator/startWith'
 import { Cmd } from './Cmd'
 import { Sub, none } from './Sub'
 
-export type Dispatch<msg> = (msg: msg) => void
+export interface Dispatch<msg> {
+  (msg: msg): void
+}
 
 export interface Program<model, msg> {
   dispatch: Dispatch<msg>

@@ -6,7 +6,9 @@ import 'rxjs/add/operator/share';
 import 'rxjs/add/operator/startWith';
 import { Cmd } from './Cmd';
 import { Sub } from './Sub';
-export declare type Dispatch<msg> = (msg: msg) => void;
+export interface Dispatch<msg> {
+    (msg: msg): void;
+}
 export interface Program<model, msg> {
     dispatch: Dispatch<msg>;
     cmd$: Cmd<msg>;
