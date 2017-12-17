@@ -22,14 +22,13 @@
   },
   "homepage": "https://github.com/gcanti/elm-ts",
   "dependencies": {
-    "axios": "0.17.1",
+    "axios": "^0.17.1",
     "fp-ts": "^0.6.4",
-    "history": "4.7.2",
+    "history": "^4.7.2",
     "io-ts": "^0.9.1",
-    "monocle-ts": "^0.5.2",
-    "react": "16.2.0",
-    "react-dom": "16.2.0",
-    "rxjs": "5.5.4",
+    "react": "^16.2.0",
+    "react-dom": "^16.2.0",
+    "rxjs": "^5.5.4",
     "@types/history": "4.6.2"
   },
   "devDependencies": {
@@ -41,6 +40,7 @@
     "awesome-typescript-loader": "3.4.1",
     "blessed": "^0.1.81",
     "mocha": "3.2.0",
+    "monocle-ts": "^0.5.2",
     "prettier": "1.9.1",
     "react-blessed": "^0.2.1",
     "ts-node": "3.3.0",
