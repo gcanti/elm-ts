@@ -16,6 +16,10 @@ const main = React.program(component.init, component.update, component.view)
 React.run(main, dom => render(dom, document.getElementById('app')!))
 ```
 
+# Todomvc implementation
+
+[elm-ts-todomvc](https://github.com/gcanti/elm-ts-todomvc)
+
 # Examples
 
 * [Counter](examples/Counter.tsx)
