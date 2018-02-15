@@ -4,7 +4,7 @@ import { Option, none } from 'fp-ts/lib/Option'
 import { Either, left } from 'fp-ts/lib/Either'
 import { Task } from 'fp-ts/lib/Task'
 import { Time } from './Time'
-import { Decoder, JSON } from './Decode'
+import { Decoder, mixed } from './Decode'
 import { Cmd } from './Cmd'
 import { attempt } from './Task'
 import { identity } from 'fp-ts/lib/function'
@@ -21,7 +21,7 @@ export type Request<a> = {
   withCredentials: boolean
 }
 
-export type Expect<a> = (value: JSON) => Either<string, a>
+export type Expect<a> = (value: mixed) => Either<string, a>
 
 export function expectJson<a>(decoder: Decoder<a>): Expect<a> {
   return decoder.decode
@@ -106,7 +106,7 @@ function requestToTask<a>(req: Request<a>): Task<Either<HttpError, a>> {
       headers: req.headers,
       url: req.url,
       data: req.body,
-      timeout: req.timeout.fold(() => undefined, identity),
+      timeout: req.timeout.fold(undefined, identity),
       withCredentials: req.withCredentials
     })
       .then(res => axiosResponseToEither(res, req.expect))

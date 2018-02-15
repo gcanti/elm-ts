@@ -1,13 +1,13 @@
 {
   "name": "elm-ts",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "A porting of TEA to TypeScript featuring fp-ts, io-ts, monocle-ts, rxjs5 and React",
   "files": ["lib"],
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
   "scripts": {
     "lint": "tslint src/**/*.ts test/**/*.ts",
-    "mocha": "mocha -r ts-node/register test/*.ts",
+    "mocha": "TS_NODE_CACHE=false mocha -r ts-node/register test/*.ts",
     "test": "npm run lint && npm run mocha",
     "build": "rm -rf lib/* && tsc"
   },
@@ -23,13 +23,15 @@
   "homepage": "https://github.com/gcanti/elm-ts",
   "dependencies": {
     "axios": "^0.17.1",
-    "fp-ts": "^0.6.4",
+    "fp-ts": "^1.0.1",
     "history": "^4.7.2",
-    "io-ts": "^0.9.1",
-    "react": "^16.2.0",
-    "react-dom": "^16.2.0",
-    "rxjs": "^5.5.4",
-    "@types/history": "4.6.2"
+    "io-ts": "^1.0.2",
+    "react": "^16.0.0",
+    "react-dom": "^16.0.0",
+    "rxjs": "^5.5.4"
+  },
+  "peerDependencies": {
+    "@types/history": "^4.6.2"
   },
   "devDependencies": {
     "@types/blessed": "^0.1.8",

@@ -65,7 +65,7 @@ export function view(model: Model): Html<Msg> {
   return new Reader(dispatch => (
     <div>
       <h2>{model.topic}</h2>
-      {model.gifUrl.fold(
+      {model.gifUrl.foldL(
         () => <span>loading...</span>,
         e => e.fold(error => <span>Error: {error._tag}</span>, gifUrl => <img src={gifUrl} />)
       )}
