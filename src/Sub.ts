@@ -9,4 +9,4 @@ export function batch<msg>(arr: Array<Sub<msg>>): Sub<msg> {
   return Observable.merge(...arr)
 }
 
-export const none: Sub<any> = Observable.empty()
+export const none: Sub<never> = Observable.empty()

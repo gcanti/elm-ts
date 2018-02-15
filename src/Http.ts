@@ -15,7 +15,7 @@ export type Request<a> = {
   method: Method
   headers: { [key: string]: string }
   url: string
-  body?: any
+  body?: mixed
   expect: Expect<a>
   timeout: Option<Time>
   withCredentials: boolean
@@ -71,7 +71,7 @@ function axiosResponseToResponse(res: AxiosResponse): Response<string> {
       message: res.statusText
     },
     headers: res.headers,
-    body: (res as any).request.responseText
+    body: res.request.responseText
   }
 }
 
@@ -83,8 +83,9 @@ function axiosErrorToEither<a>(e: Error | { response: AxiosResponse }): Either<H
   if (e instanceof Error) {
     if ((e as any).code === 'ECONNABORTED') {
       return left(new Timeout())
+    } else {
+      return left(new NetworkError(e.message))
     }
-    return left(new NetworkError(e.message))
   }
   const res = e.response
   switch (res.status) {
@@ -96,7 +97,7 @@ function axiosErrorToEither<a>(e: Error | { response: AxiosResponse }): Either<H
 }
 
 function getPromiseAxiosResponse(config: AxiosRequestConfig): Promise<AxiosResponse> {
-  return axios(config) as any
+  return axios(config)
 }
 
 function requestToTask<a>(req: Request<a>): Task<Either<HttpError, a>> {
@@ -130,7 +131,7 @@ export function get<a>(url: string, decoder: Decoder<a>): Request<a> {
   }
 }
 
-export function post<a>(url: string, body: any, decoder: Decoder<a>): Request<a> {
+export function post<a>(url: string, body: mixed, decoder: Decoder<a>): Request<a> {
   return {
     method: 'POST',
     headers: {},
