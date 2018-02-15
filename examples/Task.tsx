@@ -50,7 +50,7 @@ const displayLoading = () => 'loading...'
 export function view(model: Model): Html<Msg> {
   return new Reader(dispatch => (
     <div>
-      Time: {model.fold(displayLoading, displayTime)}
+      Time: {model.foldL(displayLoading, displayTime)}
       <button onClick={() => dispatch({ type: 'Click' })}>New time</button>
     </div>
   ))
