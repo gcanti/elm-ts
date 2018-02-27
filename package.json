@@ -9,7 +9,9 @@
     "lint": "tslint src/**/*.ts test/**/*.ts",
     "mocha": "TS_NODE_CACHE=false mocha -r ts-node/register test/*.ts",
     "test": "npm run lint && npm run mocha",
-    "build": "rm -rf lib/* && tsc"
+    "build": "rm -rf lib/* && tsc",
+    "fix-prettier":
+      "prettier --no-semi --single-quote --print-width 120 --parser typescript --write \"{src,test}/**/*.ts\""
   },
   "repository": {
     "type": "git",
@@ -43,7 +45,7 @@
     "blessed": "^0.1.81",
     "mocha": "3.2.0",
     "monocle-ts": "^0.5.2",
-    "prettier": "1.9.1",
+    "prettier": "^1.11.0",
     "react-blessed": "^0.2.1",
     "ts-node": "3.3.0",
     "tslint": "4.4.2",
