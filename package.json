@@ -37,6 +37,7 @@
   },
   "devDependencies": {
     "@types/blessed": "^0.1.8",
+    "@types/history": "^4.6.2",
     "@types/mocha": "2.2.40",
     "@types/node": "7.0.8",
     "@types/react": "16.0.27",
