@@ -1,8 +1,10 @@
 {
   "name": "elm-ts",
-  "version": "0.3.0",
-  "description": "A porting of TEA to TypeScript featuring fp-ts, io-ts, monocle-ts, rxjs5 and React",
-  "files": ["lib"],
+  "version": "0.3.1",
+  "description": "A porting of TEA to TypeScript featuring fp-ts, io-ts, rxjs5 and React",
+  "files": [
+    "lib"
+  ],
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
   "scripts": {
@@ -10,8 +12,7 @@
     "mocha": "TS_NODE_CACHE=false mocha -r ts-node/register test/*.ts",
     "test": "npm run lint && npm run mocha",
     "build": "rm -rf lib/* && tsc",
-    "fix-prettier":
-      "prettier --no-semi --single-quote --print-width 120 --parser typescript --write \"{src,test}/**/*.ts\""
+    "fix-prettier": "prettier --no-semi --single-quote --print-width 120 --parser typescript --write \"{src,test}/**/*.ts\""
   },
   "repository": {
     "type": "git",
@@ -36,24 +37,32 @@
     "@types/history": "^4.6.2"
   },
   "devDependencies": {
-    "@types/blessed": "^0.1.8",
-    "@types/history": "^4.6.2",
+    "@types/blessed": "0.1.8",
+    "@types/history": "4.6.2",
     "@types/mocha": "2.2.40",
     "@types/node": "7.0.8",
     "@types/react": "16.0.27",
     "@types/react-dom": "16.0.3",
     "awesome-typescript-loader": "3.4.1",
-    "blessed": "^0.1.81",
+    "blessed": "0.1.81",
     "mocha": "3.2.0",
     "monocle-ts": "^0.5.2",
-    "prettier": "^1.11.0",
+    "prettier": "^1.13.4",
     "react-blessed": "^0.2.1",
     "ts-node": "3.3.0",
     "tslint": "4.4.2",
     "tslint-config-standard": "4.0.0",
-    "typescript": "2.6.2",
+    "typescript": "^2.8.3",
     "webpack": "3.10.0"
   },
-  "tags": ["typescript", "elm", "fp-ts"],
-  "keywords": ["typescript", "elm", "fp-ts"]
+  "tags": [
+    "typescript",
+    "elm",
+    "fp-ts"
+  ],
+  "keywords": [
+    "typescript",
+    "elm",
+    "fp-ts"
+  ]
 }

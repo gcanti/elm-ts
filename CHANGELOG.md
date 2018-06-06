@@ -2,21 +2,26 @@
 
 > **Tags:**
 >
-> * [New Feature]
-> * [Bug Fix]
-> * [Breaking Change]
-> * [Documentation]
-> * [Internal]
-> * [Polish]
-> * [Experimental]
+> - [New Feature]
+> - [Bug Fix]
+> - [Breaking Change]
+> - [Documentation]
+> - [Internal]
+> - [Polish]
+> - [Experimental]
 
 **Note**: Gaps between patch versions are faulty/broken releases. **Note**: A feature tagged as Experimental is in a
 high state of flux, you're at risk of it changing without notice.
 
+# 0.3.1
+
+- **Bug Fix**
+  - call subscriptions with initial model, fix #10 (@minedeljkovic)
+
 # 0.3.0
 
-* **Breaking Change**
-  * upgrade to `fp-ts@1.x.x`, `io-ts@1.x.x` (@gcanti)
+- **Breaking Change**
+  - upgrade to `fp-ts@1.x.x`, `io-ts@1.x.x` (@gcanti)
 
 # 0.2.0
 
