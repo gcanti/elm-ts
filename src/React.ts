@@ -3,13 +3,14 @@ import { ReactElement } from 'react'
 import { Cmd } from './Cmd'
 import { Sub } from './Sub'
 import * as html from './Html'
-import { Reader } from 'fp-ts/lib/Reader'
-
-export { Reader }
 
 export type dom = ReactElement<any>
 
-export interface Html<msg> extends html.Html<dom, msg> {}
+export type Html<msg> = html.Html<dom, msg>
+
+export function map<a, msg>(f: (a: a) => msg, ha: Html<a>): Html<msg> {
+  return html.map(f, ha)
+}
 
 export interface Program<model, msg> extends html.Program<model, msg, dom> {}
 

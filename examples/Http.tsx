@@ -2,7 +2,7 @@ import * as React from 'react'
 import { Lens } from 'monocle-ts'
 import * as t from 'io-ts'
 import { cmd, http, decode } from '../src'
-import { Html, Reader } from '../src/React'
+import { Html } from '../src/React'
 import { Either } from 'fp-ts/lib/Either'
 import { Option, none, some } from 'fp-ts/lib/Option'
 
@@ -62,7 +62,7 @@ export function update(msg: Msg, model: Model): [Model, cmd.Cmd<Msg>] {
 }
 
 export function view(model: Model): Html<Msg> {
-  return new Reader(dispatch => (
+  return dispatch => (
     <div>
       <h2>{model.topic}</h2>
       {model.gifUrl.foldL(
@@ -71,5 +71,5 @@ export function view(model: Model): Html<Msg> {
       )}
       <button onClick={() => dispatch({ type: 'MorePlease' })}>New Gif</button>
     </div>
-  ))
+  )
 }
