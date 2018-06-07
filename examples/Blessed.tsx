@@ -1,5 +1,5 @@
 import * as cmd from '../src/Cmd'
-import { Html, Reader, program, run } from '../src/React'
+import { Html, program, run } from '../src/React'
 import * as React from 'react'
 import * as blessed from 'blessed'
 import { render } from 'react-blessed'
@@ -34,7 +34,7 @@ class App extends React.Component {
   }
 }
 export function view(model: Model): Html<Msg> {
-  return new Reader(dispatch => <App />)
+  return dispatch => <App />
 }
 
 // Creating our screen
