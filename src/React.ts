@@ -6,10 +6,10 @@ import * as html from './Html'
 
 export type dom = ReactElement<any>
 
-export type Html<msg> = html.Html<dom, msg>
+export interface Html<msg> extends html.Html<dom, msg> {}
 
-export function map<a, msg>(f: (a: a) => msg, ha: Html<a>): Html<msg> {
-  return html.map(f, ha)
+export function map<a, msg>(ha: Html<a>, f: (a: a) => msg): Html<msg> {
+  return html.map(ha, f)
 }
 
 export interface Program<model, msg> extends html.Program<model, msg, dom> {}

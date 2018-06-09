@@ -5,7 +5,7 @@ import 'rxjs/add/operator/map'
 
 export type Sub<msg> = Observable<msg>
 
-export function map<a, msg>(f: (a: a) => msg, sub: Sub<a>): Sub<msg> {
+export function map<a, msg>(sub: Sub<a>, f: (a: a) => msg): Sub<msg> {
   return sub.map(f)
 }
 

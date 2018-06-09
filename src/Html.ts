@@ -3,13 +3,15 @@ import { Cmd } from './Cmd'
 import { Sub, none } from './Sub'
 import * as platform from './Platform'
 
-export type Html<dom, msg> = (dispatch: platform.Dispatch<msg>) => dom
+export interface Html<dom, msg> {
+  (dispatch: platform.Dispatch<msg>): dom
+}
 
 export interface Renderer<dom> {
   (dom: dom): void
 }
 
-export function map<dom, a, msg>(f: (a: a) => msg, ha: Html<dom, a>): Html<dom, msg> {
+export function map<dom, a, msg>(ha: Html<dom, a>, f: (a: a) => msg): Html<dom, msg> {
   return dispatch => ha(a => dispatch(f(a)))
 }
 
