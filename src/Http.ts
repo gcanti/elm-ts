@@ -115,8 +115,8 @@ function requestToTask<a>(req: Request<a>): Task<Either<HttpError, a>> {
   )
 }
 
-export function send<a, msg>(f: (e: Either<HttpError, a>) => msg, req: Request<a>): Cmd<msg> {
-  return attempt(f, requestToTask(req))
+export function send<a, msg>(req: Request<a>, f: (e: Either<HttpError, a>) => msg): Cmd<msg> {
+  return attempt(requestToTask(req), f)
 }
 
 export function get<a>(url: string, decoder: Decoder<a>): Request<a> {

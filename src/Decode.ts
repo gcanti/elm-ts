@@ -12,7 +12,7 @@ export function decodeJSON<a>(decoder: Decoder<a>, value: mixed): Either<string,
   return decoder.decode(value)
 }
 
-export function map<a, b>(f: (a: a) => b, fa: Decoder<a>): Decoder<b> {
+export function map<a, b>(fa: Decoder<a>, f: (a: a) => b): Decoder<b> {
   return {
     decode: value => fa.decode(value).map(f)
   }

@@ -48,7 +48,7 @@ const decoder = decode.fromType(ApiPayloadSchema)
 function getRandomGif(topic: string): cmd.Cmd<Msg> {
   const url = `https://api.giphy.com/v1/gifs/random?api_key=dc6zaTOxFJmzC&tag=${topic}`
   const req = http.get(url, decoder)
-  return http.send(e => newGif(e.map(a => a.data.image_url)), req)
+  return http.send(req, e => newGif(e.map(a => a.data.image_url)))
 }
 
 export function update(msg: Msg, model: Model): [Model, cmd.Cmd<Msg>] {

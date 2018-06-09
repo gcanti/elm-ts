@@ -11,7 +11,7 @@ export { Task }
 
 const sequenceTasks = seq(task, array)
 
-export function perform<a, msg>(f: (a: a) => msg, task: Task<a>): Cmd<msg> {
+export function perform<a, msg>(task: Task<a>, f: (a: a) => msg): Cmd<msg> {
   return Observable.of(task.map(a => some(f(a))))
 }
 
@@ -19,6 +19,6 @@ export function sequence<a>(tasks: Array<Task<a>>): Task<Array<a>> {
   return sequenceTasks(tasks)
 }
 
-export function attempt<e, a, msg>(f: (e: Either<e, a>) => msg, task: Task<Either<e, a>>): Cmd<msg> {
-  return perform(f, task)
+export function attempt<e, a, msg>(task: Task<Either<e, a>>, f: (e: Either<e, a>) => msg): Cmd<msg> {
+  return perform(task, f)
 }

@@ -12,7 +12,7 @@ export type Flags = void
 export const flags: Flags = undefined
 
 export function init(flags: Flags): [Model, cmd.Cmd<Msg>] {
-  return [none, perform(newTime, now())]
+  return [none, perform(now(), newTime)]
 }
 
 export type NewTime = { type: 'NewTime'; time: Time }
@@ -35,7 +35,7 @@ function delay<A>(n: number, task: Task<A>): Task<A> {
 export function update(msg: Msg, model: Model): [Model, cmd.Cmd<Msg>] {
   switch (msg.type) {
     case 'Click':
-      return [none, perform(newTime, delay(1000, now()))]
+      return [none, perform(delay(1000, now()), newTime)]
     case 'NewTime':
       return [some(msg.time), cmd.none]
   }

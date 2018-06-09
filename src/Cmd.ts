@@ -7,7 +7,7 @@ import { Option } from 'fp-ts/lib/Option'
 
 export type Cmd<msg> = Observable<Task<Option<msg>>>
 
-export function map<a, msg>(f: (a: a) => msg, cmd: Cmd<a>): Cmd<msg> {
+export function map<a, msg>(cmd: Cmd<a>, f: (a: a) => msg): Cmd<msg> {
   return cmd.map(task => task.map(option => option.map(f)))
 }
 
