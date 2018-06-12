@@ -13,6 +13,20 @@
 **Note**: Gaps between patch versions are faulty/broken releases. **Note**: A feature tagged as Experimental is in a
 high state of flux, you're at risk of it changing without notice.
 
+# 0.4.0
+
+- **Breaking Change**
+  - remove `Reader` from `Html` signature (@minedeljkovic)
+  - swap `Cmd.map` arguments (@minedeljkovic)
+  - swap `Decoder.map` arguments (@minedeljkovic)
+  - swap `Http.send` arguments (@minedeljkovic)
+  - swap `Task.perform` arguments (@minedeljkovic)
+  - swap `Task.attempt` arguments (@minedeljkovic)
+- **New Feature**
+  - add `Html.map` function (@minedeljkovic)
+  - add `React.map` function (@minedeljkovic)
+  - add `Sub.map` function (@minedeljkovic)
+
 # 0.3.1
 
 - **Bug Fix**

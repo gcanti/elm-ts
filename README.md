@@ -1,9 +1,9 @@
 # Differences from Elm
 
-* no ports
-* decoders are derived from [io-ts](https://github.com/gcanti/io-ts) types
-* React instead of virtual-dom (pluggable)
-* `Navigation` is based on [history](https://github.com/ReactTraining/history)
+- no ports
+- decoders are derived from [io-ts](https://github.com/gcanti/io-ts) types
+- `react` instead of `virtual-dom` (pluggable)
+- `Navigation` is based on [history](https://github.com/ReactTraining/history)
 
 # React
 
@@ -22,8 +22,8 @@ React.run(main, dom => render(dom, document.getElementById('app')!))
 
 # Examples
 
-* [Counter](examples/Counter.tsx)
-* [Labeled Checkboxes (with a sprinkle of functional optics)](examples/LabeledCheckboxes.tsx)
-* [Task, Time and Option](examples/Task.tsx)
-* [Http and Either](examples/Http.tsx)
-* [Navigation](examples/Navigation.tsx)
+- [Counter](examples/Counter.tsx)
+- [Labeled Checkboxes (with a sprinkle of functional optics)](examples/LabeledCheckboxes.tsx)
+- [Task, Time and Option](examples/Task.tsx)
+- [Http and Either](examples/Http.tsx)
+- [Navigation](examples/Navigation.tsx)
