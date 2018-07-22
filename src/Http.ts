@@ -100,7 +100,7 @@ function getPromiseAxiosResponse(config: AxiosRequestConfig): Promise<AxiosRespo
   return axios(config)
 }
 
-function requestToTask<a>(req: Request<a>): Task<Either<HttpError, a>> {
+export function requestToTask<a>(req: Request<a>): Task<Either<HttpError, a>> {
   return new Task(() =>
     getPromiseAxiosResponse({
       method: req.method,
