@@ -1,5 +1,5 @@
 import { Either } from 'fp-ts/lib/Either'
-import { Type, mixed } from 'io-ts'
+import { mixed, Type } from 'io-ts'
 import { failure } from 'io-ts/lib/PathReporter'
 
 export type mixed = mixed

@@ -1,17 +1,16 @@
-import axios from 'axios'
-import { AxiosResponse, AxiosRequestConfig } from 'axios'
-import { Option, none } from 'fp-ts/lib/Option'
+import axios, { AxiosRequestConfig, AxiosResponse } from 'axios'
 import { Either, left } from 'fp-ts/lib/Either'
-import { Task } from 'fp-ts/lib/Task'
-import { Time } from './Time'
-import { Decoder, mixed } from './Decode'
-import { Cmd } from './Cmd'
-import { attempt } from './Task'
 import { identity } from 'fp-ts/lib/function'
+import { none, Option } from 'fp-ts/lib/Option'
+import { Task } from 'fp-ts/lib/Task'
+import { Cmd } from './Cmd'
+import { Decoder, mixed } from './Decode'
+import { attempt } from './Task'
+import { Time } from './Time'
 
 export type Method = 'GET' | 'POST' | 'PUT' | 'DELETE'
 
-export type Request<a> = {
+export interface Request<a> {
   method: Method
   headers: { [key: string]: string }
   url: string
@@ -21,7 +20,9 @@ export type Request<a> = {
   withCredentials: boolean
 }
 
-export type Expect<a> = (value: mixed) => Either<string, a>
+export interface Expect<a> {
+  (value: mixed): Either<string, a>
+}
 
 export function expectJson<a>(decoder: Decoder<a>): Expect<a> {
   return decoder.decode
@@ -53,7 +54,7 @@ export class BadPayload {
 
 export type HttpError = BadUrl | Timeout | NetworkError | BadStatus | BadPayload
 
-export type Response<body> = {
+export interface Response<body> {
   url: string
   status: {
     code: number

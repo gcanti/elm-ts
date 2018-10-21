@@ -1,10 +1,11 @@
-import { Observable } from 'rxjs/Observable'
 import { ReactElement } from 'react'
+import { Observable } from 'rxjs'
 import { Cmd } from './Cmd'
-import { Sub } from './Sub'
 import * as html from './Html'
+import { Sub } from './Sub'
 
-export type dom = ReactElement<any>
+// tslint:disable-next-line:class-name
+export interface dom extends ReactElement<any> {}
 
 export interface Html<msg> extends html.Html<dom, msg> {}
 

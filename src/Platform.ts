@@ -1,12 +1,7 @@
-import { Observable } from 'rxjs/Observable'
-import { BehaviorSubject } from 'rxjs/BehaviorSubject'
-import 'rxjs/add/operator/switchMap'
-import 'rxjs/add/operator/mergeAll'
-import 'rxjs/add/operator/distinctUntilChanged'
-import 'rxjs/add/operator/share'
-import 'rxjs/add/operator/startWith'
+import { BehaviorSubject, Observable } from 'rxjs'
+import { distinctUntilChanged, map, mergeAll, share, startWith, switchMap } from 'rxjs/operators'
 import { Cmd } from './Cmd'
-import { Sub, none } from './Sub'
+import { none, Sub } from './Sub'
 
 export interface Dispatch<msg> {
   (msg: msg): void
@@ -33,16 +28,21 @@ export function program<model, msg>(
   subscriptions: (model: model) => Sub<msg> = () => none
 ): Program<model, msg> {
   const state$ = new BehaviorSubject(init)
-  const dispatch: Dispatch<msg> = msg => state$.next(update(msg, state$.value[0]))
-  const cmd$ = state$
-    .distinctUntilChanged(cmdCompare)
-    .map(state => state[1])
-    .mergeAll()
-  const model$ = state$
-    .distinctUntilChanged(modelCompare)
-    .map(state => state[0])
-    .share()
-  const sub$ = model$.startWith(init[0]).switchMap(model => subscriptions(model))
+  const dispatch: Dispatch<msg> = msg => state$.next(update(msg, state$.getValue()[0]))
+  const cmd$ = state$.pipe(
+    distinctUntilChanged(cmdCompare),
+    map(state => state[1]),
+    mergeAll()
+  )
+  const model$ = state$.pipe(
+    distinctUntilChanged(modelCompare),
+    map(state => state[0]),
+    share()
+  )
+  const sub$ = model$.pipe(
+    startWith(init[0]),
+    switchMap(model => subscriptions(model))
+  )
   return { dispatch, cmd$, sub$, model$ }
 }
 

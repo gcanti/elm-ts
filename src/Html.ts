@@ -1,7 +1,8 @@
-import { Observable } from 'rxjs/Observable'
+import { Observable } from 'rxjs'
+import { map as rxjsMap } from 'rxjs/operators'
 import { Cmd } from './Cmd'
-import { Sub, none } from './Sub'
 import * as platform from './Platform'
+import { none, Sub } from './Sub'
 
 export interface Html<dom, msg> {
   (dispatch: platform.Dispatch<msg>): dom
@@ -26,7 +27,7 @@ export function program<model, msg, dom>(
   subscriptions: (model: model) => Sub<msg> = () => none
 ): Program<model, msg, dom> {
   const { dispatch, cmd$, sub$, model$ } = platform.program(init, update, subscriptions)
-  const html$ = model$.map(model => view(model))
+  const html$ = model$.pipe(rxjsMap(view))
   return { dispatch, cmd$, sub$, model$, html$ }
 }
 
