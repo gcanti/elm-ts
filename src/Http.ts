@@ -1,5 +1,5 @@
 import axios from 'axios'
-import { AxiosResponse, AxiosRequestConfig } from 'axios'
+import { AxiosResponse, AxiosRequestConfig, AxiosError } from 'axios'
 import { Option, none } from 'fp-ts/lib/Option'
 import { Either, left } from 'fp-ts/lib/Either'
 import { Task } from 'fp-ts/lib/Task'
@@ -79,8 +79,8 @@ function axiosResponseToEither<a>(res: AxiosResponse, expect: Expect<a>): Either
   return expect(res.data).mapLeft(errors => new BadPayload(errors, axiosResponseToResponse(res)))
 }
 
-function axiosErrorToEither<a>(e: Error | { response: AxiosResponse }): Either<HttpError, a> {
-  if ('response' in e) {
+function axiosErrorToEither<a>(e: AxiosError): Either<HttpError, a> {
+  if (e.response != null) {
     const res = e.response
     switch (res.status) {
       case 404:
@@ -90,7 +90,7 @@ function axiosErrorToEither<a>(e: Error | { response: AxiosResponse }): Either<H
     }
   }
 
-  if ((e as any).code === 'ECONNABORTED') {
+  if (e.code === 'ECONNABORTED') {
     return left(new Timeout())
   } else {
     return left(new NetworkError(e.message))
