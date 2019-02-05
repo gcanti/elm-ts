@@ -80,19 +80,20 @@ function axiosResponseToEither<a>(res: AxiosResponse, expect: Expect<a>): Either
 }
 
 function axiosErrorToEither<a>(e: Error | { response: AxiosResponse }): Either<HttpError, a> {
-  if (e instanceof Error) {
-    if ((e as any).code === 'ECONNABORTED') {
-      return left(new Timeout())
-    } else {
-      return left(new NetworkError(e.message))
+  if ('response' in e) {
+    const res = e.response
+    switch (res.status) {
+      case 404:
+        return left(new BadUrl(res.config.url!))
+      default:
+        return left(new BadStatus(axiosResponseToResponse(res)))
     }
   }
-  const res = e.response
-  switch (res.status) {
-    case 404:
-      return left(new BadUrl(res.config.url!))
-    default:
-      return left(new BadStatus(axiosResponseToResponse(res)))
+
+  if ((e as any).code === 'ECONNABORTED') {
+    return left(new Timeout())
+  } else {
+    return left(new NetworkError(e.message))
   }
 }
 
