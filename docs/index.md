@@ -1,3 +1,10 @@
+---
+title: Home
+nav_order: 1
+---
+
+A porting to TypeScript featuring fp-ts, io-ts, rxjs5 and React
+
 # Differences from Elm
 
 - no ports
@@ -19,15 +26,3 @@ React.run(main, dom => render(dom, document.getElementById('app')!))
 # Todomvc implementation
 
 [elm-ts-todomvc](https://github.com/gcanti/elm-ts-todomvc)
-
-# Examples
-
-- [Counter](examples/Counter.tsx)
-- [Labeled Checkboxes (with a sprinkle of functional optics)](examples/LabeledCheckboxes.tsx)
-- [Task, Time and Option](examples/Task.tsx)
-- [Http and Either](examples/Http.tsx)
-- [Navigation](examples/Navigation.tsx)
-
-# Documentation
-
-- [API Reference](https://gcanti.github.io/elm-ts)
