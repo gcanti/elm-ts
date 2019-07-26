@@ -9,10 +9,20 @@ parent: Modules
 <h2 class="text-delta">Table of contents</h2>
 
 - [Decoder (interface)](#decoder-interface)
-- [mixed (type alias)](#mixed-type-alias)
-- [decodeJSON (function)](#decodejson-function)
-- [fromType (function)](#fromtype-function)
-- [map (function)](#map-function)
+- [URI (type alias)](#uri-type-alias)
+- [URI (constant)](#uri-constant)
+- [decoder (constant)](#decoder-constant)
+- [left (constant)](#left-constant)
+- [orElse (constant)](#orelse-constant)
+- [right (constant)](#right-constant)
+- [alt (export)](#alt-export)
+- [ap (export)](#ap-export)
+- [apFirst (export)](#apfirst-export)
+- [apSecond (export)](#apsecond-export)
+- [chain (export)](#chain-export)
+- [chainFirst (export)](#chainfirst-export)
+- [flatten (export)](#flatten-export)
+- [map (export)](#map-export)
 
 ---
 
@@ -21,39 +31,147 @@ parent: Modules
 **Signature**
 
 ```ts
-export interface Decoder<a> {
-  decode: (value: mixed) => Either<string, a>
-}
+export interface Decoder<A> extends RE.ReaderEither<unknown, string, A> {}
 ```
 
-# mixed (type alias)
+Added in v0.5.0
+
+# URI (type alias)
 
 **Signature**
 
 ```ts
-export type mixed = mixed
+export type URI = typeof URI
 ```
 
-# decodeJSON (function)
+Added in v0.5.0
+
+# URI (constant)
 
 **Signature**
 
 ```ts
-export function decodeJSON<a>(decoder: Decoder<a>, value: mixed): Either<string, a> { ... }
+export const URI: "Decoder" = ...
 ```
 
-# fromType (function)
+Added in v0.5.0
+
+# decoder (constant)
 
 **Signature**
 
 ```ts
-export function fromType<a>(type: Type<a, any, mixed>): Decoder<a> { ... }
+export const decoder: Monad1<URI> & Alternative1<URI> = ...
 ```
 
-# map (function)
+Added in v0.5.0
+
+# left (constant)
 
 **Signature**
 
 ```ts
-export function map<a, b>(fa: Decoder<a>, f: (a: a) => b): Decoder<b> { ... }
+export const left: <A = ...
 ```
+
+Added in v0.5.0
+
+# orElse (constant)
+
+**Signature**
+
+```ts
+export const orElse: <A>(f: (e: string) => Decoder<A>) => (ma: Decoder<A>) => Decoder<A> = ...
+```
+
+Added in v0.5.0
+
+# right (constant)
+
+**Signature**
+
+```ts
+export const right: <A>(a: A) => Decoder<A> = ...
+```
+
+Added in v0.5.0
+
+# alt (export)
+
+**Signature**
+
+```ts
+<A>(that: () => Decoder<A>) => (fa: Decoder<A>) => Decoder<A>
+```
+
+Added in v0.5.0
+
+# ap (export)
+
+**Signature**
+
+```ts
+<A>(fa: Decoder<A>) => <B>(fab: Decoder<(a: A) => B>) => Decoder<B>
+```
+
+Added in v0.5.0
+
+# apFirst (export)
+
+**Signature**
+
+```ts
+<B>(fb: Decoder<B>) => <A>(fa: Decoder<A>) => Decoder<A>
+```
+
+Added in v0.5.0
+
+# apSecond (export)
+
+**Signature**
+
+```ts
+<B>(fb: Decoder<B>) => <A>(fa: Decoder<A>) => Decoder<B>
+```
+
+Added in v0.5.0
+
+# chain (export)
+
+**Signature**
+
+```ts
+<A, B>(f: (a: A) => Decoder<B>) => (ma: Decoder<A>) => Decoder<B>
+```
+
+Added in v0.5.0
+
+# chainFirst (export)
+
+**Signature**
+
+```ts
+<A, B>(f: (a: A) => Decoder<B>) => (ma: Decoder<A>) => Decoder<A>
+```
+
+Added in v0.5.0
+
+# flatten (export)
+
+**Signature**
+
+```ts
+<A>(mma: Decoder<Decoder<A>>) => Decoder<A>
+```
+
+Added in v0.5.0
+
+# map (export)
+
+**Signature**
+
+```ts
+<A, B>(f: (a: A) => B) => (fa: Decoder<A>) => Decoder<B>
+```
+
+Added in v0.5.0

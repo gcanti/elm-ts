@@ -1,16 +1,26 @@
-import { Observable } from 'rxjs/Observable'
-import 'rxjs/add/observable/merge'
-import 'rxjs/add/observable/empty'
-import 'rxjs/add/operator/map'
+import { EMPTY, merge, Observable } from 'rxjs'
+import * as Rx from 'rxjs/operators'
 
-export type Sub<msg> = Observable<msg>
+/**
+ * @since 0.5.0
+ */
+export interface Sub<Msg> extends Observable<Msg> {}
 
-export function map<a, msg>(sub: Sub<a>, f: (a: a) => msg): Sub<msg> {
-  return sub.map(f)
+/**
+ * @since 0.5.0
+ */
+export function map<A, Msg>(f: (a: A) => Msg): (sub: Sub<A>) => Sub<Msg> {
+  return sub => sub.pipe(Rx.map(f))
 }
 
-export function batch<msg>(arr: Array<Sub<msg>>): Sub<msg> {
-  return Observable.merge(...arr)
+/**
+ * @since 0.5.0
+ */
+export function batch<Msg>(arr: Array<Sub<Msg>>): Sub<Msg> {
+  return merge(...arr)
 }
 
-export const none: Sub<never> = Observable.empty()
+/**
+ * @since 0.5.0
+ */
+export const none: Sub<never> = EMPTY

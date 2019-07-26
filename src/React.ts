@@ -1,37 +1,58 @@
-import { Observable } from 'rxjs/Observable'
 import { ReactElement } from 'react'
+import { Observable } from 'rxjs'
 import { Cmd } from './Cmd'
-import { Sub } from './Sub'
 import * as html from './Html'
+import { Sub } from './Sub'
 
-export type dom = ReactElement<any>
+/**
+ * @since 0.5.0
+ */
+export interface Dom extends ReactElement<any> {}
 
-export interface Html<msg> extends html.Html<dom, msg> {}
+/**
+ * @since 0.5.0
+ */
+export interface Html<Msg> extends html.Html<Dom, Msg> {}
 
-export function map<a, msg>(ha: Html<a>, f: (a: a) => msg): Html<msg> {
-  return html.map(ha, f)
+/**
+ * @since 0.5.0
+ */
+export function map<A, Msg>(f: (a: A) => Msg): (ha: Html<A>) => Html<Msg> {
+  return html.map(f)
 }
 
-export interface Program<model, msg> extends html.Program<model, msg, dom> {}
+/**
+ * @since 0.5.0
+ */
+export interface Program<Model, Msg> extends html.Program<Model, Msg, Dom> {}
 
-export function program<model, msg>(
-  init: [model, Cmd<msg>],
-  update: (msg: msg, model: model) => [model, Cmd<msg>],
-  view: (model: model) => html.Html<dom, msg>,
-  subscriptions?: (model: model) => Sub<msg>
-): Program<model, msg> {
+/**
+ * @since 0.5.0
+ */
+export function program<Model, Msg>(
+  init: [Model, Cmd<Msg>],
+  update: (msg: Msg, model: Model) => [Model, Cmd<Msg>],
+  view: (model: Model) => html.Html<Dom, Msg>,
+  subscriptions?: (model: Model) => Sub<Msg>
+): Program<Model, Msg> {
   return html.program(init, update, view, subscriptions)
 }
 
-export function programWithFlags<flags, model, msg>(
-  init: (flags: flags) => [model, Cmd<msg>],
-  update: (msg: msg, model: model) => [model, Cmd<msg>],
-  view: (model: model) => html.Html<dom, msg>,
-  subscriptions?: (model: model) => Sub<msg>
-): (flags: flags) => Program<model, msg> {
+/**
+ * @since 0.5.0
+ */
+export function programWithFlags<Flags, Model, Msg>(
+  init: (flags: Flags) => [Model, Cmd<Msg>],
+  update: (msg: Msg, model: Model) => [Model, Cmd<Msg>],
+  view: (model: Model) => html.Html<Dom, Msg>,
+  subscriptions?: (model: Model) => Sub<Msg>
+): (flags: Flags) => Program<Model, Msg> {
   return flags => program(init(flags), update, view, subscriptions)
 }
 
-export function run<model, msg>(program: Program<model, msg>, renderer: html.Renderer<dom>): Observable<model> {
+/**
+ * @since 0.5.0
+ */
+export function run<Model, Msg>(program: Program<Model, Msg>, renderer: html.Renderer<Dom>): Observable<Model> {
   return html.run(program, renderer)
 }

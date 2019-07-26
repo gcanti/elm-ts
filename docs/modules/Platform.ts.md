@@ -21,52 +21,62 @@ parent: Modules
 **Signature**
 
 ```ts
-export interface Dispatch<msg> {
-  (msg: msg): void
+export interface Dispatch<Msg> {
+  (msg: Msg): void
 }
 ```
+
+Added in v0.5.0
 
 # Program (interface)
 
 **Signature**
 
 ```ts
-export interface Program<model, msg> {
-  dispatch: Dispatch<msg>
-  cmd$: Cmd<msg>
-  sub$: Sub<msg>
-  model$: Observable<model>
+export interface Program<Model, Msg> {
+  dispatch: Dispatch<Msg>
+  cmd$: Cmd<Msg>
+  sub$: Sub<Msg>
+  model$: Observable<Model>
 }
 ```
+
+Added in v0.5.0
 
 # program (function)
 
 **Signature**
 
 ```ts
-export function program<model, msg>(
-  init: [model, Cmd<msg>],
-  update: (msg: msg, model: model) => [model, Cmd<msg>],
-  subscriptions: (model: model) => Sub<msg> = () => none
-): Program<model, msg> { ... }
+export function program<Model, Msg>(
+  init: [Model, Cmd<Msg>],
+  update: (msg: Msg, model: Model) => [Model, Cmd<Msg>],
+  subscriptions: (model: Model) => Sub<Msg> = () => none
+): Program<Model, Msg> { ... }
 ```
+
+Added in v0.5.0
 
 # programWithFlags (function)
 
 **Signature**
 
 ```ts
-export function programWithFlags<flags, model, msg>(
-  init: (flags: flags) => [model, Cmd<msg>],
-  update: (msg: msg, model: model) => [model, Cmd<msg>],
-  subscriptions: (model: model) => Sub<msg> = () => none
-): (flags: flags) => Program<model, msg> { ... }
+export function programWithFlags<Flags, Model, Msg>(
+  init: (flags: Flags) => [Model, Cmd<Msg>],
+  update: (msg: Msg, model: Model) => [Model, Cmd<Msg>],
+  subscriptions: (model: Model) => Sub<Msg> = () => none
+): (flags: Flags) => Program<Model, Msg> { ... }
 ```
+
+Added in v0.5.0
 
 # run (function)
 
 **Signature**
 
 ```ts
-export function run<model, msg>(program: Program<model, msg>): Observable<model> { ... }
+export function run<Model, Msg>(program: Program<Model, Msg>): Observable<Model> { ... }
 ```
+
+Added in v0.5.0

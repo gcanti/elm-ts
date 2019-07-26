@@ -1,22 +1,19 @@
-import { Observable } from 'rxjs/Observable'
-import 'rxjs/add/observable/of'
-import 'rxjs/add/operator/map'
-import 'rxjs/add/operator/skip'
-import 'rxjs/add/operator/take'
-import { Subject } from 'rxjs/Subject'
-import { Task } from 'fp-ts/lib/Task'
-import { none as optionNone } from 'fp-ts/lib/Option'
+import * as O from 'fp-ts/lib/Option'
+import * as H from 'history'
+import { of, Subject } from 'rxjs'
+import { map } from 'rxjs/operators'
 import { Cmd } from './Cmd'
-import { Sub, none, batch } from './Sub'
 import * as html from './Html'
-import { Location as HistoryLocation } from 'history'
-import createHashHistory from 'history/createHashHistory'
+import { batch, none, Sub } from './Sub'
 
-const history = createHashHistory()
+const history = H.createHashHistory()
 
 const location$ = new Subject<Location>()
 
-export type Location = HistoryLocation
+/**
+ * @since 0.5.0
+ */
+export type Location = H.Location
 
 function getLocation(): Location {
   return history.location
@@ -26,33 +23,40 @@ history.listen(location => {
   location$.next(location)
 })
 
-export function push<msg>(url: string): Cmd<msg> {
-  return Observable.of(
-    new Task(() => {
-      history.push(url)
-      return Promise.resolve(optionNone)
-    })
-  )
+/**
+ * @since 0.5.0
+ */
+export function push<Msg>(url: string): Cmd<Msg> {
+  return of(() => {
+    history.push(url)
+    return Promise.resolve(O.none)
+  })
 }
 
-export function program<model, msg, dom>(
-  locationToMessage: (location: Location) => msg,
-  init: (location: Location) => [model, Cmd<msg>],
-  update: (msg: msg, model: model) => [model, Cmd<msg>],
-  view: (model: model) => html.Html<dom, msg>,
-  subscriptions: (model: model) => Sub<msg> = () => none
-): html.Program<model, msg, dom> {
-  const onChangeLocation$ = location$.map(location => locationToMessage(location))
-  const subs = (model: model): Sub<msg> => batch([subscriptions(model), onChangeLocation$])
+/**
+ * @since 0.5.0
+ */
+export function program<Model, Msg, Dom>(
+  locationToMessage: (location: Location) => Msg,
+  init: (location: Location) => [Model, Cmd<Msg>],
+  update: (msg: Msg, model: Model) => [Model, Cmd<Msg>],
+  view: (model: Model) => html.Html<Dom, Msg>,
+  subscriptions: (model: Model) => Sub<Msg> = () => none
+): html.Program<Model, Msg, Dom> {
+  const onChangeLocation$ = location$.pipe(map(location => locationToMessage(location)))
+  const subs = (model: Model): Sub<Msg> => batch([subscriptions(model), onChangeLocation$])
   return html.program(init(getLocation()), update, view, subs)
 }
 
-export function programWithFlags<flags, model, msg, dom>(
-  locationToMessage: (location: Location) => msg,
-  init: (flags: flags) => (location: Location) => [model, Cmd<msg>],
-  update: (msg: msg, model: model) => [model, Cmd<msg>],
-  view: (model: model) => html.Html<dom, msg>,
-  subscriptions: (model: model) => Sub<msg> = () => none
-): (flags: flags) => html.Program<model, msg, dom> {
-  return flags => program(locationToMessage, init(flags), update, view)
+/**
+ * @since 0.5.0
+ */
+export function programWithFlags<Flags, Model, Msg, Dom>(
+  locationToMessage: (location: Location) => Msg,
+  init: (flags: Flags) => (location: Location) => [Model, Cmd<Msg>],
+  update: (msg: Msg, model: Model) => [Model, Cmd<Msg>],
+  view: (model: Model) => html.Html<Dom, Msg>,
+  subscriptions: (model: Model) => Sub<Msg> = () => none
+): (flags: Flags) => html.Program<Model, Msg, Dom> {
+  return flags => program(locationToMessage, init(flags), update, view, subscriptions)
 }
