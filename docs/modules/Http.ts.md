@@ -8,17 +8,10 @@ parent: Modules
 
 <h2 class="text-delta">Table of contents</h2>
 
-- [Expect (type alias)](#expect-type-alias)
+- [Request (interface)](#request-interface)
 - [HttpError (type alias)](#httperror-type-alias)
 - [Method (type alias)](#method-type-alias)
-- [Request (type alias)](#request-type-alias)
 - [Response (type alias)](#response-type-alias)
-- [BadPayload (class)](#badpayload-class)
-- [BadStatus (class)](#badstatus-class)
-- [BadUrl (class)](#badurl-class)
-- [NetworkError (class)](#networkerror-class)
-- [Timeout (class)](#timeout-class)
-- [expectJson (function)](#expectjson-function)
 - [get (function)](#get-function)
 - [post (function)](#post-function)
 - [send (function)](#send-function)
@@ -26,21 +19,38 @@ parent: Modules
 
 ---
 
-# Expect (type alias)
+# Request (interface)
 
 **Signature**
 
 ```ts
-export type Expect<a> = (value: mixed) => Either<string, a>
+export interface Request<A> {
+  method: Method
+  headers: Record<string, string>
+  url: string
+  body?: unknown
+  expect: Decoder<A>
+  timeout: O.Option<number>
+  withCredentials: boolean
+}
 ```
+
+Added in v0.5.0
 
 # HttpError (type alias)
 
 **Signature**
 
 ```ts
-export type HttpError = BadUrl | Timeout | NetworkError | BadStatus | BadPayload
+export type HttpError =
+  | { readonly _tag: 'BadUrl'; readonly value: string }
+  | { readonly _tag: 'Timeout' }
+  | { readonly _tag: 'NetworkError'; readonly value: string }
+  | { readonly _tag: 'BadStatus'; readonly response: Response<string> }
+  | { readonly _tag: 'BadPayload'; readonly value: string; readonly response: Response<string> }
 ```
+
+Added in v0.5.0
 
 # Method (type alias)
 
@@ -50,97 +60,25 @@ export type HttpError = BadUrl | Timeout | NetworkError | BadStatus | BadPayload
 export type Method = 'GET' | 'POST' | 'PUT' | 'DELETE'
 ```
 
-# Request (type alias)
-
-**Signature**
-
-```ts
-export type Request<a> = {
-  method: Method
-  headers: { [key: string]: string }
-  url: string
-  body?: mixed
-  expect: Expect<a>
-  timeout: Option<Time>
-  withCredentials: boolean
-}
-```
+Added in v0.5.0
 
 # Response (type alias)
 
 **Signature**
 
 ```ts
-export type Response<body> = {
+export type Response<Body> = {
   url: string
   status: {
     code: number
     message: string
   }
-  headers: { [key: string]: string }
-  body: body
+  headers: Record<string, string>
+  body: Body
 }
 ```
 
-# BadPayload (class)
-
-**Signature**
-
-```ts
-export class BadPayload {
-  constructor(readonly value: string, readonly response: Response<string>) { ... }
-  ...
-}
-```
-
-# BadStatus (class)
-
-**Signature**
-
-```ts
-export class BadStatus {
-  constructor(readonly response: Response<string>) { ... }
-  ...
-}
-```
-
-# BadUrl (class)
-
-**Signature**
-
-```ts
-export class BadUrl {
-  constructor(readonly value: string) { ... }
-  ...
-}
-```
-
-# NetworkError (class)
-
-**Signature**
-
-```ts
-export class NetworkError {
-  constructor(readonly value: string) { ... }
-  ...
-}
-```
-
-# Timeout (class)
-
-**Signature**
-
-```ts
-export class Timeout { ... }
-```
-
-# expectJson (function)
-
-**Signature**
-
-```ts
-export function expectJson<a>(decoder: Decoder<a>): Expect<a> { ... }
-```
+Added in v0.5.0
 
 # get (function)
 
@@ -150,26 +88,34 @@ export function expectJson<a>(decoder: Decoder<a>): Expect<a> { ... }
 export function get<a>(url: string, decoder: Decoder<a>): Request<a> { ... }
 ```
 
+Added in v0.5.0
+
 # post (function)
 
 **Signature**
 
 ```ts
-export function post<a>(url: string, body: mixed, decoder: Decoder<a>): Request<a> { ... }
+export function post<a>(url: string, body: unknown, decoder: Decoder<a>): Request<a> { ... }
 ```
+
+Added in v0.5.0
 
 # send (function)
 
 **Signature**
 
 ```ts
-export function send<a, msg>(req: Request<a>, f: (e: Either<HttpError, a>) => msg): Cmd<msg> { ... }
+export function send<A, Msg>(f: (e: E.Either<HttpError, A>) => Msg): (req: Request<A>) => Cmd<Msg> { ... }
 ```
+
+Added in v0.5.0
 
 # toTask (function)
 
 **Signature**
 
 ```ts
-export function toTask<a>(req: Request<a>): Task<Either<HttpError, a>> { ... }
+export function toTask<A>(req: Request<A>): TaskEither<HttpError, A> { ... }
 ```
+
+Added in v0.5.0

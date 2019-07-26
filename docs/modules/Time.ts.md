@@ -8,32 +8,27 @@ parent: Modules
 
 <h2 class="text-delta">Table of contents</h2>
 
-- [Time (type alias)](#time-type-alias)
 - [every (function)](#every-function)
 - [now (function)](#now-function)
 
 ---
-
-# Time (type alias)
-
-**Signature**
-
-```ts
-export type Time = number
-```
 
 # every (function)
 
 **Signature**
 
 ```ts
-export function every<msg>(time: Time, f: (time: Time) => msg): Sub<msg> { ... }
+export function every<Msg>(time: number, f: (time: number) => Msg): Sub<Msg> { ... }
 ```
+
+Added in v0.5.0
 
 # now (function)
 
 **Signature**
 
 ```ts
-export function now(): Task<Time> { ... }
+export function now(): Task<number> { ... }
 ```
+
+Added in v0.5.0

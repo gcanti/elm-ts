@@ -1,7 +1,7 @@
 import * as assert from 'assert'
 import { some } from 'fp-ts/lib/Option'
 import { task } from 'fp-ts/lib/Task'
-import { Observable } from 'rxjs'
+import { EMPTY, Observable, of } from 'rxjs'
 import * as cmd from '../src/Cmd'
 import { program, run } from '../src/Platform'
 
@@ -16,7 +16,7 @@ const withModel = (model: Model): [Model, cmd.Cmd<Msg>] => [model, cmd.none]
 
 const withEffect = (model: Model, cmd: cmd.Cmd<Msg>): [Model, cmd.Cmd<Msg>] => [model, cmd]
 
-const dispatchFoo = Observable.of(task.of(some<Msg>({ type: 'FOO' })))
+const dispatchFoo = of(task.of(some<Msg>({ type: 'FOO' })))
 
 function update(msg: Msg, model: Model): [Model, cmd.Cmd<Msg>] {
   switch (msg.type) {
@@ -34,7 +34,7 @@ function update(msg: Msg, model: Model): [Model, cmd.Cmd<Msg>] {
 }
 
 function subscriptions(m: Model): Observable<Msg> {
-  return m.x === 'sub' ? Observable.of<Msg>({ type: 'LISTEN' }) : Observable.empty()
+  return m.x === 'sub' ? of<Msg>({ type: 'LISTEN' }) : EMPTY
 }
 
 const delayedAssert = (f: () => void, delay: number = 50): Promise<void> =>

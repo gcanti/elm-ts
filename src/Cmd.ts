@@ -1,18 +1,28 @@
-import { Observable } from 'rxjs/Observable'
-import 'rxjs/add/observable/merge'
-import 'rxjs/add/observable/empty'
-import 'rxjs/add/operator/map'
-import { Task } from 'fp-ts/lib/Task'
-import { Option } from 'fp-ts/lib/Option'
+import { Option, option } from 'fp-ts/lib/Option'
+import { Task, task } from 'fp-ts/lib/Task'
+import { EMPTY, merge, Observable } from 'rxjs'
+import * as Rx from 'rxjs/operators'
 
-export type Cmd<msg> = Observable<Task<Option<msg>>>
+/**
+ * @since 0.5.0
+ */
+export interface Cmd<Msg> extends Observable<Task<Option<Msg>>> {}
 
-export function map<a, msg>(cmd: Cmd<a>, f: (a: a) => msg): Cmd<msg> {
-  return cmd.map(task => task.map(option => option.map(f)))
+/**
+ * @since 0.5.0
+ */
+export function map<A, Msg>(f: (a: A) => Msg): (cmd: Cmd<A>) => Cmd<Msg> {
+  return cmd => cmd.pipe(Rx.map(t => task.map(t, o => option.map(o, f))))
 }
 
-export function batch<msg>(arr: Array<Cmd<msg>>): Cmd<msg> {
-  return Observable.merge(...arr)
+/**
+ * @since 0.5.0
+ */
+export function batch<Msg>(arr: Array<Cmd<Msg>>): Cmd<Msg> {
+  return merge(...arr)
 }
 
-export const none: Cmd<never> = Observable.empty()
+/**
+ * @since 0.5.0
+ */
+export const none: Cmd<never> = EMPTY

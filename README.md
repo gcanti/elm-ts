@@ -1,7 +1,6 @@
 # Differences from Elm
 
 - no ports
-- decoders are derived from [io-ts](https://github.com/gcanti/io-ts) types
 - `react` instead of `virtual-dom` (pluggable)
 - `Navigation` is based on [history](https://github.com/ReactTraining/history)
 
@@ -16,9 +15,19 @@ const main = React.program(component.init, component.update, component.view)
 React.run(main, dom => render(dom, document.getElementById('app')!))
 ```
 
-# Todomvc implementation
+# How to derive decoders from [io-ts](https://github.com/gcanti/io-ts) codecs
 
-[elm-ts-todomvc](https://github.com/gcanti/elm-ts-todomvc)
+```ts
+import * as t from 'io-ts'
+import { failure } from 'io-ts/lib/PathReporter'
+
+function fromCodec<A>(codec: t.Decoder<unknown, A>): Decoder<A> {
+  return flow(
+    codec.decode,
+    E.mapLeft(errors => failure(errors).join('\n'))
+  )
+}
+```
 
 # Examples
 

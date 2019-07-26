@@ -8,20 +8,22 @@ parent: Modules
 
 <h2 class="text-delta">Table of contents</h2>
 
-- [Sub (type alias)](#sub-type-alias)
+- [Sub (interface)](#sub-interface)
 - [none (constant)](#none-constant)
 - [batch (function)](#batch-function)
 - [map (function)](#map-function)
 
 ---
 
-# Sub (type alias)
+# Sub (interface)
 
 **Signature**
 
 ```ts
-export type Sub<msg> = Observable<msg>
+export interface Sub<Msg> extends Observable<Msg> {}
 ```
+
+Added in v0.5.0
 
 # none (constant)
 
@@ -31,18 +33,24 @@ export type Sub<msg> = Observable<msg>
 export const none: Sub<never> = ...
 ```
 
+Added in v0.5.0
+
 # batch (function)
 
 **Signature**
 
 ```ts
-export function batch<msg>(arr: Array<Sub<msg>>): Sub<msg> { ... }
+export function batch<Msg>(arr: Array<Sub<Msg>>): Sub<Msg> { ... }
 ```
+
+Added in v0.5.0
 
 # map (function)
 
 **Signature**
 
 ```ts
-export function map<a, msg>(sub: Sub<a>, f: (a: a) => msg): Sub<msg> { ... }
+export function map<A, Msg>(f: (a: A) => Msg): (sub: Sub<A>) => Sub<Msg> { ... }
 ```
+
+Added in v0.5.0

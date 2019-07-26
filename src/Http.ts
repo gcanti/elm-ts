@@ -1,66 +1,52 @@
-import axios from 'axios'
-import { AxiosResponse, AxiosRequestConfig, AxiosError } from 'axios'
-import { Option, none } from 'fp-ts/lib/Option'
-import { Either, left } from 'fp-ts/lib/Either'
-import { Task } from 'fp-ts/lib/Task'
-import { Time } from './Time'
-import { Decoder, mixed } from './Decode'
-import { Cmd } from './Cmd'
-import { attempt } from './Task'
+import axios, { AxiosError, AxiosRequestConfig, AxiosResponse } from 'axios'
+import * as E from 'fp-ts/lib/Either'
 import { identity } from 'fp-ts/lib/function'
+import * as O from 'fp-ts/lib/Option'
+import { pipe } from 'fp-ts/lib/pipeable'
+import { TaskEither } from 'fp-ts/lib/TaskEither'
+import { Cmd } from './Cmd'
+import { Decoder } from './Decode'
+import { attempt } from './Task'
 
+/**
+ * @since 0.5.0
+ */
 export type Method = 'GET' | 'POST' | 'PUT' | 'DELETE'
 
-export type Request<a> = {
+/**
+ * @since 0.5.0
+ */
+export interface Request<A> {
   method: Method
-  headers: { [key: string]: string }
+  headers: Record<string, string>
   url: string
-  body?: mixed
-  expect: Expect<a>
-  timeout: Option<Time>
+  body?: unknown
+  expect: Decoder<A>
+  timeout: O.Option<number>
   withCredentials: boolean
 }
 
-export type Expect<a> = (value: mixed) => Either<string, a>
+/**
+ * @since 0.5.0
+ */
+export type HttpError =
+  | { readonly _tag: 'BadUrl'; readonly value: string }
+  | { readonly _tag: 'Timeout' }
+  | { readonly _tag: 'NetworkError'; readonly value: string }
+  | { readonly _tag: 'BadStatus'; readonly response: Response<string> }
+  | { readonly _tag: 'BadPayload'; readonly value: string; readonly response: Response<string> }
 
-export function expectJson<a>(decoder: Decoder<a>): Expect<a> {
-  return decoder.decode
-}
-
-export class BadUrl {
-  readonly _tag: 'BadUrl' = 'BadUrl'
-  constructor(readonly value: string) {}
-}
-
-export class Timeout {
-  readonly _tag: 'Timeout' = 'Timeout'
-}
-
-export class NetworkError {
-  readonly _tag: 'NetworkError' = 'NetworkError'
-  constructor(readonly value: string) {}
-}
-
-export class BadStatus {
-  readonly _tag: 'BadStatus' = 'BadStatus'
-  constructor(readonly response: Response<string>) {}
-}
-
-export class BadPayload {
-  readonly _tag: 'BadPayload' = 'BadPayload'
-  constructor(readonly value: string, readonly response: Response<string>) {}
-}
-
-export type HttpError = BadUrl | Timeout | NetworkError | BadStatus | BadPayload
-
-export type Response<body> = {
+/**
+ * @since 0.5.0
+ */
+export type Response<Body> = {
   url: string
   status: {
     code: number
     message: string
   }
-  headers: { [key: string]: string }
-  body: body
+  headers: Record<string, string>
+  body: Body
 }
 
 function axiosResponseToResponse(res: AxiosResponse): Response<string> {
@@ -75,25 +61,33 @@ function axiosResponseToResponse(res: AxiosResponse): Response<string> {
   }
 }
 
-function axiosResponseToEither<a>(res: AxiosResponse, expect: Expect<a>): Either<HttpError, a> {
-  return expect(res.data).mapLeft(errors => new BadPayload(errors, axiosResponseToResponse(res)))
+function axiosResponseToEither<A>(res: AxiosResponse, expect: Decoder<A>): E.Either<HttpError, A> {
+  return pipe(
+    expect(res.data),
+    E.mapLeft(errors => ({
+      _tag: 'BadPayload',
+      value: errors,
+      response: axiosResponseToResponse(res)
+    }))
+  )
 }
 
-function axiosErrorToEither<a>(e: AxiosError): Either<HttpError, a> {
+function axiosErrorToEither<A>(e: AxiosError): E.Either<HttpError, A> {
+  // tslint:disable-next-line: strict-type-predicates
   if (e.response != null) {
     const res = e.response
     switch (res.status) {
       case 404:
-        return left(new BadUrl(res.config.url!))
+        return E.left({ _tag: 'BadUrl', value: res.config.url! })
       default:
-        return left(new BadStatus(axiosResponseToResponse(res)))
+        return E.left({ _tag: 'BadStatus', response: axiosResponseToResponse(res) })
     }
   }
 
   if (e.code === 'ECONNABORTED') {
-    return left(new Timeout())
+    return E.left({ _tag: 'Timeout' })
   } else {
-    return left(new NetworkError(e.message))
+    return E.left({ _tag: 'NetworkError', value: e.message })
   }
 }
 
@@ -101,45 +95,59 @@ function getPromiseAxiosResponse(config: AxiosRequestConfig): Promise<AxiosRespo
   return axios(config)
 }
 
-export function toTask<a>(req: Request<a>): Task<Either<HttpError, a>> {
-  return new Task(() =>
+/**
+ * @since 0.5.0
+ */
+export function toTask<A>(req: Request<A>): TaskEither<HttpError, A> {
+  return () =>
     getPromiseAxiosResponse({
       method: req.method,
       headers: req.headers,
       url: req.url,
       data: req.body,
-      timeout: req.timeout.fold(undefined, identity),
+      timeout: pipe(
+        req.timeout,
+        O.fold(() => undefined, identity)
+      ),
       withCredentials: req.withCredentials
     })
       .then(res => axiosResponseToEither(res, req.expect))
-      .catch(e => axiosErrorToEither<a>(e))
-  )
+      .catch(e => axiosErrorToEither<A>(e))
 }
 
-export function send<a, msg>(req: Request<a>, f: (e: Either<HttpError, a>) => msg): Cmd<msg> {
-  return attempt(toTask(req), f)
+/**
+ * @since 0.5.0
+ */
+export function send<A, Msg>(f: (e: E.Either<HttpError, A>) => Msg): (req: Request<A>) => Cmd<Msg> {
+  return req => attempt(f)(toTask(req))
 }
 
+/**
+ * @since 0.5.0
+ */
 export function get<a>(url: string, decoder: Decoder<a>): Request<a> {
   return {
     method: 'GET',
     headers: {},
     url,
     body: undefined,
-    expect: expectJson(decoder),
-    timeout: none,
+    expect: decoder,
+    timeout: O.none,
     withCredentials: false
   }
 }
 
-export function post<a>(url: string, body: mixed, decoder: Decoder<a>): Request<a> {
+/**
+ * @since 0.5.0
+ */
+export function post<a>(url: string, body: unknown, decoder: Decoder<a>): Request<a> {
   return {
     method: 'POST',
     headers: {},
     url,
     body,
-    expect: expectJson(decoder),
-    timeout: none,
+    expect: decoder,
+    timeout: O.none,
     withCredentials: false
   }
 }

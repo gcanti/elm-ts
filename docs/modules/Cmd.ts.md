@@ -8,20 +8,22 @@ parent: Modules
 
 <h2 class="text-delta">Table of contents</h2>
 
-- [Cmd (type alias)](#cmd-type-alias)
+- [Cmd (interface)](#cmd-interface)
 - [none (constant)](#none-constant)
 - [batch (function)](#batch-function)
 - [map (function)](#map-function)
 
 ---
 
-# Cmd (type alias)
+# Cmd (interface)
 
 **Signature**
 
 ```ts
-export type Cmd<msg> = Observable<Task<Option<msg>>>
+export interface Cmd<Msg> extends Observable<Task<Option<Msg>>> {}
 ```
+
+Added in v0.5.0
 
 # none (constant)
 
@@ -31,18 +33,24 @@ export type Cmd<msg> = Observable<Task<Option<msg>>>
 export const none: Cmd<never> = ...
 ```
 
+Added in v0.5.0
+
 # batch (function)
 
 **Signature**
 
 ```ts
-export function batch<msg>(arr: Array<Cmd<msg>>): Cmd<msg> { ... }
+export function batch<Msg>(arr: Array<Cmd<Msg>>): Cmd<Msg> { ... }
 ```
+
+Added in v0.5.0
 
 # map (function)
 
 **Signature**
 
 ```ts
-export function map<a, msg>(cmd: Cmd<a>, f: (a: a) => msg): Cmd<msg> { ... }
+export function map<A, Msg>(f: (a: A) => Msg): (cmd: Cmd<A>) => Cmd<Msg> { ... }
 ```
+
+Added in v0.5.0

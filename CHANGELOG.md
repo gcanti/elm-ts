@@ -13,6 +13,32 @@
 **Note**: Gaps between patch versions are faulty/broken releases. **Note**: A feature tagged as Experimental is in a
 high state of flux, you're at risk of it changing without notice.
 
+# 0.5.0
+
+- **Breaking Change**
+  - upgrade to `fp-ts@2.x` (@gcanti)
+  - upgrade to `rxjs@6.x` (@gcanti)
+  - by default do not export `Navigation` from `index` (@gcanti)
+  - `Cmd`
+    - make `map` data-last (@gcanti)
+  - `Decode`
+    - remove dependency on `io-ts` (@gcanti)
+    - refactor `Decoder` definition (@gcanti)
+  - `Html`
+    - make `map` data-last (@gcanti)
+  - `Http`
+    - remove `Expect<a>` type (@gcanti)
+    - remove class encoding for `BadUrl`, `Timeout`, `NetworkError`, `BadStatus`, `BadPayload` (@gcanti)
+    - make `send` data-last (@gcanti)
+  - `React`
+    - make `map` data-last (@gcanti)
+  - `Sub`
+    - make `map` data-last (@gcanti)
+  - `Task`
+    - make `perform` data-last (@gcanti)
+    - make `attempt` data-last (@gcanti)
+    - remove `sequence` (@gcanti)
+
 # 0.4.3
 
 - **Bug Fix**

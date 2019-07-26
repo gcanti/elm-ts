@@ -10,8 +10,6 @@ parent: Modules
 
 - [attempt (function)](#attempt-function)
 - [perform (function)](#perform-function)
-- [sequence (function)](#sequence-function)
-- [Task (export)](#task-export)
 
 ---
 
@@ -20,29 +18,17 @@ parent: Modules
 **Signature**
 
 ```ts
-export function attempt<e, a, msg>(task: Task<Either<e, a>>, f: (e: Either<e, a>) => msg): Cmd<msg> { ... }
+export function attempt<E, A, Msg>(f: (e: Either<E, A>) => Msg): (task: Task<Either<E, A>>) => Cmd<Msg> { ... }
 ```
+
+Added in v0.5.0
 
 # perform (function)
 
 **Signature**
 
 ```ts
-export function perform<a, msg>(task: Task<a>, f: (a: a) => msg): Cmd<msg> { ... }
+export function perform<A, Msg>(f: (a: A) => Msg): (t: Task<A>) => Cmd<Msg> { ... }
 ```
 
-# sequence (function)
-
-**Signature**
-
-```ts
-export function sequence<a>(tasks: Array<Task<a>>): Task<Array<a>> { ... }
-```
-
-# Task (export)
-
-**Signature**
-
-```ts
-export { Task }
-```
+Added in v0.5.0
