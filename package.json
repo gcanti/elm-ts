@@ -7,13 +7,14 @@
   ],
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
+  "module": "lib/es6/index.js",
   "scripts": {
     "check": "tsc -p .",
     "lint": "tslint -p . --verbose",
     "mocha": "mocha -r ts-node/register test/*.ts",
     "test": "npm run lint && npm run mocha && npm run docs",
     "prebuild": "rm -rf lib",
-    "build": "tsc -p ./tsconfig.build.json",
+    "build": "tsc -p ./tsconfig.build.json && tsc -p ./tsconfig.build-es6.json",
     "fix-prettier": "prettier --write \"{src,test}/**/*.ts\"",
     "docs": "docs-ts"
   },
