@@ -8,10 +8,12 @@
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
   "scripts": {
-    "lint": "tslint -p tsconfig.tslint.json src/**/*.ts test/**/*.ts",
+    "check": "tsc -p .",
+    "lint": "tslint -p . --verbose",
     "mocha": "mocha -r ts-node/register test/*.ts",
     "test": "npm run lint && npm run mocha && npm run docs",
-    "build": "rm -rf lib/* && tsc",
+    "prebuild": "rm -rf lib",
+    "build": "tsc -p ./tsconfig.build.json",
     "fix-prettier": "prettier --write \"{src,test}/**/*.ts\"",
     "docs": "docs-ts"
   },
