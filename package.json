@@ -12,7 +12,7 @@
     "mocha": "mocha -r ts-node/register test/*.ts",
     "test": "npm run lint && npm run mocha && npm run docs",
     "build": "rm -rf lib/* && tsc",
-    "fix-prettier": "prettier --no-semi --single-quote --print-width 120 --parser typescript --write \"{src,test}/**/*.ts\"",
+    "fix-prettier": "prettier --write \"{src,test}/**/*.ts\"",
     "docs": "docs-ts"
   },
   "repository": {
