@@ -9,12 +9,14 @@ parent: Modules
 <h2 class="text-delta">Table of contents</h2>
 
 - [Decoder (interface)](#decoder-interface)
+- [Mixed (type alias)](#mixed-type-alias)
 - [URI (type alias)](#uri-type-alias)
 - [URI (constant)](#uri-constant)
 - [decoder (constant)](#decoder-constant)
 - [left (constant)](#left-constant)
 - [orElse (constant)](#orelse-constant)
 - [right (constant)](#right-constant)
+- [fromType (function)](#fromtype-function)
 - [alt (export)](#alt-export)
 - [ap (export)](#ap-export)
 - [apFirst (export)](#apfirst-export)
@@ -32,6 +34,16 @@ parent: Modules
 
 ```ts
 export interface Decoder<A> extends RE.ReaderEither<unknown, string, A> {}
+```
+
+Added in v0.5.0
+
+# Mixed (type alias)
+
+**Signature**
+
+```ts
+export type Mixed = unknown
 ```
 
 Added in v0.5.0
@@ -92,6 +104,21 @@ Added in v0.5.0
 
 ```ts
 export const right: <A>(a: A) => Decoder<A> = ...
+```
+
+Added in v0.5.0
+
+# fromType (function)
+
+Creates a `Decoder` from an `io-ts` type.
+
+**Signature**
+
+```ts
+export const fromType: <A>(t: Type<A, any, Mixed>) => Decoder<A> = type => v =>
+  pipe(
+    type.decode(v),
+    E.mapLeft(errors => ...
 ```
 
 Added in v0.5.0

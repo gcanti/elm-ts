@@ -2,13 +2,20 @@ import { Alternative1 } from 'fp-ts/lib/Alternative'
 import * as E from 'fp-ts/lib/Either'
 import { Monad1 } from 'fp-ts/lib/Monad'
 import * as RE from 'fp-ts/lib/ReaderEither'
-import { pipeable } from 'fp-ts/lib/pipeable'
+import { pipe, pipeable } from 'fp-ts/lib/pipeable'
+import { Type } from 'io-ts'
+import { failure } from 'io-ts/lib/PathReporter'
 
 declare module 'fp-ts/lib/HKT' {
   interface URItoKind<A> {
     Decoder: Decoder<A>
   }
 }
+
+/**
+ * @since 0.5.0
+ */
+export type Mixed = unknown
 
 /**
  * @since 0.5.0
@@ -39,6 +46,16 @@ export const right: <A>(a: A) => Decoder<A> = RE.readerEither.of
  * @since 0.5.0
  */
 export const orElse: <A>(f: (e: string) => Decoder<A>) => (ma: Decoder<A>) => Decoder<A> = RE.orElse
+
+/**
+ * Creates a `Decoder` from an `io-ts` type.
+ * @since 0.5.0
+ */
+export const fromType: <A>(t: Type<A, any, Mixed>) => Decoder<A> = type => v =>
+  pipe(
+    type.decode(v),
+    E.mapLeft(errors => failure(errors).join('\n'))
+  )
 
 /**
  * @since 0.5.0
