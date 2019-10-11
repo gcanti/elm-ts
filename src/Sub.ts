@@ -1,4 +1,4 @@
-import { EMPTY, merge, Observable } from 'rxjs'
+import { EMPTY, Observable, merge } from 'rxjs'
 import * as Rx from 'rxjs/operators'
 
 /**

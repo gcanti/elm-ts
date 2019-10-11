@@ -1,6 +1,6 @@
 import { Option, option } from 'fp-ts/lib/Option'
 import { Task, task } from 'fp-ts/lib/Task'
-import { EMPTY, merge, Observable } from 'rxjs'
+import { EMPTY, Observable, merge } from 'rxjs'
 import * as Rx from 'rxjs/operators'
 
 /**

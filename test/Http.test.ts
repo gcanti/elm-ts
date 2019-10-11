@@ -1,11 +1,11 @@
-import { toTask, get } from '../src/Http'
-import * as t from 'io-ts'
-import { failure } from 'io-ts/lib/PathReporter'
 import * as E from 'fp-ts/lib/Either'
 // import 'isomorphic-fetch'
 import { some } from 'fp-ts/lib/Option'
-import { Decoder } from '../src/Decode'
 import { flow } from 'fp-ts/lib/function'
+import * as t from 'io-ts'
+import { failure } from 'io-ts/lib/PathReporter'
+import { Decoder } from '../src/Decode'
+import { get, toTask } from '../src/Http'
 
 const TodoPayload = t.type({
   userId: t.number,

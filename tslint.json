@@ -4,6 +4,13 @@
     "space-before-function-paren": false,
     "no-use-before-declare": false,
     "variable-name": false,
-    "quotemark": [true, "single", "jsx-double"]
+    "quotemark": [true, "single", "jsx-double"],
+    "ordered-imports": [
+      true,
+      {
+        "import-sources-order": "lowercase-last",
+        "named-imports-order": "lowercase-last"
+      }
+    ]
   }
 }
