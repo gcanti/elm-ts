@@ -1,8 +1,8 @@
+import * as blessed from 'blessed'
+import * as React from 'react'
+import { render } from 'react-blessed'
 import * as cmd from '../src/Cmd'
 import { Html, program, run } from '../src/React'
-import * as React from 'react'
-import * as blessed from 'blessed'
-import { render } from 'react-blessed'
 
 export type Model = undefined
 
@@ -17,24 +17,23 @@ export function update(msg: Msg, model: Model): [Model, cmd.Cmd<Msg>] {
   }
 }
 
-class App extends React.Component {
-  render() {
-    return (
-      <box
-        top="center"
-        left="center"
-        width="50%"
-        height="50%"
-        border={{ type: 'line' }}
-        style={{ border: { fg: 'blue' } }}
-      >
-        Hello World!
-      </box>
-    )
-  }
+function App() {
+  return (
+    <box
+      top="center"
+      left="center"
+      width="50%"
+      height="50%"
+      border={{ type: 'line' }}
+      style={{ border: { fg: 'blue' } }}
+    >
+      Hello World!
+    </box>
+  )
 }
-export function view(model: Model): Html<Msg> {
-  return dispatch => <App />
+
+export function view(_: Model): Html<Msg> {
+  return _ => <App />
 }
 
 // Creating our screen
@@ -45,7 +44,7 @@ const screen = blessed.screen({
 })
 
 // Adding a way to quit the program
-screen.key(['escape', 'q', 'C-c'], function(ch, key) {
+screen.key(['escape', 'q', 'C-c'], function() {
   return process.exit(0)
 })
 

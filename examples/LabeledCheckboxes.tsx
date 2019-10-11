@@ -1,7 +1,7 @@
-import { cmd } from '../src'
-import { Html } from '../src/React'
 import { Lens } from 'monocle-ts'
 import * as React from 'react'
+import { cmd } from '../src'
+import { Html } from '../src/React'
 
 export type Model = {
   notifications: boolean
@@ -33,19 +33,21 @@ export function update(msg: Msg, model: Model): [Model, cmd.Cmd<Msg>] {
   switch (msg.type) {
     case 'ToggleNotifications':
       return [notificationsLens.modify(toggle)(model), cmd.none]
+
     case 'ToggleAutoplay':
       return [autoplayLens.modify(toggle)(model), cmd.none]
+
     case 'ToggleLocation':
       return [locationLens.modify(toggle)(model), cmd.none]
   }
 }
 
-export function view(model: Model): Html<Msg> {
+export function view(_: Model): Html<Msg> {
   return dispatch => (
     <fieldset>
-      {checkbox({ type: 'ToggleNotifications' }, 'Email Notifications')(dispatch)}
-      {checkbox({ type: 'ToggleAutoplay' }, 'Video Autoplay')(dispatch)}
-      {checkbox({ type: 'ToggleLocation' }, 'Use Location')(dispatch)}
+      {checkbox({ type: 'ToggleNotifications' as const }, 'Email Notifications')(dispatch)}
+      {checkbox({ type: 'ToggleAutoplay' as const }, 'Video Autoplay')(dispatch)}
+      {checkbox({ type: 'ToggleLocation' as const }, 'Use Location')(dispatch)}
     </fieldset>
   )
 }

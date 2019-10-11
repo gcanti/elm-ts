@@ -1,25 +1,26 @@
-import * as React from 'react'
-import { Lens } from 'monocle-ts'
+import * as E from 'fp-ts/lib/Either'
+import * as O from 'fp-ts/lib/Option'
+import { pipe } from 'fp-ts/lib/pipeable'
 import * as t from 'io-ts'
-import { cmd, http, decode } from '../src'
+import { Lens } from 'monocle-ts'
+import * as React from 'react'
+import { cmd, decode, http } from '../src'
 import { Html } from '../src/React'
-import { Either } from 'fp-ts/lib/Either'
-import { Option, none, some } from 'fp-ts/lib/Option'
 
 // original: https://guide.elm-lang.org/architecture/effects/http.html
 
-export type Result = Either<http.HttpError, string>
+export type Result = E.Either<http.HttpError, string>
 
 export type Model = {
   topic: string
-  gifUrl: Option<Result>
+  gifUrl: O.Option<Result>
 }
 
 export type Flags = Model
 
 export const flags: Flags = {
   topic: 'cats',
-  gifUrl: none
+  gifUrl: O.none
 }
 
 export function init(flags: Flags): [Model, cmd.Cmd<Msg>] {
@@ -47,27 +48,34 @@ const decoder = decode.fromType(ApiPayloadSchema)
 
 function getRandomGif(topic: string): cmd.Cmd<Msg> {
   const url = `https://api.giphy.com/v1/gifs/random?api_key=dc6zaTOxFJmzC&tag=${topic}`
-  const req = http.get(url, decoder)
-  return http.send(req, e => newGif(e.map(a => a.data.image_url)))
+
+  return pipe(
+    http.get(url, decoder),
+    http.send(e => newGif(E.either.map(e, a => a.data.image_url)))
+  )
 }
 
 export function update(msg: Msg, model: Model): [Model, cmd.Cmd<Msg>] {
   switch (msg.type) {
     case 'MorePlease':
-      return [gifUrlLens.set(none)(model), getRandomGif(model.topic)]
+      return [gifUrlLens.set(O.none)(model), getRandomGif(model.topic)]
+
     case 'NewGif':
-      return [gifUrlLens.set(some(msg.result))(model), cmd.none]
+      return [gifUrlLens.set(O.some(msg.result))(model), cmd.none]
   }
-  throw 'err'
+  throw new Error('err')
 }
 
 export function view(model: Model): Html<Msg> {
   return dispatch => (
     <div>
       <h2>{model.topic}</h2>
-      {model.gifUrl.foldL(
-        () => <span>loading...</span>,
-        e => e.fold(error => <span>Error: {error._tag}</span>, gifUrl => <img src={gifUrl} />)
+      {pipe(
+        model.gifUrl,
+        O.fold(
+          () => <span>loading...</span>,
+          E.fold(error => <span>Error: {error._tag}</span>, gifUrl => <img src={gifUrl} />)
+        )
       )}
       <button onClick={() => dispatch({ type: 'MorePlease' })}>New Gif</button>
     </div>

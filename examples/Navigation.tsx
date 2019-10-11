@@ -1,7 +1,7 @@
-import { cmd } from '../src'
-import { Html } from '../src/React'
-import { Location, push } from '../src/Navigation'
 import * as React from 'react'
+import { cmd } from '../src'
+import { Location, push } from '../src/Navigation'
+import { Html } from '../src/React'
 
 const routes = {
   RouteA: true,
@@ -31,7 +31,7 @@ export function locationToMessage(location: Location): Msg {
   return { type: getRoute(location) } as Msg
 }
 
-export function init(flags: Flags, location: Location): [Model, cmd.Cmd<Msg>] {
+export function init(_: Flags, location: Location): [Model, cmd.Cmd<Msg>] {
   return [getRoute(location), cmd.none]
 }
 

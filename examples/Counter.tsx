@@ -1,6 +1,6 @@
+import * as React from 'react'
 import { cmd } from '../src'
 import { Html } from '../src/React'
-import * as React from 'react'
 
 export type Model = number
 
@@ -12,6 +12,7 @@ export function update(msg: Msg, model: Model): [Model, cmd.Cmd<Msg>] {
   switch (msg.type) {
     case 'Increment':
       return [model + 1, cmd.none]
+
     case 'Decrement':
       return [model - 1, cmd.none]
   }
