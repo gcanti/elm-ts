@@ -41,7 +41,7 @@
     "docs": "docs-ts"
   },
   "dependencies": {
-    "axios": "^0.17.1",
+    "axios": "^0.19.0",
     "history": "^4.7.2"
   },
   "peerDependencies": {
