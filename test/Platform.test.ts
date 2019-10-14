@@ -1,3 +1,4 @@
+import * as assert from 'assert'
 import { some } from 'fp-ts/lib/Option'
 import { task } from 'fp-ts/lib/Task'
 import { EMPTY, Observable, of } from 'rxjs'
@@ -48,23 +49,25 @@ const delayedAssert = (f: () => void, delay: number = 50): Promise<void> =>
     }, delay)
   })
 
-test('run() should run the Program', () => {
-  // setup
-  const log: Array<Model> = []
-  const p = program(init, update, subscriptions)
-  p.model$.subscribe(model => log.push(model))
+describe('Platform', () => {
+  it('run() should run the Program', () => {
+    // setup
+    const log: Array<Model> = []
+    const p = program(init, update, subscriptions)
+    p.model$.subscribe(model => log.push(model))
 
-  // run
-  run(p)
+    // run
+    run(p)
 
-  // dispatch
-  p.dispatch({ type: 'FOO' })
-  p.dispatch({ type: 'SUB' })
-  p.dispatch({ type: 'BAR' })
-  p.dispatch({ type: 'DO-THE-THING!' })
+    // dispatch
+    p.dispatch({ type: 'FOO' })
+    p.dispatch({ type: 'SUB' })
+    p.dispatch({ type: 'BAR' })
+    p.dispatch({ type: 'DO-THE-THING!' })
 
-  // assert
-  return delayedAssert(() => {
-    expect(log).toEqual([{ x: '' }, { x: 'foo' }, { x: 'sub' }, { x: 'listen' }, { x: 'bar' }, { x: 'foo' }])
+    // assert
+    return delayedAssert(() => {
+      assert.deepEqual(log, [{ x: '' }, { x: 'foo' }, { x: 'sub' }, { x: 'listen' }, { x: 'bar' }, { x: 'foo' }])
+    })
   })
 })
