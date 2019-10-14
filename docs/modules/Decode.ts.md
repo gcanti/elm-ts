@@ -16,7 +16,6 @@ parent: Modules
 - [left (constant)](#left-constant)
 - [orElse (constant)](#orelse-constant)
 - [right (constant)](#right-constant)
-- [fromType (function)](#fromtype-function)
 - [alt (export)](#alt-export)
 - [ap (export)](#ap-export)
 - [apFirst (export)](#apfirst-export)
@@ -104,21 +103,6 @@ Added in v0.5.0
 
 ```ts
 export const right: <A>(a: A) => Decoder<A> = ...
-```
-
-Added in v0.5.0
-
-# fromType (function)
-
-Creates a `Decoder` from an `io-ts` type.
-
-**Signature**
-
-```ts
-export const fromType: <A>(t: Type<A, any, Mixed>) => Decoder<A> = type => v =>
-  pipe(
-    type.decode(v),
-    E.mapLeft(errors => ...
 ```
 
 Added in v0.5.0

@@ -1,10 +1,12 @@
 import * as E from 'fp-ts/lib/Either'
 import * as O from 'fp-ts/lib/Option'
+import { flow } from 'fp-ts/lib/function'
 import { pipe } from 'fp-ts/lib/pipeable'
 import * as t from 'io-ts'
+import { failure } from 'io-ts/lib/PathReporter'
 import { Lens } from 'monocle-ts'
 import * as React from 'react'
-import { cmd, decode, http } from '../src'
+import { cmd, http } from '../src'
 import { Html } from '../src/React'
 
 // original: https://guide.elm-lang.org/architecture/effects/http.html
@@ -44,7 +46,10 @@ const ApiPayloadSchema = t.interface({
   })
 })
 
-const decoder = decode.fromType(ApiPayloadSchema)
+const decoder = flow(
+  ApiPayloadSchema.decode,
+  E.mapLeft(errors => failure(errors).join('\n'))
+)
 
 function getRandomGif(topic: string): cmd.Cmd<Msg> {
   const url = `https://api.giphy.com/v1/gifs/random?api_key=dc6zaTOxFJmzC&tag=${topic}`
