@@ -37,7 +37,6 @@
     "posttest": "npm run docs",
     "prebuild": "rm -rf lib",
     "build": "tsc -p ./tsconfig.build.json && tsc -p ./tsconfig.build-es6.json",
-    "fix-prettier": "prettier --write \"{src,test}/**/*.ts\"",
     "docs": "docs-ts"
   },
   "dependencies": {
