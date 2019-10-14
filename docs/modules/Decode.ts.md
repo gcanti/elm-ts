@@ -9,7 +9,6 @@ parent: Modules
 <h2 class="text-delta">Table of contents</h2>
 
 - [Decoder (interface)](#decoder-interface)
-- [Mixed (type alias)](#mixed-type-alias)
 - [URI (type alias)](#uri-type-alias)
 - [URI (constant)](#uri-constant)
 - [decoder (constant)](#decoder-constant)
@@ -33,16 +32,6 @@ parent: Modules
 
 ```ts
 export interface Decoder<A> extends RE.ReaderEither<unknown, string, A> {}
-```
-
-Added in v0.5.0
-
-# Mixed (type alias)
-
-**Signature**
-
-```ts
-export type Mixed = unknown
 ```
 
 Added in v0.5.0
