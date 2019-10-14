@@ -13,11 +13,6 @@ declare module 'fp-ts/lib/HKT' {
 /**
  * @since 0.5.0
  */
-export type Mixed = unknown
-
-/**
- * @since 0.5.0
- */
 export const URI = 'Decoder'
 
 /**
