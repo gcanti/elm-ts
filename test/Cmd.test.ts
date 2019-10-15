@@ -3,11 +3,25 @@ import * as A from 'fp-ts/lib/Array'
 import * as O from 'fp-ts/lib/Option'
 import * as T from 'fp-ts/lib/Task'
 import * as Rx from 'rxjs'
-import { batch, map } from '../src/Cmd'
+import { batch, map, of } from '../src/Cmd'
 
 const sequenceTask = A.array.sequence(T.task)
 
 describe('Cmd', () => {
+  describe('of()', () => {
+    it('should lift a Msg into a Cmd', done => {
+      const input = of('TEST')
+
+      return input.subscribe(async to => {
+        const result = await to()
+
+        assert.deepEqual(result, O.some('TEST'))
+
+        done()
+      })
+    })
+  })
+
   describe('map()', () => {
     it('should transform a Cmd<A> into a Cmd<B>', done => {
       const cmdA = Rx.of(T.of(O.some('a')))

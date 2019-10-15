@@ -18,6 +18,7 @@ See the [Platform.Cmd](https://package.elm-lang.org/packages/elm/core/latest/Pla
 - [none (constant)](#none-constant)
 - [batch (function)](#batch-function)
 - [map (function)](#map-function)
+- [of (function)](#of-function)
 
 ---
 
@@ -63,6 +64,18 @@ Maps the carried `Msg` of a `Cmd` into another `Msg`.
 
 ```ts
 export function map<A, Msg>(f: (a: A) => Msg): (cmd: Cmd<A>) => Cmd<Msg> { ... }
+```
+
+Added in v0.5.0
+
+# of (function)
+
+Creates a new `Cmd` that carries the provided `Msg`.
+
+**Signature**
+
+```ts
+export function of<Msg>(m: Msg): Cmd<Msg> { ... }
 ```
 
 Added in v0.5.0
