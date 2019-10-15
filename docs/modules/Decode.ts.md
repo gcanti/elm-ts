@@ -4,6 +4,12 @@ nav_order: 2
 parent: Modules
 ---
 
+# Overview
+
+Defines a `Decoder`, namely a function that receives an `unknown` value and tries to decodes it in an `A` value.
+
+It returns an `Either` with a `string` as `Left` when decoding fails or an `A` as `Right` when decoding succeeds.
+
 ---
 
 <h2 class="text-delta">Table of contents</h2>
