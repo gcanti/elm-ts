@@ -1,5 +1,9 @@
+/**
+ * @file Defines `Sub`s as streams of messages.
+ */
+
 import { EMPTY, Observable, merge } from 'rxjs'
-import * as Rx from 'rxjs/operators'
+import { map as RxMap } from 'rxjs/operators'
 
 /**
  * @since 0.5.0
@@ -7,13 +11,15 @@ import * as Rx from 'rxjs/operators'
 export interface Sub<Msg> extends Observable<Msg> {}
 
 /**
+ * Maps `Msg` of a `Sub` into another `Msg`.
  * @since 0.5.0
  */
 export function map<A, Msg>(f: (a: A) => Msg): (sub: Sub<A>) => Sub<Msg> {
-  return sub => sub.pipe(Rx.map(f))
+  return sub => sub.pipe(RxMap(f))
 }
 
 /**
+ * Merges subscriptions streams into one stream.
  * @since 0.5.0
  */
 export function batch<Msg>(arr: Array<Sub<Msg>>): Sub<Msg> {
@@ -21,6 +27,7 @@ export function batch<Msg>(arr: Array<Sub<Msg>>): Sub<Msg> {
 }
 
 /**
+ * A `none` subscription is an empty stream.
  * @since 0.5.0
  */
 export const none: Sub<never> = EMPTY

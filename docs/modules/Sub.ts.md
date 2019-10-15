@@ -4,6 +4,10 @@ nav_order: 9
 parent: Modules
 ---
 
+# Overview
+
+Defines `Sub`s as streams of messages.
+
 ---
 
 <h2 class="text-delta">Table of contents</h2>
@@ -27,6 +31,8 @@ Added in v0.5.0
 
 # none (constant)
 
+A `none` subscription is an empty stream.
+
 **Signature**
 
 ```ts
@@ -37,6 +43,8 @@ Added in v0.5.0
 
 # batch (function)
 
+Merges subscriptions streams into one stream.
+
 **Signature**
 
 ```ts
@@ -46,6 +54,8 @@ export function batch<Msg>(arr: Array<Sub<Msg>>): Sub<Msg> { ... }
 Added in v0.5.0
 
 # map (function)
+
+Maps `Msg` of a `Sub` into another `Msg`.
 
 **Signature**
 
