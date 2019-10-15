@@ -54,7 +54,7 @@ export function program<Model, Msg>(
   const dispatch: Dispatch<Msg> = msg => state$.next(update(msg, state$.getValue()[0]))
 
   const cmd$ = state$.pipe(
-    // startWith(init), // added to make the initial cmd work
+    startWith(init), // added to make the initial cmd work
     distinctUntilChanged(cmdCompare),
     map(state => state[1]),
     mergeAll()
