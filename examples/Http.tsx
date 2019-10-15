@@ -13,11 +13,7 @@ import { Html } from '../src/React'
 
 export type Result = E.Either<http.HttpError, string>
 
-export type Model = {
-  topic: string
-  gifUrl: O.Option<Result>
-}
-
+// --- Flags
 export type Flags = Model
 
 export const flags: Flags = {
@@ -25,21 +21,27 @@ export const flags: Flags = {
   gifUrl: O.none
 }
 
+// --- Model
+export type Model = {
+  topic: string
+  gifUrl: O.Option<Result>
+}
+
 export function init(flags: Flags): [Model, cmd.Cmd<Msg>] {
   return [flags, getRandomGif(flags.topic)]
 }
 
+// --- Messages
+export type Msg = MorePlease | NewGif
+
 export type MorePlease = { type: 'MorePlease' }
 export type NewGif = { type: 'NewGif'; result: Result }
-
-export type Msg = MorePlease | NewGif
 
 function newGif(result: Result): NewGif {
   return { type: 'NewGif', result }
 }
 
-const gifUrlLens = Lens.fromProp<Model, 'gifUrl'>('gifUrl')
-
+// --- Get random gif
 const ApiPayloadSchema = t.interface({
   data: t.interface({
     image_url: t.string
@@ -60,6 +62,9 @@ function getRandomGif(topic: string): cmd.Cmd<Msg> {
   )
 }
 
+// --- Update
+const gifUrlLens = Lens.fromProp<Model, 'gifUrl'>('gifUrl')
+
 export function update(msg: Msg, model: Model): [Model, cmd.Cmd<Msg>] {
   switch (msg.type) {
     case 'MorePlease':
@@ -71,6 +76,7 @@ export function update(msg: Msg, model: Model): [Model, cmd.Cmd<Msg>] {
   throw new Error('err')
 }
 
+// --- View
 export function view(model: Model): Html<Msg> {
   return dispatch => (
     <div>

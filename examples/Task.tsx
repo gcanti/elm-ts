@@ -9,11 +9,13 @@ import { now } from '../src/Time'
 
 type Time = number
 
-export type Model = O.Option<Time>
-
+// --- Flags
 export type Flags = void
 
 export const flags: Flags = undefined
+
+// --- Model
+export type Model = O.Option<Time>
 
 export function init(_: Flags): [Model, cmd.Cmd<Msg>] {
   return [
@@ -25,10 +27,12 @@ export function init(_: Flags): [Model, cmd.Cmd<Msg>] {
   ]
 }
 
-export type NewTime = { type: 'NewTime'; time: Time }
-
+// --- Messages
 export type Msg = { type: 'Click' } | NewTime
 
+export type NewTime = { type: 'NewTime'; time: Time }
+
+// --- Update
 function newTime(time: Time): NewTime {
   return { type: 'NewTime', time }
 }
@@ -56,12 +60,7 @@ export function update(msg: Msg, _: Model): [Model, cmd.Cmd<Msg>] {
   }
 }
 
-function displayTime(time: Time): string {
-  return new Date(time).toISOString()
-}
-
-const displayLoading = () => 'loading...'
-
+// --- View
 export function view(model: Model): Html<Msg> {
   return dispatch => (
     <div>
@@ -74,3 +73,9 @@ export function view(model: Model): Html<Msg> {
     </div>
   )
 }
+
+function displayTime(time: Time): string {
+  return new Date(time).toISOString()
+}
+
+const displayLoading = () => 'loading...'
