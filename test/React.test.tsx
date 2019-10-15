@@ -84,7 +84,7 @@ describe('React', () => {
     p.dispatch({ type: 'DO-THE-THING!' })
 
     return delayedAssert(() => {
-      assert.deepEqual(collectRendering.map(testRenderer), [
+      assert.deepStrictEqual(collectRendering.map(testRenderer), [
         { type: 'button', children: '' },
         { type: 'button', children: 'foo' },
         { type: 'button', children: 'sub' },
