@@ -1,10 +1,10 @@
 import * as O from 'fp-ts/lib/Option'
 import * as H from 'history'
-import { of, Subject } from 'rxjs'
+import { Subject, of } from 'rxjs'
 import { map } from 'rxjs/operators'
 import { Cmd } from './Cmd'
 import * as html from './Html'
-import { batch, none, Sub } from './Sub'
+import { Sub, batch, none } from './Sub'
 
 const history = H.createHashHistory()
 

@@ -1,9 +1,9 @@
+import * as O from 'fp-ts/lib/Option'
+import { pipe } from 'fp-ts/lib/pipeable'
 import { BehaviorSubject, Observable } from 'rxjs'
 import { distinctUntilChanged, map, mergeAll, share, startWith, switchMap } from 'rxjs/operators'
 import { Cmd } from './Cmd'
-import { none, Sub } from './Sub'
-import * as O from 'fp-ts/lib/Option'
-import { pipe } from 'fp-ts/lib/pipeable'
+import { Sub, none } from './Sub'
 
 /**
  * @since 0.5.0

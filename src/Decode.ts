@@ -1,8 +1,8 @@
 import { Alternative1 } from 'fp-ts/lib/Alternative'
 import * as E from 'fp-ts/lib/Either'
 import { Monad1 } from 'fp-ts/lib/Monad'
-import { pipeable } from 'fp-ts/lib/pipeable'
 import * as RE from 'fp-ts/lib/ReaderEither'
+import { pipeable } from 'fp-ts/lib/pipeable'
 
 declare module 'fp-ts/lib/HKT' {
   interface URItoKind<A> {

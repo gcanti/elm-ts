@@ -2,7 +2,7 @@ import { Observable } from 'rxjs'
 import * as Rx from 'rxjs/operators'
 import { Cmd } from './Cmd'
 import * as platform from './Platform'
-import { none, Sub } from './Sub'
+import { Sub, none } from './Sub'
 
 /**
  * @since 0.5.0
