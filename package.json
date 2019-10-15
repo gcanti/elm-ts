@@ -7,14 +7,7 @@
   ],
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
-  "scripts": {
-    "lint": "tslint -p tsconfig.tslint.json src/**/*.ts test/**/*.ts",
-    "mocha": "mocha -r ts-node/register test/*.ts",
-    "test": "npm run lint && npm run mocha && npm run docs",
-    "build": "rm -rf lib/* && tsc",
-    "fix-prettier": "prettier --no-semi --single-quote --print-width 120 --parser typescript --write \"{src,test}/**/*.ts\"",
-    "docs": "docs-ts"
-  },
+  "module": "lib/es6/index.js",
   "repository": {
     "type": "git",
     "url": "https://github.com/gcanti/elm-ts.git"
@@ -25,41 +18,6 @@
     "url": "https://github.com/gcanti/elm-ts/issues"
   },
   "homepage": "https://github.com/gcanti/elm-ts",
-  "dependencies": {
-    "axios": "^0.17.1",
-    "history": "^4.7.2"
-  },
-  "peerDependencies": {
-    "@types/history": "^4.6.2",
-    "fp-ts": "^2.0.2",
-    "io-ts": "^2.0.0",
-    "rxjs": "^6.5.2",
-    "react": "^16.8.6"
-  },
-  "devDependencies": {
-    "@types/blessed": "0.1.8",
-    "@types/history": "4.6.2",
-    "@types/mocha": "^5.2.5",
-    "@types/node": "7.0.8",
-    "@types/react": "16.0.27",
-    "@types/react-dom": "16.0.3",
-    "awesome-typescript-loader": "^5.2.1",
-    "blessed": "0.1.81",
-    "docs-ts": "^0.2.0",
-    "fp-ts": "^2.0.2",
-    "io-ts": "^2.0.0",
-    "mocha": "^5.2.0",
-    "monocle-ts": "^0.5.2",
-    "prettier": "^1.18.2",
-    "react": "^16.8.6",
-    "react-blessed": "^0.5.0",
-    "rxjs": "^6.5.2",
-    "ts-node": "3.3.0",
-    "tslint": "^5.18.0",
-    "tslint-config-standard": "^8.0.1",
-    "typescript": "^3.5.3",
-    "webpack": "^4.26.0"
-  },
   "tags": [
     "typescript",
     "elm",
@@ -69,5 +27,75 @@
     "typescript",
     "elm",
     "fp-ts"
-  ]
+  ],
+  "scripts": {
+    "check": "tsc -p .",
+    "lint": "tslint -p . -t verbose",
+    "jest": "jest --ci --coverage",
+    "pretest": "npm run check && npm run lint",
+    "test": "npm run jest",
+    "posttest": "npm run docs",
+    "prebuild": "rm -rf lib",
+    "build": "tsc -p ./tsconfig.build.json && tsc -p ./tsconfig.build-es6.json",
+    "docs": "docs-ts"
+  },
+  "dependencies": {
+    "axios": "^0.19.0",
+    "history": "^4.7.2"
+  },
+  "peerDependencies": {
+    "@types/history": "^4.6.2",
+    "fp-ts": "^2.0.2",
+    "rxjs": "^6.5.2",
+    "react": "^16.8.6"
+  },
+  "devDependencies": {
+    "@types/blessed": "^0.1.8",
+    "@types/history": "^4.6.2",
+    "@types/jest": "^24.0.18",
+    "@types/node": "^7.0.8",
+    "@types/react": "^16.0.27",
+    "blessed": "^0.1.81",
+    "docs-ts": "^0.2.0",
+    "fp-ts": "^2.0.2",
+    "husky": "^3.0.8",
+    "io-ts": "^2.0.0",
+    "jest": "^24.9.0",
+    "monocle-ts": "^0.5.2",
+    "prettier": "^1.18.2",
+    "pretty-quick": "^1.11.1",
+    "react": "^16.8.6",
+    "react-blessed": "^0.5.0",
+    "rxjs": "^6.5.2",
+    "ts-jest": "24.1.0",
+    "tslint": "^5.18.0",
+    "tslint-config-standard": "^8.0.1",
+    "typescript": "^3.5.3"
+  },
+  "jest": {
+    "preset": "ts-jest",
+    "globals": {
+      "ts-jest": {
+        "diagnostics": true
+      }
+    },
+    "bail": true,
+    "coveragePathIgnorePatterns": [
+      "<rootDir>/test/",
+      "<rootDir>/node_modules/"
+    ],
+    "coverageReporters": [
+      "text"
+    ],
+    "roots": [
+      "<rootDir>/test/"
+    ],
+    "testMatch": null,
+    "testRegex": "(\\.|/)(test|spec)\\.tsx?$"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "pretty-quick --staged"
+    }
+  }
 }

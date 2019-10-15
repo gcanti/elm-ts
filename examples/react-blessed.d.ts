@@ -9,6 +9,7 @@ declare namespace JSX {
       height: string
       border: object
       style: object
+      children: string
     }
   }
 }
