@@ -1,10 +1,19 @@
+/**
+ * @file A specialization of `Program` with the capability of mapping `Model` to `View`
+ * and rendering it into a DOM node.
+ *
+ * `Html` is a base abstraction in order to work with any library that renders html.
+ */
+
 import { Observable } from 'rxjs'
-import * as Rx from 'rxjs/operators'
+import { map as RxMap } from 'rxjs/operators'
 import { Cmd } from './Cmd'
 import * as platform from './Platform'
 import { Sub, none } from './Sub'
 
 /**
+ * It is defined as a function that takes a `dispatch()` function as input and returns a `Dom` as output,
+ * with DOM and messages types constrained.
  * @since 0.5.0
  */
 export interface Html<Dom, Msg> {
@@ -12,6 +21,9 @@ export interface Html<Dom, Msg> {
 }
 
 /**
+ * Defines the generalized `Renderer` as a function that takes a `Dom` as input and returns a `void`.
+ *
+ * It suggests an effectful computation.
  * @since 0.5.0
  */
 export interface Renderer<Dom> {
@@ -19,13 +31,7 @@ export interface Renderer<Dom> {
 }
 
 /**
- * @since 0.5.0
- */
-export function map<Dom, A, Msg>(f: (a: A) => Msg): (ha: Html<Dom, A>) => Html<Dom, Msg> {
-  return ha => dispatch => ha(a => dispatch(f(a)))
-}
-
-/**
+ * The `Program` interface is extended with a `html$` stream (an `Observable` of views) and a `Dom` type constraint.
  * @since 0.5.0
  */
 export interface Program<Model, Msg, Dom> extends platform.Program<Model, Msg> {
@@ -33,6 +39,19 @@ export interface Program<Model, Msg, Dom> extends platform.Program<Model, Msg> {
 }
 
 /**
+ * Maps a view which carries a message of type `A` into a view which carries a message of type `B`.
+ * @since 0.5.0
+ */
+export function map<Dom, A, Msg>(f: (a: A) => Msg): (ha: Html<Dom, A>) => Html<Dom, Msg> {
+  return ha => dispatch => ha(a => dispatch(f(a)))
+}
+
+/**
+ * Returns a `Program` specialized for `Html`.
+ *
+ * It needs a `view()` function that maps `Model` to `Html`.
+ *
+ * Underneath it uses `Platform.program()`.
  * @since 0.5.0
  */
 export function program<Model, Msg, Dom>(
@@ -42,11 +61,14 @@ export function program<Model, Msg, Dom>(
   subscriptions: (model: Model) => Sub<Msg> = () => none
 ): Program<Model, Msg, Dom> {
   const { dispatch, cmd$, sub$, model$ } = platform.program(init, update, subscriptions)
-  const html$ = model$.pipe(Rx.map(view))
+
+  const html$ = model$.pipe(RxMap(view))
+
   return { dispatch, cmd$, sub$, model$, html$ }
 }
 
 /**
+ * Same as `program()` but with `Flags` that can be passed when the `Program` is created in order to manage initial values.
  * @since 0.5.0
  */
 export function programWithFlags<Flags, Model, Msg, Dom>(
@@ -59,10 +81,17 @@ export function programWithFlags<Flags, Model, Msg, Dom>(
 }
 
 /**
+ * Runs the `Program`.
+ *
+ * Underneath it uses `Platform.run()`.
+ *
+ * It subscribes to the views stream (`html$`) and runs `Renderer` for each new value.
  * @since 0.5.0
  */
 export function run<Model, Msg, Dom>(program: Program<Model, Msg, Dom>, renderer: Renderer<Dom>): Observable<Model> {
   const { dispatch, html$ } = program
+
   html$.subscribe(html => renderer(html(dispatch)))
+
   return platform.run(program)
 }
