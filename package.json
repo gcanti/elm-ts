@@ -37,7 +37,8 @@
     "posttest": "npm run docs",
     "prebuild": "rm -rf lib",
     "build": "tsc -p ./tsconfig.build.json && tsc -p ./tsconfig.build-es6.json",
-    "docs": "docs-ts"
+    "docs": "docs-ts",
+    "postdocs": "ts-node scripts/docs-index"
   },
   "dependencies": {
     "axios": "^0.19.0",
@@ -69,6 +70,7 @@
     "react-blessed": "^0.5.0",
     "rxjs": "^6.5.2",
     "ts-jest": "24.1.0",
+    "ts-node": "8.4.1",
     "tslint": "^5.18.0",
     "tslint-config-standard": "^8.0.1",
     "typescript": "^3.5.3"
@@ -96,7 +98,7 @@
   },
   "husky": {
     "hooks": {
-      "pre-commit": "pretty-quick --staged"
+      "pre-commit": "ts-node scripts/docs-staged && pretty-quick --staged"
     }
   }
 }
