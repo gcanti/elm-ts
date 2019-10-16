@@ -20,38 +20,35 @@ afterAll(() => {
 // ---
 
 describe('Time', () => {
-  describe('now()', () => {
-    it('should return a Task which resolves to current Date time', () => now()().then(v => assert.strictEqual(v, TIME)))
-  })
+  it('now() should return a Task which resolves to current Date time', () =>
+    now()().then(v => assert.strictEqual(v, TIME)))
 
-  describe('every()', () => {
-    it('should return a Sub which dispatch a Msg every "n" Time', done => {
-      const log: Msg[] = []
-      const toMsg = (time: number): Msg => ({ type: 'CURRENT_TIME', time })
-      const sub$ = every(250, toMsg)
+  it('every() should return a Sub which dispatch a Msg every "n" Time', done => {
+    const log: Msg[] = []
+    const toMsg = (time: number): Msg => ({ type: 'CURRENT_TIME', time })
+    const sub$ = every(250, toMsg)
 
-      sub$.pipe(take(3)).subscribe({
-        next: v => log.push(v),
+    sub$.pipe(take(3)).subscribe({
+      next: v => log.push(v),
 
-        complete: () => {
-          assert.deepStrictEqual(log, [
-            {
-              type: 'CURRENT_TIME',
-              time: TIME
-            },
-            {
-              type: 'CURRENT_TIME',
-              time: TIME
-            },
-            {
-              type: 'CURRENT_TIME',
-              time: TIME
-            }
-          ])
+      complete: () => {
+        assert.deepStrictEqual(log, [
+          {
+            type: 'CURRENT_TIME',
+            time: TIME
+          },
+          {
+            type: 'CURRENT_TIME',
+            time: TIME
+          },
+          {
+            type: 'CURRENT_TIME',
+            time: TIME
+          }
+        ])
 
-          done()
-        }
-      })
+        done()
+      }
     })
   })
 })
