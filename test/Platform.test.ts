@@ -49,26 +49,38 @@ describe('Platform', () => {
     })
   })
 
-  it('programWithFlags() should return a function which returns a program() with flags on `init`', () => {
-    const initWithFlags = (f: string): [Model, Cmd<Msg>] => [{ x: f }, none]
+  describe('programWithFlags()', () => {
+    it('should return a function which returns a program() with flags on `init` - no subscription', () => {
+      const models: Model[] = []
+      const subs: Msg[] = []
 
-    // --- No subscriptions
-    const modelsNoSubs: Model[] = []
-    const withFlagsNoSubs = programWithFlags(initWithFlags, update)
-    const pNoSubs = withFlagsNoSubs('start!')
+      const initWithFlags = (f: string): [Model, Cmd<Msg>] => [{ x: f }, none]
+      const withFlags = programWithFlags(initWithFlags, update)
+      const { model$, sub$ } = withFlags('start!')
 
-    pNoSubs.model$.subscribe(v => modelsNoSubs.push(v))
+      model$.subscribe(v => models.push(v))
+      sub$.subscribe(v => subs.push(v))
 
-    assert.deepStrictEqual(modelsNoSubs, [{ x: 'start!' }])
+      assert.deepStrictEqual(models, [{ x: 'start!' }])
+      assert.deepStrictEqual(subs, [])
+    })
 
-    // --- With subscriptions
-    const models: Model[] = []
-    const withFlags = programWithFlags(initWithFlags, update, subscriptions)
-    const p = withFlags('start!')
+    it('should return a function which returns a program() with flags on `init` - with subscription', () => {
+      const models: Model[] = []
+      const subs: Msg[] = []
 
-    p.model$.subscribe(v => models.push(v))
+      const initWithFlags = (f: string): [Model, Cmd<Msg>] => [{ x: f }, none]
+      const withFlags = programWithFlags(initWithFlags, update, subscriptions)
+      const { model$, sub$, dispatch } = withFlags('start!')
 
-    assert.deepStrictEqual(models, [{ x: 'start!' }])
+      model$.subscribe(v => models.push(v))
+      sub$.subscribe(v => subs.push(v))
+
+      dispatch({ type: 'SUB' })
+
+      assert.deepStrictEqual(models, [{ x: 'start!' }, { x: 'sub' }])
+      assert.deepStrictEqual(subs, [{ type: 'LISTEN' }])
+    })
   })
 
   it('run() should run the Program', () => {
