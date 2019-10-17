@@ -4,6 +4,12 @@ nav_order: 4
 parent: Modules
 ---
 
+# Overview
+
+Makes http calls to remote resources as `Cmd`s.
+
+See [Http](https://package.elm-lang.org/packages/elm/http/latest/Http) Elm package.
+
 ---
 
 <h2 class="text-delta">Table of contents</h2>
@@ -101,6 +107,8 @@ export function post<a>(url: string, body: unknown, decoder: Decoder<a>): Reques
 Added in v0.5.0
 
 # send (function)
+
+Executes as `Cmd` the provided call to remote resource, mapping result to a `Msg`.
 
 **Signature**
 

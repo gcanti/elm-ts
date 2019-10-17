@@ -18,5 +18,5 @@
     "forceConsistentCasingInFileNames": true,
     "allowJs": false
   },
-  "include": ["./src", "./test", "./examples"]
+  "include": ["./scripts", "./src", "./test", "./examples"]
 }

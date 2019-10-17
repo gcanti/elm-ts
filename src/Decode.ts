@@ -1,3 +1,9 @@
+/**
+ * @file Defines a `Decoder`, namely a function that receives an `unknown` value and tries to decodes it in an `A` value.
+ *
+ * It returns an `Either` with a `string` as `Left` when decoding fails or an `A` as `Right` when decoding succeeds.
+ */
+
 import { Alternative1 } from 'fp-ts/lib/Alternative'
 import * as E from 'fp-ts/lib/Either'
 import { Monad1 } from 'fp-ts/lib/Monad'

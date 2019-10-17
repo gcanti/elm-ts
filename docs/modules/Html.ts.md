@@ -4,6 +4,13 @@ nav_order: 3
 parent: Modules
 ---
 
+# Overview
+
+A specialization of `Program` with the capability of mapping `Model` to `View`
+and rendering it into a DOM node.
+
+`Html` is a base abstraction in order to work with any library that renders html.
+
 ---
 
 <h2 class="text-delta">Table of contents</h2>
@@ -20,6 +27,9 @@ parent: Modules
 
 # Html (interface)
 
+It is defined as a function that takes a `dispatch()` function as input and returns a `Dom` as output,
+with DOM and messages types constrained.
+
 **Signature**
 
 ```ts
@@ -31,6 +41,8 @@ export interface Html<Dom, Msg> {
 Added in v0.5.0
 
 # Program (interface)
+
+The `Program` interface is extended with a `html$` stream (an `Observable` of views) and a `Dom` type constraint.
 
 **Signature**
 
@@ -44,6 +56,10 @@ Added in v0.5.0
 
 # Renderer (interface)
 
+Defines the generalized `Renderer` as a function that takes a `Dom` as input and returns a `void`.
+
+It suggests an effectful computation.
+
 **Signature**
 
 ```ts
@@ -56,6 +72,8 @@ Added in v0.5.0
 
 # map (function)
 
+Maps a view which carries a message of type `A` into a view which carries a message of type `B`.
+
 **Signature**
 
 ```ts
@@ -65,6 +83,12 @@ export function map<Dom, A, Msg>(f: (a: A) => Msg): (ha: Html<Dom, A>) => Html<D
 Added in v0.5.0
 
 # program (function)
+
+Returns a `Program` specialized for `Html`.
+
+It needs a `view()` function that maps `Model` to `Html`.
+
+Underneath it uses `Platform.program()`.
 
 **Signature**
 
@@ -81,6 +105,8 @@ Added in v0.5.0
 
 # programWithFlags (function)
 
+Same as `program()` but with `Flags` that can be passed when the `Program` is created in order to manage initial values.
+
 **Signature**
 
 ```ts
@@ -95,6 +121,12 @@ export function programWithFlags<Flags, Model, Msg, Dom>(
 Added in v0.5.0
 
 # run (function)
+
+Runs the `Program`.
+
+Underneath it uses `Platform.run()`.
+
+It subscribes to the views stream (`html$`) and runs `Renderer` for each new value.
 
 **Signature**
 

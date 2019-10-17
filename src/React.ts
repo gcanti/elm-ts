@@ -1,3 +1,7 @@
+/**
+ * @file A specialization of `Html` that uses `React` as renderer.
+ */
+
 import { ReactElement } from 'react'
 import { Observable } from 'rxjs'
 import { Cmd } from './Cmd'
@@ -5,11 +9,13 @@ import * as html from './Html'
 import { Sub } from './Sub'
 
 /**
+ * `Dom` is a `ReactElement`.
  * @since 0.5.0
  */
 export interface Dom extends ReactElement<any> {}
 
 /**
+ * `Html` has `Dom` type constrained to the specialized version for `React`.
  * @since 0.5.0
  */
 export interface Html<Msg> extends html.Html<Dom, Msg> {}
@@ -17,16 +23,18 @@ export interface Html<Msg> extends html.Html<Dom, Msg> {}
 /**
  * @since 0.5.0
  */
+export interface Program<Model, Msg> extends html.Program<Model, Msg, Dom> {}
+
+/**
+ * `map()` is `Html.map()` with `Html` type constrained to the specialized version for `React`.
+ * @since 0.5.0
+ */
 export function map<A, Msg>(f: (a: A) => Msg): (ha: Html<A>) => Html<Msg> {
   return html.map(f)
 }
 
 /**
- * @since 0.5.0
- */
-export interface Program<Model, Msg> extends html.Program<Model, Msg, Dom> {}
-
-/**
+ * `program()` is `Html.program()` with `Html` type constrained to the specialized version for `React`.
  * @since 0.5.0
  */
 export function program<Model, Msg>(
@@ -39,6 +47,7 @@ export function program<Model, Msg>(
 }
 
 /**
+ * Same as `program()` but with `Flags` that can be passed when the `Program` is created in order to manage initial values.
  * @since 0.5.0
  */
 export function programWithFlags<Flags, Model, Msg>(
@@ -51,6 +60,7 @@ export function programWithFlags<Flags, Model, Msg>(
 }
 
 /**
+ * `run()` is `Html.run()` with `dom` type constrained to the specialized version for `React`.
  * @since 0.5.0
  */
 export function run<Model, Msg>(program: Program<Model, Msg>, renderer: html.Renderer<Dom>): Observable<Model> {

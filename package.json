@@ -37,7 +37,8 @@
     "posttest": "npm run docs",
     "prebuild": "rm -rf lib",
     "build": "tsc -p ./tsconfig.build.json && tsc -p ./tsconfig.build-es6.json",
-    "docs": "docs-ts"
+    "docs": "docs-ts",
+    "postdocs": "ts-node scripts/docs-index"
   },
   "dependencies": {
     "axios": "^0.19.0",
@@ -53,7 +54,7 @@
     "@types/blessed": "^0.1.8",
     "@types/history": "^4.6.2",
     "@types/jest": "^24.0.18",
-    "@types/node": "^7.0.8",
+    "@types/node": "^8.10.54",
     "@types/react": "^16.0.27",
     "blessed": "^0.1.81",
     "docs-ts": "^0.2.0",
@@ -61,13 +62,15 @@
     "husky": "^3.0.8",
     "io-ts": "^2.0.0",
     "jest": "^24.9.0",
-    "monocle-ts": "^0.5.2",
+    "monocle-ts": "^2.0.0",
+    "nock": "^11.4.0",
     "prettier": "^1.18.2",
-    "pretty-quick": "^1.11.1",
+    "pretty-quick": "^2.0.0",
     "react": "^16.8.6",
-    "react-blessed": "^0.5.0",
+    "react-blessed": "^0.6.1",
     "rxjs": "^6.5.2",
-    "ts-jest": "24.1.0",
+    "ts-jest": "^24.1.0",
+    "ts-node": "^8.4.1",
     "tslint": "^5.18.0",
     "tslint-config-standard": "^8.0.1",
     "typescript": "^3.5.3"
