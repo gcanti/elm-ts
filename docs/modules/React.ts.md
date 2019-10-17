@@ -4,6 +4,10 @@ nav_order: 8
 parent: Modules
 ---
 
+# Overview
+
+A specialization of `Html` that uses `React` as renderer.
+
 ---
 
 <h2 class="text-delta">Table of contents</h2>
@@ -20,6 +24,8 @@ parent: Modules
 
 # Dom (interface)
 
+`Dom` is a `ReactElement`.
+
 **Signature**
 
 ```ts
@@ -29,6 +35,8 @@ export interface Dom extends ReactElement<any> {}
 Added in v0.5.0
 
 # Html (interface)
+
+`Html` has `Dom` type constrained to the specialized version for `React`.
 
 **Signature**
 
@@ -50,6 +58,8 @@ Added in v0.5.0
 
 # map (function)
 
+`map()` is `Html.map()` with `Html` type constrained to the specialized version for `React`.
+
 **Signature**
 
 ```ts
@@ -59,6 +69,8 @@ export function map<A, Msg>(f: (a: A) => Msg): (ha: Html<A>) => Html<Msg> { ... 
 Added in v0.5.0
 
 # program (function)
+
+`program()` is `Html.program()` with `Html` type constrained to the specialized version for `React`.
 
 **Signature**
 
@@ -75,6 +87,8 @@ Added in v0.5.0
 
 # programWithFlags (function)
 
+Same as `program()` but with `Flags` that can be passed when the `Program` is created in order to manage initial values.
+
 **Signature**
 
 ```ts
@@ -89,6 +103,8 @@ export function programWithFlags<Flags, Model, Msg>(
 Added in v0.5.0
 
 # run (function)
+
+`run()` is `Html.run()` with `dom` type constrained to the specialized version for `React`.
 
 **Signature**
 

@@ -1,60 +1,93 @@
 import * as assert from 'assert'
-import { some } from 'fp-ts/lib/Option'
-import { task } from 'fp-ts/lib/Task'
-import { EMPTY, Observable, of } from 'rxjs'
-import * as cmd from '../src/Cmd'
-import { program, run } from '../src/Platform'
+import * as A from 'fp-ts/lib/Array'
+import * as O from 'fp-ts/lib/Option'
+import * as T from 'fp-ts/lib/Task'
+import { Cmd, none } from '../src/Cmd'
+import { program, programWithFlags, run } from '../src/Platform'
+import { Model, Msg, delayedAssert, init, subscriptions, update } from './_helpers'
 
-type Msg = { type: 'FOO' } | { type: 'BAR' } | { type: 'DO-THE-THING!' } | { type: 'SUB' } | { type: 'LISTEN' }
-
-interface Model {
-  x: string
-}
-const init: [Model, cmd.Cmd<Msg>] = [{ x: '' }, cmd.none]
-
-const withModel = (model: Model): [Model, cmd.Cmd<Msg>] => [model, cmd.none]
-
-const withEffect = (model: Model, cmd: cmd.Cmd<Msg>): [Model, cmd.Cmd<Msg>] => [model, cmd]
-
-const dispatchFoo = of(task.of(some<Msg>({ type: 'FOO' })))
-
-function update(msg: Msg, model: Model): [Model, cmd.Cmd<Msg>] {
-  switch (msg.type) {
-    case 'FOO':
-      return withModel({ ...model, x: 'foo' })
-    case 'BAR':
-      return withModel({ ...model, x: 'bar' })
-    case 'DO-THE-THING!':
-      return withEffect(model, dispatchFoo)
-    case 'SUB':
-      return withModel({ ...model, x: 'sub' })
-    case 'LISTEN':
-      return withModel({ ...model, x: 'listen' })
-  }
-}
-
-function subscriptions(m: Model): Observable<Msg> {
-  return m.x === 'sub' ? of<Msg>({ type: 'LISTEN' }) : EMPTY
-}
-
-const delayedAssert = (f: () => void, delay: number = 50): Promise<void> =>
-  new Promise((resolve, reject) => {
-    setTimeout(() => {
-      try {
-        f()
-        resolve()
-      } catch (e) {
-        reject(e)
-      }
-    }, delay)
-  })
+const sequenceTask = A.array.sequence(T.task)
 
 describe('Platform', () => {
+  describe('program()', () => {
+    it('should return the Model/Cmd/Sub streams and Dispatch function - no subscription', async () => {
+      const models: Model[] = []
+      const cmds: Array<T.Task<O.Option<Msg>>> = []
+      const subs: Msg[] = []
+      const { model$, cmd$, sub$, dispatch } = program(init, update)
+
+      cmd$.subscribe(v => cmds.push(v))
+      model$.subscribe(v => models.push(v))
+      sub$.subscribe(v => subs.push(v))
+
+      dispatch({ type: 'FOO' })
+      dispatch({ type: 'BAR' })
+      dispatch({ type: 'DO-THE-THING!' })
+
+      assert.deepStrictEqual(models, [{ x: '' }, { x: 'foo' }, { x: 'bar' }])
+      assert.deepStrictEqual(subs, [])
+
+      const commands = await sequenceTask(cmds)()
+
+      assert.deepStrictEqual(commands, [O.some({ type: 'FOO' })])
+    })
+
+    it('should return the Model/Cmd/Sub streams and Dispatch function - with subscription', () => {
+      const models: Model[] = []
+      const subs: Msg[] = []
+      const { model$, sub$, dispatch } = program(init, update, subscriptions)
+
+      model$.subscribe(v => models.push(v))
+      sub$.subscribe(v => subs.push(v))
+
+      dispatch({ type: 'FOO' })
+      dispatch({ type: 'BAR' })
+      dispatch({ type: 'SUB' })
+
+      assert.deepStrictEqual(models, [{ x: '' }, { x: 'foo' }, { x: 'bar' }, { x: 'sub' }])
+      assert.deepStrictEqual(subs, [{ type: 'LISTEN' }])
+    })
+  })
+
+  describe('programWithFlags()', () => {
+    it('should return a function which returns a program() with flags on `init` - no subscription', () => {
+      const models: Model[] = []
+      const subs: Msg[] = []
+
+      const initWithFlags = (f: string): [Model, Cmd<Msg>] => [{ x: f }, none]
+      const withFlags = programWithFlags(initWithFlags, update)
+      const { model$, sub$ } = withFlags('start!')
+
+      model$.subscribe(v => models.push(v))
+      sub$.subscribe(v => subs.push(v))
+
+      assert.deepStrictEqual(models, [{ x: 'start!' }])
+      assert.deepStrictEqual(subs, [])
+    })
+
+    it('should return a function which returns a program() with flags on `init` - with subscription', () => {
+      const models: Model[] = []
+      const subs: Msg[] = []
+
+      const initWithFlags = (f: string): [Model, Cmd<Msg>] => [{ x: f }, none]
+      const withFlags = programWithFlags(initWithFlags, update, subscriptions)
+      const { model$, sub$, dispatch } = withFlags('start!')
+
+      model$.subscribe(v => models.push(v))
+      sub$.subscribe(v => subs.push(v))
+
+      dispatch({ type: 'SUB' })
+
+      assert.deepStrictEqual(models, [{ x: 'start!' }, { x: 'sub' }])
+      assert.deepStrictEqual(subs, [{ type: 'LISTEN' }])
+    })
+  })
+
   it('run() should run the Program', () => {
     // setup
-    const log: Array<Model> = []
+    const models: Model[] = []
     const p = program(init, update, subscriptions)
-    p.model$.subscribe(model => log.push(model))
+    p.model$.subscribe(model => models.push(model))
 
     // run
     run(p)
@@ -67,7 +100,14 @@ describe('Platform', () => {
 
     // assert
     return delayedAssert(() => {
-      assert.deepEqual(log, [{ x: '' }, { x: 'foo' }, { x: 'sub' }, { x: 'listen' }, { x: 'bar' }, { x: 'foo' }])
+      assert.deepStrictEqual(models, [
+        { x: '' },
+        { x: 'foo' },
+        { x: 'sub' },
+        { x: 'listen' },
+        { x: 'bar' },
+        { x: 'foo' }
+      ])
     })
   })
 })

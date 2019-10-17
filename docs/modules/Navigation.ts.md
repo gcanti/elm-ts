@@ -4,6 +4,12 @@ nav_order: 6
 parent: Modules
 ---
 
+# Overview
+
+A specialization of `Program` that handles application navigation via location's hash.
+
+It uses [`history`](https://github.com/ReactTraining/history) package
+
 ---
 
 <h2 class="text-delta">Table of contents</h2>
@@ -27,6 +33,12 @@ Added in v0.5.0
 
 # program (function)
 
+Returns a `Program` specialized for `Navigation`.
+
+The `Program` is a `Html.Program` but it needs a `locationToMsg()` function which converts location changes to messages.
+
+Underneath it consumes `location$` stream (applying `locationToMsg()` on its values).
+
 **Signature**
 
 ```ts
@@ -43,6 +55,8 @@ Added in v0.5.0
 
 # programWithFlags (function)
 
+Same as `program()` but with `Flags` that can be passed when the `Program` is created in order to manage initial values.
+
 **Signature**
 
 ```ts
@@ -58,6 +72,8 @@ export function programWithFlags<Flags, Model, Msg, Dom>(
 Added in v0.5.0
 
 # push (function)
+
+Generates a `Cmd` that adds a new location to the history's list.
 
 **Signature**
 

@@ -1,3 +1,9 @@
+/**
+ * @file Makes http calls to remote resources as `Cmd`s.
+ *
+ * See [Http](https://package.elm-lang.org/packages/elm/http/latest/Http) Elm package.
+ */
+
 import axios, { AxiosError, AxiosRequestConfig, AxiosResponse } from 'axios'
 import * as E from 'fp-ts/lib/Either'
 import * as O from 'fp-ts/lib/Option'
@@ -116,6 +122,7 @@ export function toTask<A>(req: Request<A>): TaskEither<HttpError, A> {
 }
 
 /**
+ * Executes as `Cmd` the provided call to remote resource, mapping result to a `Msg`.
  * @since 0.5.0
  */
 export function send<A, Msg>(f: (e: E.Either<HttpError, A>) => Msg): (req: Request<A>) => Cmd<Msg> {

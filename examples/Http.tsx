@@ -63,7 +63,7 @@ function getRandomGif(topic: string): cmd.Cmd<Msg> {
 }
 
 // --- Update
-const gifUrlLens = Lens.fromProp<Model, 'gifUrl'>('gifUrl')
+const gifUrlLens = Lens.fromProp<Model>()('gifUrl')
 
 export function update(msg: Msg, model: Model): [Model, cmd.Cmd<Msg>] {
   switch (msg.type) {

@@ -1,7 +1,13 @@
-import { Option, option } from 'fp-ts/lib/Option'
+/**
+ * @file Defines `Cmd`s as streams of asynchronous operations which can not fail and that can optionally carry a message.
+ *
+ * See the [Platform.Cmd](https://package.elm-lang.org/packages/elm/core/latest/Platform-Cmd) Elm package.
+ */
+
+import { Option, option, some } from 'fp-ts/lib/Option'
 import { Task, task } from 'fp-ts/lib/Task'
-import { EMPTY, Observable, merge } from 'rxjs'
-import * as Rx from 'rxjs/operators'
+import { EMPTY, Observable, merge, of as RxOf } from 'rxjs'
+import { map as RxMap } from 'rxjs/operators'
 
 /**
  * @since 0.5.0
@@ -9,13 +15,23 @@ import * as Rx from 'rxjs/operators'
 export interface Cmd<Msg> extends Observable<Task<Option<Msg>>> {}
 
 /**
+ * Creates a new `Cmd` that carries the provided `Msg`.
  * @since 0.5.0
  */
-export function map<A, Msg>(f: (a: A) => Msg): (cmd: Cmd<A>) => Cmd<Msg> {
-  return cmd => cmd.pipe(Rx.map(t => task.map(t, o => option.map(o, f))))
+export function of<Msg>(m: Msg): Cmd<Msg> {
+  return RxOf(task.of(some(m)))
 }
 
 /**
+ * Maps the carried `Msg` of a `Cmd` into another `Msg`.
+ * @since 0.5.0
+ */
+export function map<A, Msg>(f: (a: A) => Msg): (cmd: Cmd<A>) => Cmd<Msg> {
+  return cmd => cmd.pipe(RxMap(t => task.map(t, o => option.map(o, f))))
+}
+
+/**
+ * Batches the execution of a list of commands.
  * @since 0.5.0
  */
 export function batch<Msg>(arr: Array<Cmd<Msg>>): Cmd<Msg> {
@@ -23,6 +39,7 @@ export function batch<Msg>(arr: Array<Cmd<Msg>>): Cmd<Msg> {
 }
 
 /**
+ * A `none` command is an empty stream.
  * @since 0.5.0
  */
 export const none: Cmd<never> = EMPTY
