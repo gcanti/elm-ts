@@ -34,6 +34,7 @@
     "jest": "jest --ci --coverage",
     "pretest": "npm run check && npm run lint",
     "test": "npm run jest",
+    "posttest": "npm run docs",
     "prebuild": "rm -rf lib",
     "build": "tsc -p ./tsconfig.build.json && tsc -p ./tsconfig.build-es6.json",
     "docs": "docs-ts",
@@ -97,7 +98,7 @@
   },
   "husky": {
     "hooks": {
-      "pre-commit": "ts-node scripts/docs-staged && pretty-quick --staged"
+      "pre-commit": "pretty-quick --staged"
     }
   }
 }

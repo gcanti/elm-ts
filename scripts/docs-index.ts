@@ -1,10 +1,9 @@
-import { chain, map, mapLeft, taskify } from 'fp-ts/lib/TaskEither'
+import { chain, map, mapLeft, rightIO, taskify } from 'fp-ts/lib/TaskEither'
 import { flow } from 'fp-ts/lib/function'
 import { pipe } from 'fp-ts/lib/pipeable'
 import * as fs from 'fs'
 import * as path from 'path'
-import { cwd } from './bindings'
-import { Eff, Program, run, unexpected } from './program'
+import { Eff, Program, run } from './program'
 
 const README_FILE = 'README.md'
 const DOCS_INDEX_FILE = 'docs/index.md'
@@ -29,7 +28,7 @@ const readFileTE = taskify<fs.PathLike, string, NodeJS.ErrnoException, string>(f
 const writeFileTE = taskify<fs.PathLike, string, NodeJS.ErrnoException, void>(fs.writeFile)
 
 const capabilities: Capabilities = {
-  cwd,
+  cwd: rightIO(() => process.cwd()),
 
   readFile: path =>
     pipe(
@@ -46,11 +45,8 @@ const capabilities: Capabilities = {
 const main: Program<Capabilities, string> = C =>
   pipe(
     C.cwd,
-    map(dir => ({
-      input: path.join(dir, README_FILE),
-      output: path.join(dir, DOCS_INDEX_FILE)
-    })),
-    chain(({ input, output }) =>
+    map(dir => [path.join(dir, README_FILE), path.join(dir, DOCS_INDEX_FILE)] as const),
+    chain(([input, output]) =>
       pipe(
         C.readFile(input),
         chain(data => C.writeFile(output, `${HEADLINE}${data}`))
@@ -60,4 +56,4 @@ const main: Program<Capabilities, string> = C =>
   )
 
 // --- Run the program
-run(main(capabilities)).catch(unexpected)
+run(main(capabilities))
