@@ -26,35 +26,35 @@
   },
   "homepage": "https://github.com/gcanti/elm-ts",
   "dependencies": {
-    "axios": "^0.17.1",
-    "fp-ts": "^1.0.1",
-    "history": "^4.7.2",
-    "io-ts": "^1.0.2",
-    "react": "^16.0.0",
-    "rxjs": "^5.5.4"
+    "axios": "^0.19.0",
+    "fp-ts": "^2.1.1",
+    "history": "^4.10.1",
+    "io-ts": "^2.0.1",
+    "react": "^16.11.0",
+    "rxjs": "^6.5.3"
   },
   "peerDependencies": {
-    "@types/history": "^4.6.2"
+    "@types/history": "^4.7.3"
   },
   "devDependencies": {
-    "@types/blessed": "0.1.8",
-    "@types/history": "4.6.2",
-    "@types/mocha": "^5.2.5",
-    "@types/node": "7.0.8",
-    "@types/react": "16.0.27",
-    "@types/react-dom": "16.0.3",
+    "@types/blessed": "0.1.12",
+    "@types/history": "4.7.3",
+    "@types/mocha": "^5.2.7",
+    "@types/node": "12.11.6",
+    "@types/react": "16.9.9",
+    "@types/react-dom": "16.9.2",
     "awesome-typescript-loader": "^5.2.1",
     "blessed": "0.1.81",
     "docs-ts": "0.0.1",
-    "mocha": "^5.2.0",
-    "monocle-ts": "^0.5.2",
-    "prettier": "^1.13.4",
-    "react-blessed": "^0.5.0",
-    "ts-node": "3.3.0",
-    "tslint": "4.4.2",
-    "tslint-config-standard": "4.0.0",
-    "typescript": "^2.8.3",
-    "webpack": "^4.26.0"
+    "mocha": "^6.2.2",
+    "monocle-ts": "^2.0.0",
+    "prettier": "^1.18.2",
+    "react-blessed": "^0.6.1",
+    "ts-node": "8.4.1",
+    "tslint": "5.20.0",
+    "tslint-config-standard": "8.0.1",
+    "typescript": "^3.6.4",
+    "webpack": "^4.41.2"
   },
   "tags": [
     "typescript",
@@ -65,5 +65,8 @@
     "typescript",
     "elm",
     "fp-ts"
-  ]
+  ],
+  "engines": {
+    "node": "12"
+  }
 }

@@ -1,15 +1,14 @@
-import { Observable } from 'rxjs/Observable'
-import 'rxjs/add/observable/interval'
-import 'rxjs/add/operator/map'
+import { interval } from 'rxjs'
 import { Task } from 'fp-ts/lib/Task'
 import { Sub } from './Sub'
+import { map } from 'rxjs/operators'
 
 export type Time = number
 
 export function now(): Task<Time> {
-  return new Task(() => Promise.resolve(new Date().getTime()))
+  return () => Promise.resolve(new Date().getTime())
 }
 
 export function every<msg>(time: Time, f: (time: Time) => msg): Sub<msg> {
-  return Observable.interval(time).map(() => f(new Date().getTime()))
+  return interval(time).pipe(map(() => f(new Date().getTime())))
 }

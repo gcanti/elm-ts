@@ -1,5 +1,4 @@
-import axios from 'axios'
-import { AxiosResponse, AxiosRequestConfig, AxiosError } from 'axios'
+import axios, { AxiosResponse, AxiosRequestConfig, AxiosError } from 'axios'
 import { Option, none } from 'fp-ts/lib/Option'
 import { Either, left } from 'fp-ts/lib/Either'
 import { Task } from 'fp-ts/lib/Task'
@@ -8,6 +7,8 @@ import { Decoder, mixed } from './Decode'
 import { Cmd } from './Cmd'
 import { attempt } from './Task'
 import { identity } from 'fp-ts/lib/function'
+import { pipe } from 'fp-ts/lib/pipeable'
+import { either, option } from 'fp-ts'
 
 export type Method = 'GET' | 'POST' | 'PUT' | 'DELETE'
 
@@ -76,7 +77,10 @@ function axiosResponseToResponse(res: AxiosResponse): Response<string> {
 }
 
 function axiosResponseToEither<a>(res: AxiosResponse, expect: Expect<a>): Either<HttpError, a> {
-  return expect(res.data).mapLeft(errors => new BadPayload(errors, axiosResponseToResponse(res)))
+  return pipe(
+    expect(res.data),
+    either.mapLeft(errors => new BadPayload(errors, axiosResponseToResponse(res)))
+  )
 }
 
 function axiosErrorToEither<a>(e: AxiosError): Either<HttpError, a> {
@@ -102,18 +106,20 @@ function getPromiseAxiosResponse(config: AxiosRequestConfig): Promise<AxiosRespo
 }
 
 export function toTask<a>(req: Request<a>): Task<Either<HttpError, a>> {
-  return new Task(() =>
+  return () =>
     getPromiseAxiosResponse({
       method: req.method,
       headers: req.headers,
       url: req.url,
       data: req.body,
-      timeout: req.timeout.fold(undefined, identity),
+      timeout: pipe(
+        req.timeout,
+        option.fold(() => undefined, identity)
+      ),
       withCredentials: req.withCredentials
     })
       .then(res => axiosResponseToEither(res, req.expect))
       .catch(e => axiosErrorToEither<a>(e))
-  )
 }
 
 export function send<a, msg>(req: Request<a>, f: (e: Either<HttpError, a>) => msg): Cmd<msg> {

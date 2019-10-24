@@ -1,3 +1,5 @@
+import { ReactChildren } from 'react'
+
 declare module 'react-blessed'
 
 declare namespace JSX {

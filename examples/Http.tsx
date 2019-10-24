@@ -5,6 +5,8 @@ import { cmd, http, decode } from '../src'
 import { Html } from '../src/React'
 import { Either } from 'fp-ts/lib/Either'
 import { Option, none, some } from 'fp-ts/lib/Option'
+import { pipe } from 'fp-ts/lib/pipeable'
+import { either, option } from 'fp-ts'
 
 // original: https://guide.elm-lang.org/architecture/effects/http.html
 
@@ -35,7 +37,7 @@ function newGif(result: Result): NewGif {
   return { type: 'NewGif', result }
 }
 
-const gifUrlLens = Lens.fromProp<Model, 'gifUrl'>('gifUrl')
+const gifUrlLens = Lens.fromProp<Model>()('gifUrl')
 
 const ApiPayloadSchema = t.interface({
   data: t.interface({
@@ -48,7 +50,14 @@ const decoder = decode.fromType(ApiPayloadSchema)
 function getRandomGif(topic: string): cmd.Cmd<Msg> {
   const url = `https://api.giphy.com/v1/gifs/random?api_key=dc6zaTOxFJmzC&tag=${topic}`
   const req = http.get(url, decoder)
-  return http.send(req, e => newGif(e.map(a => a.data.image_url)))
+  return http.send(req, e =>
+    newGif(
+      pipe(
+        e,
+        either.map(a => a.data.image_url)
+      )
+    )
+  )
 }
 
 export function update(msg: Msg, model: Model): [Model, cmd.Cmd<Msg>] {
@@ -65,9 +74,12 @@ export function view(model: Model): Html<Msg> {
   return dispatch => (
     <div>
       <h2>{model.topic}</h2>
-      {model.gifUrl.foldL(
-        () => <span>loading...</span>,
-        e => e.fold(error => <span>Error: {error._tag}</span>, gifUrl => <img src={gifUrl} />)
+      {pipe(
+        model.gifUrl,
+        option.fold(
+          () => <span>loading...</span>,
+          either.fold(error => <span>Error: {error._tag}</span>, gifUrl => <img src={gifUrl} />)
+        )
       )}
       <button onClick={() => dispatch({ type: 'MorePlease' })}>New Gif</button>
     </div>

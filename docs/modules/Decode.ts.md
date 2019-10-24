@@ -22,7 +22,7 @@ parent: Modules
 
 ```ts
 export interface Decoder<a> {
-  decode: (value: mixed) => Either<string, a>
+  decode: (value: mixed) => E.Either<string, a>
 }
 ```
 
@@ -31,7 +31,7 @@ export interface Decoder<a> {
 **Signature**
 
 ```ts
-export type mixed = mixed
+export type mixed = unknown
 ```
 
 # decodeJSON (function)
@@ -39,7 +39,7 @@ export type mixed = mixed
 **Signature**
 
 ```ts
-export function decodeJSON<a>(decoder: Decoder<a>, value: mixed): Either<string, a> { ... }
+export function decodeJSON<a>(decoder: Decoder<a>, value: mixed): E.Either<string, a> { ... }
 ```
 
 # fromType (function)

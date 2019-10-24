@@ -1,12 +1,8 @@
-import { Observable } from 'rxjs/Observable'
-import { BehaviorSubject } from 'rxjs/BehaviorSubject'
-import 'rxjs/add/operator/switchMap'
-import 'rxjs/add/operator/mergeAll'
-import 'rxjs/add/operator/distinctUntilChanged'
-import 'rxjs/add/operator/share'
-import 'rxjs/add/operator/startWith'
+import { BehaviorSubject, Observable } from 'rxjs'
 import { Cmd } from './Cmd'
 import { Sub, none } from './Sub'
+import { distinctUntilChanged, map, mergeAll, share, startWith, switchMap } from 'rxjs/operators'
+import { option as O } from 'fp-ts'
 
 export interface Dispatch<msg> {
   (msg: msg): void
@@ -34,15 +30,21 @@ export function program<model, msg>(
 ): Program<model, msg> {
   const state$ = new BehaviorSubject(init)
   const dispatch: Dispatch<msg> = msg => state$.next(update(msg, state$.value[0]))
-  const cmd$ = state$
-    .distinctUntilChanged(cmdCompare)
-    .map(state => state[1])
-    .mergeAll()
-  const model$ = state$
-    .distinctUntilChanged(modelCompare)
-    .map(state => state[0])
-    .share()
-  const sub$ = model$.startWith(init[0]).switchMap(model => subscriptions(model))
+  const cmd$ = state$.pipe(
+    distinctUntilChanged(cmdCompare),
+    map(state => state[1]),
+    mergeAll()
+  )
+
+  const model$ = state$.pipe(
+    distinctUntilChanged(modelCompare),
+    map(state => state[0]),
+    share()
+  )
+  const sub$ = model$.pipe(
+    startWith(init[0]),
+    switchMap(subscriptions)
+  )
   return { dispatch, cmd$, sub$, model$ }
 }
 
@@ -56,7 +58,7 @@ export function programWithFlags<flags, model, msg>(
 
 export function run<model, msg>(program: Program<model, msg>): Observable<model> {
   const { dispatch, cmd$, sub$, model$ } = program
-  cmd$.subscribe(task => task.run().then(o => o.map(dispatch)))
+  cmd$.subscribe(task => task().then(O.map(dispatch)))
   sub$.subscribe(dispatch)
   return model$
 }

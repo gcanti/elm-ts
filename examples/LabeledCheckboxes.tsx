@@ -23,9 +23,9 @@ export function init(flags: Flags): [Model, cmd.Cmd<Msg>] {
 
 export type Msg = { type: 'ToggleNotifications' } | { type: 'ToggleAutoplay' } | { type: 'ToggleLocation' }
 
-const notificationsLens = Lens.fromProp<Model, 'notifications'>('notifications')
-const autoplayLens = Lens.fromProp<Model, 'autoplay'>('autoplay')
-const locationLens = Lens.fromProp<Model, 'location'>('location')
+const notificationsLens = Lens.fromProp<Model>()('notifications')
+const autoplayLens = Lens.fromProp<Model>()('autoplay')
+const locationLens = Lens.fromProp<Model>()('location')
 
 const toggle = (b: boolean): boolean => !b
 

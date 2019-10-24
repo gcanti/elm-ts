@@ -1,9 +1,12 @@
 import { cmd } from '../src'
 import { Html } from '../src/React'
 import * as React from 'react'
-import { Task, perform } from '../src/Task'
+import { perform } from '../src/Task'
 import { Time, now } from '../src/Time'
 import { Option, none, some } from 'fp-ts/lib/Option'
+import { Task } from 'fp-ts/lib/Task'
+import { pipe } from 'fp-ts/lib/pipeable'
+import { option } from 'fp-ts'
 
 export type Model = Option<Time>
 
@@ -24,12 +27,10 @@ function newTime(time: Time): NewTime {
 }
 
 function delay<A>(n: number, task: Task<A>): Task<A> {
-  return new Task<A>(
-    () =>
-      new Promise(resolve => {
-        setTimeout(() => task.run().then(resolve), n)
-      })
-  )
+  return () =>
+    new Promise(resolve => {
+      setTimeout(() => task().then(resolve), n)
+    })
 }
 
 export function update(msg: Msg, model: Model): [Model, cmd.Cmd<Msg>] {
@@ -50,7 +51,11 @@ const displayLoading = () => 'loading...'
 export function view(model: Model): Html<Msg> {
   return dispatch => (
     <div>
-      Time: {model.foldL(displayLoading, displayTime)}
+      Time:{' '}
+      {pipe(
+        model,
+        option.fold(displayLoading, displayTime)
+      )}
       <button onClick={() => dispatch({ type: 'Click' })}>New time</button>
     </div>
   )

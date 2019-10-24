@@ -1,18 +1,15 @@
-import { Observable } from 'rxjs/Observable'
-import 'rxjs/add/observable/of'
+import { of } from 'rxjs'
 import { Cmd } from './Cmd'
 import { Task, task } from 'fp-ts/lib/Task'
+
 import { some } from 'fp-ts/lib/Option'
-import { sequence as seq } from 'fp-ts/lib/Traversable'
 import { array } from 'fp-ts/lib/Array'
 import { Either } from 'fp-ts/lib/Either'
 
-export { Task }
+const sequenceTasks = array.sequence(task)
 
-const sequenceTasks = seq(task, array)
-
-export function perform<a, msg>(task: Task<a>, f: (a: a) => msg): Cmd<msg> {
-  return Observable.of(task.map(a => some(f(a))))
+export function perform<a, msg>(t: Task<a>, f: (a: a) => msg): Cmd<msg> {
+  return of(task.map(t, a => some(f(a))))
 }
 
 export function sequence<a>(tasks: Array<Task<a>>): Task<Array<a>> {
