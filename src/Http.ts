@@ -4,31 +4,38 @@
  * See [Http](https://package.elm-lang.org/packages/elm/http/latest/Http) Elm package.
  */
 
-import axios, { AxiosError, AxiosRequestConfig, AxiosResponse } from 'axios'
 import * as E from 'fp-ts/lib/Either'
 import * as O from 'fp-ts/lib/Option'
-import { TaskEither } from 'fp-ts/lib/TaskEither'
-import { identity } from 'fp-ts/lib/function'
+import * as T from 'fp-ts/lib/Task'
+import * as TE from 'fp-ts/lib/TaskEither'
+import { flow, identity } from 'fp-ts/lib/function'
 import { pipe } from 'fp-ts/lib/pipeable'
+import { Observable, of } from 'rxjs'
+import { AjaxError, AjaxRequest, AjaxResponse, AjaxTimeoutError, ajax } from 'rxjs/ajax'
+import { catchError, map } from 'rxjs/operators'
 import { Cmd } from './Cmd'
 import { Decoder } from './Decode'
-import { attempt } from './Task'
+
+// --- Aliases for docs
+import Option = O.Option
+import Either = E.Either
+import TaskEither = TE.TaskEither
 
 /**
  * @since 0.5.0
  */
-export type Method = 'GET' | 'POST' | 'PUT' | 'DELETE'
+export type Method = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE'
 
 /**
  * @since 0.5.0
  */
 export interface Request<A> {
+  expect: Decoder<A>
+  url: string
   method: Method
   headers: Record<string, string>
-  url: string
   body?: unknown
-  expect: Decoder<A>
-  timeout: O.Option<number>
+  timeout: Option<number>
   withCredentials: boolean
 }
 
@@ -55,78 +62,19 @@ export type Response<Body> = {
   body: Body
 }
 
-function axiosResponseToResponse(res: AxiosResponse): Response<string> {
-  return {
-    url: res.config.url!,
-    status: {
-      code: res.status,
-      message: res.statusText
-    },
-    headers: res.headers,
-    body: res.request.responseText
-  }
-}
-
-function axiosResponseToEither<A>(res: AxiosResponse, expect: Decoder<A>): E.Either<HttpError, A> {
-  return pipe(
-    expect(res.data),
-    E.mapLeft(errors => ({
-      _tag: 'BadPayload',
-      value: errors,
-      response: axiosResponseToResponse(res)
-    }))
-  )
-}
-
-function axiosErrorToEither<A>(e: AxiosError): E.Either<HttpError, A> {
-  // tslint:disable-next-line: strict-type-predicates
-  if (e.response != null) {
-    const res = e.response
-    switch (res.status) {
-      case 404:
-        return E.left({ _tag: 'BadUrl', value: res.config.url! })
-      default:
-        return E.left({ _tag: 'BadStatus', response: axiosResponseToResponse(res) })
-    }
-  }
-
-  if (e.code === 'ECONNABORTED') {
-    return E.left({ _tag: 'Timeout' })
-  } else {
-    return E.left({ _tag: 'NetworkError', value: e.message })
-  }
-}
-
-function getPromiseAxiosResponse(config: AxiosRequestConfig): Promise<AxiosResponse> {
-  return axios(config)
-}
-
 /**
  * @since 0.5.0
  */
 export function toTask<A>(req: Request<A>): TaskEither<HttpError, A> {
-  return () =>
-    getPromiseAxiosResponse({
-      method: req.method,
-      headers: req.headers,
-      url: req.url,
-      data: req.body,
-      timeout: pipe(
-        req.timeout,
-        O.fold(() => undefined, identity)
-      ),
-      withCredentials: req.withCredentials
-    })
-      .then(res => axiosResponseToEither(res, req.expect))
-      .catch(e => axiosErrorToEither<A>(e))
+  return () => xhr(req).toPromise()
 }
 
 /**
  * Executes as `Cmd` the provided call to remote resource, mapping result to a `Msg`.
  * @since 0.5.0
  */
-export function send<A, Msg>(f: (e: E.Either<HttpError, A>) => Msg): (req: Request<A>) => Cmd<Msg> {
-  return req => attempt(f)(toTask(req))
+export function send<A, Msg>(f: (e: Either<HttpError, A>) => Msg): (req: Request<A>) => Cmd<Msg> {
+  return req => xhr(req).pipe(map(result => T.of(O.some(f(result)))))
 }
 
 /**
@@ -157,4 +105,71 @@ export function post<a>(url: string, body: unknown, decoder: Decoder<a>): Reques
     timeout: O.none,
     withCredentials: false
   }
+}
+
+// --- Helpers
+function xhr<A>(req: Request<A>): Observable<Either<HttpError, A>> {
+  return ajax(toXHRRequest(req)).pipe(
+    map(
+      flow(
+        toResponse(req),
+        decodeWith(req.expect)
+      )
+    ),
+    catchError((e: any): Observable<Either<HttpError, A>> => of(E.left(toHttpError(e))))
+  )
+}
+
+function toXHRRequest<A>(req: Request<A>): AjaxRequest {
+  return {
+    ...req,
+    timeout: pipe(
+      req.timeout,
+      O.fold(() => 0, identity)
+    ),
+    async: true,
+    responseType: 'json'
+  }
+}
+
+function toResponse<A>(req: Request<A>): (resp: AjaxResponse) => Response<string> {
+  return resp => ({
+    url: req.url,
+    status: {
+      code: resp.status,
+      message: ''
+    },
+    headers: req.headers,
+    body: resp.response
+  })
+}
+
+function decodeWith<A>(decoder: Decoder<A>): (resp: Response<string>) => Either<HttpError, A> {
+  return resp =>
+    pipe(
+      decoder(resp.body),
+      E.mapLeft(e => ({
+        _tag: 'BadPayload',
+        value: e,
+        response: resp
+      }))
+    )
+}
+
+function toHttpError(e: any): HttpError {
+  if (e instanceof AjaxTimeoutError) {
+    return { _tag: 'Timeout' }
+  }
+
+  // RxJS ajax method can throw errors of different types (not just `AjaxError`).
+  // These controls seem to cover every case.
+  if (e instanceof AjaxError && e.status === 404) {
+    return { _tag: 'BadUrl', value: e.request.url! }
+  }
+
+  if (e instanceof AjaxError && e.status !== 0) {
+    return { _tag: 'BadStatus', response: e.response }
+  }
+
+  return { _tag: 'NetworkError', value: e.message }
 }

@@ -31,12 +31,12 @@ See [Http](https://package.elm-lang.org/packages/elm/http/latest/Http) Elm packa
 
 ```ts
 export interface Request<A> {
+  expect: Decoder<A>
+  url: string
   method: Method
   headers: Record<string, string>
-  url: string
   body?: unknown
-  expect: Decoder<A>
-  timeout: O.Option<number>
+  timeout: Option<number>
   withCredentials: boolean
 }
 ```
@@ -63,7 +63,7 @@ Added in v0.5.0
 **Signature**
 
 ```ts
-export type Method = 'GET' | 'POST' | 'PUT' | 'DELETE'
+export type Method = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE'
 ```
 
 Added in v0.5.0
@@ -113,7 +113,7 @@ Executes as `Cmd` the provided call to remote resource, mapping result to a `Msg
 **Signature**
 
 ```ts
-export function send<A, Msg>(f: (e: E.Either<HttpError, A>) => Msg): (req: Request<A>) => Cmd<Msg> { ... }
+export function send<A, Msg>(f: (e: Either<HttpError, A>) => Msg): (req: Request<A>) => Cmd<Msg> { ... }
 ```
 
 Added in v0.5.0

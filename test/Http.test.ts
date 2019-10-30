@@ -4,124 +4,157 @@ import { none, some } from 'fp-ts/lib/Option'
 import { flow } from 'fp-ts/lib/function'
 import * as t from 'io-ts'
 import { failure } from 'io-ts/lib/PathReporter'
-import * as nock from 'nock'
+import mock from 'xhr-mock'
 import { Decoder } from '../src/Decode'
 import * as Http from '../src/Http'
 
 describe('Http', () => {
-  describe('toTask', () => {
-    it('should fetch a valid url', () => {
-      nock('http://example.com')
-        .get('/test')
-        .reply(200, 'test')
+  describe('toTask()', () => {
+    beforeEach(() => mock.setup())
+
+    afterEach(() => mock.teardown())
+
+    it('should fetch a valid url', async () => {
+      mock.get('http://example.com/test', {
+        status: 200,
+        body: JSON.stringify('test')
+      })
 
       const request = Http.get('http://example.com/test', fromCodec(t.string))
+      const result = await Http.toTask(request)()
 
-      return Http.toTask(request)().then(r => {
-        assert.deepEqual(r, E.right('test'))
-      })
+      assert.deepStrictEqual(result, E.right('test'))
     })
 
-    it('should validate the payload', () => {
-      nock('http://example.com')
-        .get('/test')
-        .reply(200, 'test')
+    it('should validate the payload', async () => {
+      mock.get('http://example.com/test', {
+        status: 200,
+        body: JSON.stringify('test')
+      })
 
       const request = Http.get('http://example.com/test', fromCodec(t.number))
+      const result = await Http.toTask(request)()
 
-      return Http.toTask(request)().then(r => {
-        if (E.isLeft(r) && r.left._tag === 'BadPayload') {
-          return assert.strictEqual(r.left.value, 'Invalid value "test" supplied to : number')
-        }
-
-        throw new Error('not a BadPayload')
-      })
+      assert.deepStrictEqual(
+        result,
+        E.left({
+          _tag: 'BadPayload',
+          value: 'Invalid value "test" supplied to : number',
+          response: {
+            url: 'http://example.com/test',
+            status: { code: 200, message: '' },
+            headers: {},
+            body: 'test'
+          }
+        })
+      )
     })
 
-    it('should handle 404', () => {
-      nock('http://example.com')
-        .get('/test')
-        .reply(404)
+    it('should handle 404', async () => {
+      mock.get('http://example.com/test', {
+        status: 404
+      })
 
       const request = Http.get('http://example.com/test', fromCodec(t.string))
+      const result = await Http.toTask(request)()
 
-      return Http.toTask(request)().then(r => {
-        if (E.isLeft(r)) {
-          return assert.strictEqual(r.left._tag, 'BadUrl')
-        }
-
-        throw new Error('not a BadUrl')
-      })
+      assert.deepStrictEqual(result, E.left({ _tag: 'BadUrl', value: 'http://example.com/test' }))
     })
 
-    it('should handle a timeout', () => {
-      nock('http://example.com')
-        .get('/test')
-        .delay(2000)
-        .reply(200)
+    it('should handle bad responses', async () => {
+      mock.get('http://example.com/test', {
+        status: 500,
+        body: JSON.stringify('bad response')
+      })
+
+      const request = Http.get('http://example.com/test', fromCodec(t.string))
+      const result = await Http.toTask(request)()
+
+      assert.deepStrictEqual(result, E.left({ _tag: 'BadStatus', response: 'bad response' }))
+    })
+
+    it('should handle a timeout', async () => {
+      // ref. https://www.npmjs.com/package/xhr-mock#simulate-a-timeout
+      mock.get('http://example.com/test', () => new Promise(() => undefined))
 
       const request = Http.get('http://example.com/test', fromCodec(t.string))
 
       request.timeout = some(1)
 
-      return Http.toTask(request)().then(r => {
-        if (E.isLeft(r)) {
-          return assert.strictEqual(r.left._tag, 'Timeout')
-        }
+      const result = await Http.toTask(request)()
 
-        throw new Error('not a Timeout')
-      })
+      assert.deepStrictEqual(result, E.left({ _tag: 'Timeout' }))
     })
 
-    it('should handle a network error', () => {
-      nock('http://example.com')
-        .get('/test')
-        .replyWithError('network error')
+    it('should handle a network error (ajax)', async () => {
+      // temporary disable console.error to reduce noise
+      const spy = jest.spyOn(console, 'error').mockImplementation(() => undefined)
+
+      // ref. https://www.npmjs.com/package/xhr-mock#simulate-an-error
+      mock.get('http://example.com/test', () => Promise.reject(new Error('network error')))
 
       const request = Http.get('http://example.com/test', fromCodec(t.string))
+      const result = await Http.toTask(request)()
 
-      return Http.toTask(request)().then(r => {
-        if (E.isLeft(r) && r.left._tag === 'NetworkError') {
-          return assert.strictEqual(r.left.value, 'network error')
-        }
+      spy.mockRestore()
 
-        throw new Error('not a NetworkError')
-      })
+      assert.deepStrictEqual(result, E.left({ _tag: 'NetworkError', value: 'ajax error' }))
+    })
+
+    it('should handle a network error (generic)', async () => {
+      // temporary disable console.error to reduce noise
+      const spy = jest.spyOn(console, 'error').mockImplementation(() => undefined)
+
+      // temporary disable xhr mock in order to let the request fail
+      mock.teardown()
+
+      const request = Http.get('http://example.com/test', fromCodec(t.string))
+      const result = await Http.toTask(request)()
+
+      spy.mockRestore()
+
+      assert.deepStrictEqual(result, E.left({ _tag: 'NetworkError', value: 'ajax error' }))
     })
   })
 
   describe('send()', () => {
-    it('send() should request an http call and return a Cmd - OK', done => {
-      nock('http://example.com')
-        .get('/test')
-        .reply(200, 'test')
+    beforeEach(() => mock.setup())
 
-      const request = Http.send<string, Msg>(E.fold<Http.HttpError, string, Msg>(ko, ok))
+    afterEach(() => mock.teardown())
+
+    it('should request an http call and return a Cmd - OK', done => {
+      mock.get('http://example.com/test', {
+        status: 200,
+        body: JSON.stringify('test')
+      })
+
+      const request = Http.send(E.fold(msg, msg))
 
       const cmd = request(Http.get('http://example.com/test', fromCodec(t.string)))
 
       return cmd.subscribe(async to => {
         const result = await to()
 
-        assert.deepEqual(result, some({ type: 'OK', payload: 'test' }))
+        assert.deepStrictEqual(result, some({ payload: 'test' }))
 
         done()
       })
     })
 
-    it('send() should request an http call and return a Cmd - KO', done => {
-      nock('http://example.com')
-        .get('/test')
-        .reply(500)
+    it('should request an http call and return a Cmd - KO', done => {
+      mock.get('http://example.com/test', {
+        status: 500,
+        body: JSON.stringify('bad response')
+      })
 
-      const request = Http.send<string, Msg>(E.fold<Http.HttpError, string, Msg>(ko, ok))
+      const request = Http.send(E.fold(msg, msg))
 
       const cmd = request(Http.get('http://example.com/test', fromCodec(t.string)))
 
       return cmd.subscribe(async to => {
         const result = await to()
 
-        assert.deepEqual(result, some({ type: 'KO', error: 'BadStatus' }))
+        assert.deepStrictEqual(result, some({ payload: { _tag: 'BadStatus', response: 'bad response' } }))
 
         done()
       })
@@ -159,19 +192,10 @@ describe('Http', () => {
 })
 
 // --- Utilities
-type Msg = OK | KO
-
-interface OK {
-  type: 'OK'
-  payload: string
+interface Msg {
+  payload: any
 }
-const ok = (payload: string): OK => ({ type: 'OK', payload })
-
-interface KO {
-  type: 'KO'
-  error: Http.HttpError['_tag']
-}
-const ko = (e: Http.HttpError): KO => ({ type: 'KO', error: e._tag })
+const msg = (payload: any): Msg => ({ payload })
 
 function fromCodec<A>(codec: t.Decoder<unknown, A>): Decoder<A> {
   return flow(

@@ -41,7 +41,6 @@
     "postdocs": "ts-node scripts/docs-index"
   },
   "dependencies": {
-    "axios": "^0.19.0",
     "history": "^4.7.2"
   },
   "peerDependencies": {
@@ -63,7 +62,6 @@
     "io-ts": "^2.0.0",
     "jest": "^24.9.0",
     "monocle-ts": "^2.0.0",
-    "nock": "^11.4.0",
     "prettier": "^1.18.2",
     "pretty-quick": "^2.0.0",
     "react": "^16.8.6",
@@ -73,7 +71,8 @@
     "ts-node": "^8.4.1",
     "tslint": "^5.18.0",
     "tslint-config-standard": "^8.0.1",
-    "typescript": "^3.5.3"
+    "typescript": "^3.5.3",
+    "xhr-mock": "^2.5.0"
   },
   "jest": {
     "preset": "ts-jest",
