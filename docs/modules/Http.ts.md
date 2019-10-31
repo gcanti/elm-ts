@@ -91,7 +91,7 @@ Added in v0.5.0
 **Signature**
 
 ```ts
-export function get<a>(url: string, decoder: Decoder<a>): Request<a> { ... }
+export function get<A>(url: string, decoder: Decoder<A>): Request<A> { ... }
 ```
 
 Added in v0.5.0
@@ -101,7 +101,7 @@ Added in v0.5.0
 **Signature**
 
 ```ts
-export function post<a>(url: string, body: unknown, decoder: Decoder<a>): Request<a> { ... }
+export function post<A>(url: string, body: unknown, decoder: Decoder<A>): Request<A> { ... }
 ```
 
 Added in v0.5.0

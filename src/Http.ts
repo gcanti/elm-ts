@@ -80,7 +80,7 @@ export function send<A, Msg>(f: (e: Either<HttpError, A>) => Msg): (req: Request
 /**
  * @since 0.5.0
  */
-export function get<a>(url: string, decoder: Decoder<a>): Request<a> {
+export function get<A>(url: string, decoder: Decoder<A>): Request<A> {
   return {
     method: 'GET',
     headers: {},
@@ -95,7 +95,7 @@ export function get<a>(url: string, decoder: Decoder<a>): Request<a> {
 /**
  * @since 0.5.0
  */
-export function post<a>(url: string, body: unknown, decoder: Decoder<a>): Request<a> {
+export function post<A>(url: string, body: unknown, decoder: Decoder<A>): Request<A> {
   return {
     method: 'POST',
     headers: {},
