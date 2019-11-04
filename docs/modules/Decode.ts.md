@@ -37,7 +37,7 @@ It returns an `Either` with a `string` as `Left` when decoding fails or an `A` a
 **Signature**
 
 ```ts
-export interface Decoder<A> extends RE.ReaderEither<unknown, string, A> {}
+export interface Decoder<A> extends ReaderEither<unknown, string, A> {}
 ```
 
 Added in v0.5.0
