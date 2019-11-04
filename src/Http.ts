@@ -171,5 +171,10 @@ function toHttpError(e: any): HttpError {
     return { _tag: 'BadStatus', response: e.response }
   }
 
+  // Parsing json in response could throw a `SyntaxError`.
+  if ('constructor' in e && 'name' in e.constructor && e.constructor.name === 'SyntaxError') {
+    return { _tag: 'BadPayload', value: e.message, response: e.response }
+  }
+
   return { _tag: 'NetworkError', value: e.message }
 }

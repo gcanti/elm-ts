@@ -4,21 +4,24 @@ import { none, some } from 'fp-ts/lib/Option'
 import { flow } from 'fp-ts/lib/function'
 import * as t from 'io-ts'
 import { failure } from 'io-ts/lib/PathReporter'
-import mock from 'xhr-mock'
+import * as sinon from 'sinon'
 import { Decoder } from '../src/Decode'
 import * as Http from '../src/Http'
 
 describe('Http', () => {
   describe('toTask()', () => {
-    beforeEach(() => mock.setup())
+    let server: sinon.SinonFakeServer
 
-    afterEach(() => mock.teardown())
+    beforeEach(() => {
+      server = sinon.fakeServer.create({ respondImmediately: true })
+    })
+
+    afterEach(() => {
+      server.restore()
+    })
 
     it('should fetch a valid url', async () => {
-      mock.get('http://example.com/test', {
-        status: 200,
-        body: JSON.stringify('test')
-      })
+      server.respondWith('GET', 'http://example.com/test', [200, {}, JSON.stringify('test')])
 
       const request = Http.get('http://example.com/test', fromCodec(t.string))
       const result = await Http.toTask(request)()
@@ -27,10 +30,7 @@ describe('Http', () => {
     })
 
     it('should validate the payload', async () => {
-      mock.get('http://example.com/test', {
-        status: 200,
-        body: JSON.stringify('test')
-      })
+      server.respondWith('GET', 'http://example.com/test', [200, {}, JSON.stringify('test')])
 
       const request = Http.get('http://example.com/test', fromCodec(t.number))
       const result = await Http.toTask(request)()
@@ -51,9 +51,7 @@ describe('Http', () => {
     })
 
     it('should handle 404', async () => {
-      mock.get('http://example.com/test', {
-        status: 404
-      })
+      server.respondWith('GET', 'http://example.com/test', [404, {}, ''])
 
       const request = Http.get('http://example.com/test', fromCodec(t.string))
       const result = await Http.toTask(request)()
@@ -62,10 +60,7 @@ describe('Http', () => {
     })
 
     it('should handle bad responses', async () => {
-      mock.get('http://example.com/test', {
-        status: 500,
-        body: JSON.stringify('bad response')
-      })
+      server.respondWith('GET', 'http://example.com/test', [500, {}, JSON.stringify('bad response')])
 
       const request = Http.get('http://example.com/test', fromCodec(t.string))
       const result = await Http.toTask(request)()
@@ -73,60 +68,84 @@ describe('Http', () => {
       assert.deepStrictEqual(result, E.left({ _tag: 'BadStatus', response: 'bad response' }))
     })
 
-    it('should handle a timeout', async () => {
-      // ref. https://www.npmjs.com/package/xhr-mock#simulate-a-timeout
-      mock.get('http://example.com/test', () => new Promise(() => undefined))
+    it('should handle a timeout', done => {
+      // Use server with clock in order to simulate a timeout
+      const clockServer = sinon.fakeServerWithClock.create({ respondImmediately: false })
+
+      clockServer.respondWith('GET', 'http://example.com/test', [200, {}, ''])
 
       const request = Http.get('http://example.com/test', fromCodec(t.string))
 
       request.timeout = some(1)
 
-      const result = await Http.toTask(request)()
+      Http.toTask(request)().then(result => {
+        // tslint:disable-line
+        assert.deepStrictEqual(result, E.left({ _tag: 'Timeout' }))
+        done()
+      })
 
-      assert.deepStrictEqual(result, E.left({ _tag: 'Timeout' }))
+      // Move fake timer ahead in order to fire the Timeout error.
+      // sinon's type-definition lacks of right definition for `FakeServerWithClock`'s clock property
+      // which is defined here https://github.com/sinonjs/nise/blob/master/lib/fake-server/fake-server-with-clock.js#L16
+      // and it is an instance of `FakeTimer` (https://sinonjs.org/releases/v7.5.0/fake-timers/).
+      const c: any = clockServer
+      c.clock.tick(1000)
     })
 
-    it('should handle a network error (ajax)', async () => {
-      // temporary disable console.error to reduce noise
-      const spy = jest.spyOn(console, 'error').mockImplementation(() => undefined)
-
-      // ref. https://www.npmjs.com/package/xhr-mock#simulate-an-error
-      mock.get('http://example.com/test', () => Promise.reject(new Error('network error')))
+    it('should handle a network error (generic)', done => {
+      const xhr = sinon.useFakeXMLHttpRequest()
+      const requests: sinon.SinonFakeXMLHttpRequest[] = []
+      xhr.onCreate = r => requests.push(r)
 
       const request = Http.get('http://example.com/test', fromCodec(t.string))
-      const result = await Http.toTask(request)()
 
-      spy.mockRestore()
+      Http.toTask(request)().then(result => {
+        // tslint:disable-line
+        assert.deepStrictEqual(result, E.left({ _tag: 'NetworkError', value: 'ajax error' }))
 
-      assert.deepStrictEqual(result, E.left({ _tag: 'NetworkError', value: 'ajax error' }))
+        xhr.restore()
+
+        done()
+      })
+
+      requests[0].error()
     })
 
-    it('should handle a network error (generic)', async () => {
-      // temporary disable console.error to reduce noise
-      const spy = jest.spyOn(console, 'error').mockImplementation(() => undefined)
+    it('should handle a parsing error', async () => {
+      server.respondWith('GET', 'http://example.com/test', xhr => {
+        // This hack is needed in order to avoid JSON parsing of the response body by sinon fake server
+        // and consequent error swallowing
+        const tmp: any = xhr
+        tmp.responseType = ''
 
-      // temporary disable xhr mock in order to let the request fail
-      mock.teardown()
+        xhr.respond(200, {}, '{bad:"test"}')
+      })
 
-      const request = Http.get('http://example.com/test', fromCodec(t.string))
+      const request = Http.get('http://example.com/test', fromCodec(t.unknown))
       const result = await Http.toTask(request)()
 
-      spy.mockRestore()
+      // server.restore()
 
-      assert.deepStrictEqual(result, E.left({ _tag: 'NetworkError', value: 'ajax error' }))
+      assert.deepStrictEqual(
+        result,
+        E.left({ _tag: 'BadPayload', value: 'Unexpected token b in JSON at position 1', response: undefined })
+      )
     })
   })
 
   describe('send()', () => {
-    beforeEach(() => mock.setup())
+    let server: sinon.SinonFakeServer
 
-    afterEach(() => mock.teardown())
+    beforeEach(() => {
+      server = sinon.fakeServer.create({ respondImmediately: true })
+    })
+
+    afterEach(() => {
+      server.restore()
+    })
 
     it('should request an http call and return a Cmd - OK', done => {
-      mock.get('http://example.com/test', {
-        status: 200,
-        body: JSON.stringify('test')
-      })
+      server.respondWith('GET', 'http://example.com/test', [200, {}, JSON.stringify('test')])
 
       const request = Http.send(E.fold(msg, msg))
 
@@ -142,10 +161,7 @@ describe('Http', () => {
     })
 
     it('should request an http call and return a Cmd - KO', done => {
-      mock.get('http://example.com/test', {
-        status: 500,
-        body: JSON.stringify('bad response')
-      })
+      server.respondWith('GET', 'http://example.com/test', [500, {}, JSON.stringify('bad response')])
 
       const request = Http.send(E.fold(msg, msg))
 
