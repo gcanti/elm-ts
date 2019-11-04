@@ -10,6 +10,9 @@ import { Monad1 } from 'fp-ts/lib/Monad'
 import * as RE from 'fp-ts/lib/ReaderEither'
 import { pipeable } from 'fp-ts/lib/pipeable'
 
+// --- Aliases for docs
+import ReaderEither = RE.ReaderEither
+
 declare module 'fp-ts/lib/HKT' {
   interface URItoKind<A> {
     Decoder: Decoder<A>
@@ -29,7 +32,7 @@ export type URI = typeof URI
 /**
  * @since 0.5.0
  */
-export interface Decoder<A> extends RE.ReaderEither<unknown, string, A> {}
+export interface Decoder<A> extends ReaderEither<unknown, string, A> {}
 
 /**
  * @since 0.5.0
