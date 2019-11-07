@@ -8,22 +8,13 @@ import { fold, parseJSON, toError } from 'fp-ts/lib/Either'
 import { IO } from 'fp-ts/lib/IO'
 import { Option, chain, fromNullable, getOrElse, none, some } from 'fp-ts/lib/Option'
 import { pipe } from 'fp-ts/lib/pipeable'
-import { EnhancerOptions } from 'redux-devtools-extension'
 import { Dispatch } from '../Platform'
 import { DebugData, Global } from './commons'
 
 // --- Constants
-const EXTENSION_CONFIG: EnhancerOptions = {
+const EXTENSION_CONFIG: ExtensionOptions = {
   features: {
-    pause: false,
-    lock: false,
-    persist: false,
-    export: false,
-    jump: false,
-    skip: false,
-    reorder: false,
-    dispatch: true,
-    test: false
+    dispatch: true
   }
 }
 
@@ -31,17 +22,65 @@ const EXTENSION_CONFIG: EnhancerOptions = {
 type Unsubscription = () => void
 
 /**
- * @since 0.5.0
+ * This is a partial porting of [`EnhancerOptions`](https://github.com/zalmoxisus/redux-devtools-extension/blob/master/npm-package/index.d.ts#L3) without the need to install the `redux-devtools-extension` package (and all its dependencies)
  */
-export interface Extension {
-  connect: <Model, Msg>(options?: EnhancerOptions) => Connection<Model, Msg>
+interface ExtensionOptions {
+  /**
+   * If you want to restrict the extension, specify the features you allow.
+   * If not specified, all of the features are enabled. When set as an object, only those included as `true` will be allowed.
+   * Note that except `true`/`false`, `import` and `export` can be set as `custom` (which is by default for Redux enhancer), meaning that the importing/exporting occurs on the client side.
+   * Otherwise, you'll get/set the data right from the monitor part.
+   */
+  features?: {
+    /**
+     * start/pause recording of dispatched actions
+     */
+    pause?: boolean
+    /**
+     * lock/unlock dispatching actions and side effects
+     */
+    lock?: boolean
+    /**
+     * persist states on page reloading
+     */
+    persist?: boolean
+    /**
+     * export history of actions in a file
+     */
+    export?: boolean | 'custom'
+    /**
+     * import history of actions from a file
+     */
+    import?: boolean | 'custom'
+    /**
+     * jump back and forth (time travelling)
+     */
+    jump?: boolean
+    /**
+     * skip (cancel) actions
+     */
+    skip?: boolean
+    /**
+     * drag and drop actions in the history list
+     */
+    reorder?: boolean
+    /**
+     * dispatch custom actions or action creators
+     */
+    dispatch?: boolean
+    /**
+     * generate tests for the selected actions
+     */
+    test?: boolean
+  }
+}
+
+interface Extension {
+  connect: <Model, Msg>(options?: ExtensionOptions) => Connection<Model, Msg>
   disconnect: Unsubscription
 }
 
-/**
- * @since 0.5.0
- */
-export interface Connection<Model, Msg> {
+interface Connection<Model, Msg> {
   subscribe: (listener?: (data: Message) => void) => Unsubscription
   unsubscribe: Unsubscription
   send: (action: Msg, state: Model) => void
@@ -91,12 +130,14 @@ export function reduxDevToolDebugger<Model, Msg>(
 }
 
 /**
- * Handles incoming messages sent from extension monitor.
+ * **[UNSAFE]** Handles incoming messages sent from extension monitor.
  *
  * Only few features are supported.
+ *
+ * **Note:** the monitor can dispatch messages of any shape that will be re-dispatched into the application; these messages **are not validated** and can lead to unexpected beahviours.
  * @since 0.5.0
  */
-function handleSubscription<Model, Msg>(dispatch: Dispatch<Msg>): (msg: Message) => void {
+function handleSubscription<Msg>(dispatch: Dispatch<Msg>): (msg: Message) => void {
   return msg => {
     // --- Bypass not allowed messages
     if (!isAllowedMessage(msg)) {
@@ -107,7 +148,7 @@ function handleSubscription<Model, Msg>(dispatch: Dispatch<Msg>): (msg: Message)
       case 'ACTION':
         return pipe(
           parseJSON(msg.payload, toError),
-          fold(e => console.warn('[REDUX DEV TOOL]', e.message), dispatch)
+          fold(e => console.warn('[REDUX DEV TOOL]', e.message), m => dispatch(m as Msg))
         )
 
       case 'START':

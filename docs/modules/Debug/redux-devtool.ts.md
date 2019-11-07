@@ -14,41 +14,10 @@ Please check the [docs](https://github.com/zalmoxisus/redux-devtools-extension/t
 
 <h2 class="text-delta">Table of contents</h2>
 
-- [Connection (interface)](#connection-interface)
-- [Extension (interface)](#extension-interface)
 - [getConnection (function)](#getconnection-function)
 - [reduxDevToolDebugger (function)](#reduxdevtooldebugger-function)
 
 ---
-
-# Connection (interface)
-
-**Signature**
-
-```ts
-export interface Connection<Model, Msg> {
-  subscribe: (listener?: (data: Message) => void) => Unsubscription
-  unsubscribe: Unsubscription
-  send: (action: Msg, state: Model) => void
-  init: (state: Model) => void
-  error: (message: any) => void
-}
-```
-
-Added in v0.5.0
-
-# Extension (interface)
-
-**Signature**
-
-```ts
-export interface Extension {
-  connect: <Model, Msg>(options?: EnhancerOptions) => Connection<Model, Msg>
-  disconnect: Unsubscription
-}
-```
-
-Added in v0.5.0
 
 # getConnection (function)
 

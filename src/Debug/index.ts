@@ -48,7 +48,7 @@ export interface Runner<Model, Msg, Dom> {
  * @since 0.5.0
  */
 export function withDebugger<Model, Msg, Dom>(run: Runner<Model, Msg, Dom>): Runner<Model, Msg, Dom> {
-  const debug = runDebugger(window)
+  const debug = runDebugger<Model, Msg>(window)
 
   const actionDebug$ = new Subject<DebugAction<Msg>>()
 
