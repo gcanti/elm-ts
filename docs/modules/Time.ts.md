@@ -1,6 +1,6 @@
 ---
 title: Time.ts
-nav_order: 11
+nav_order: 15
 parent: Modules
 ---
 
