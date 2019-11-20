@@ -4,104 +4,80 @@
  * Please check the [docs](https://github.com/zalmoxisus/redux-devtools-extension/tree/master/docs/API) fur further information.
  */
 
-import { fold, parseJSON, toError } from 'fp-ts/lib/Either'
-import { IO } from 'fp-ts/lib/IO'
-import { Option, chain, fromNullable, getOrElse, none, some } from 'fp-ts/lib/Option'
+import { sequenceT } from 'fp-ts/lib/Apply'
+import * as E from 'fp-ts/lib/Either'
+import * as IO_ from 'fp-ts/lib/IO'
+import * as O from 'fp-ts/lib/Option'
 import { pipe } from 'fp-ts/lib/pipeable'
+import { BehaviorSubject } from 'rxjs'
 import { Dispatch } from '../Platform'
-import { DebugData, Global } from './commons'
+import { Debug, DebugData, Debugger, Global, MsgWithDebug } from './commons'
 
-// --- Constants
-const EXTENSION_CONFIG: ExtensionOptions = {
-  features: {
-    dispatch: true
-  }
-}
+// --- Aliases for docs
+import Option = O.Option
+import Either = E.Either
+import IO = IO_.IO
 
-// --- Definitions
+const sequenceTEither = sequenceT(E.either)
+
 type Unsubscription = () => void
 
 /**
- * This is a partial porting of [`EnhancerOptions`](https://github.com/zalmoxisus/redux-devtools-extension/blob/master/npm-package/index.d.ts#L3) without the need to install the `redux-devtools-extension` package (and all its dependencies)
+ * Defines a _Redux DevTool Extension_ object.
+ * @since 0.5.0
  */
-interface ExtensionOptions {
-  /**
-   * If you want to restrict the extension, specify the features you allow.
-   * If not specified, all of the features are enabled. When set as an object, only those included as `true` will be allowed.
-   * Note that except `true`/`false`, `import` and `export` can be set as `custom` (which is by default for Redux enhancer), meaning that the importing/exporting occurs on the client side.
-   * Otherwise, you'll get/set the data right from the monitor part.
-   */
-  features?: {
-    /**
-     * start/pause recording of dispatched actions
-     */
-    pause?: boolean
-    /**
-     * lock/unlock dispatching actions and side effects
-     */
-    lock?: boolean
-    /**
-     * persist states on page reloading
-     */
-    persist?: boolean
-    /**
-     * export history of actions in a file
-     */
-    export?: boolean | 'custom'
-    /**
-     * import history of actions from a file
-     */
-    import?: boolean | 'custom'
-    /**
-     * jump back and forth (time travelling)
-     */
-    jump?: boolean
-    /**
-     * skip (cancel) actions
-     */
-    skip?: boolean
-    /**
-     * drag and drop actions in the history list
-     */
-    reorder?: boolean
-    /**
-     * dispatch custom actions or action creators
-     */
-    dispatch?: boolean
-    /**
-     * generate tests for the selected actions
-     */
-    test?: boolean
-  }
+export interface Extension {
+  connect: <Model, Msg>() => Connection<Model, Msg>
 }
 
-interface Extension {
-  connect: <Model, Msg>(options?: ExtensionOptions) => Connection<Model, Msg>
-  disconnect: Unsubscription
-}
-
-interface Connection<Model, Msg> {
-  subscribe: (listener?: (data: Message) => void) => Unsubscription
-  unsubscribe: Unsubscription
-  send: (action: Msg, state: Model) => void
+/**
+ * Defines a _Redux DevTool Extension_ connection object.
+ * @since 0.5.0
+ */
+export interface Connection<Model, Msg> {
+  subscribe: (listener?: Dispatch<DevToolMsg>) => Unsubscription
+  send(action: null, state: LiftedState<Model>): void
+  send(action: Msg, state: Model): void
   init: (state: Model) => void
   error: (message: any) => void
 }
 
-interface Message {
-  type: string
+type DevToolMsg = Start | Action | Monitor
+
+interface Start {
+  type: 'START'
+}
+
+interface Action {
+  type: 'ACTION'
+  payload: any
+}
+
+interface Monitor {
+  type: 'DISPATCH'
+  payload: {
+    type: 'JUMP_TO_STATE' | 'JUMP_TO_ACTION' | 'RESET' | 'ROLLBACK' | 'COMMIT' | 'IMPORT_STATE' | 'TOGGLE_ACTION'
+    [k: string]: unknown
+  }
   [k: string]: any
 }
 
-type AllowedMessage = { type: 'START' } | { type: 'ACTION'; payload: string }
+interface LiftedState<Model> {
+  actionsById: Record<string, any>
+  computedStates: Array<{ state: Model }>
+  currentStateIndex: number
+  nextActionId: number
+  skippedActionIds: number[]
+  stagedActionIds: number[]
+  isPaused: boolean
+}
 
-// --- Functions
 /**
  * Gets a _Redux DevTool Extension_ connection in case the extension is available
  * @since 0.5.0
  */
-export function getConnection<Model, Msg>(g: Global): IO<Option<Connection<Model, Msg>>> {
-  return () => (globalHasExtension(g) ? some(g.__REDUX_DEVTOOLS_EXTENSION__.connect(EXTENSION_CONFIG)) : none)
+export function getConnection<Model, Msg>(global: Global): IO<Option<Connection<Model, Msg>>> {
+  return () => (hasExtension(global) ? O.some(global.__REDUX_DEVTOOLS_EXTENSION__.connect()) : O.none)
 }
 
 /**
@@ -110,49 +86,131 @@ export function getConnection<Model, Msg>(g: Global): IO<Option<Connection<Model
  * This is "tagged" as unsafe because the check is really loose.
  * @since 0.5.0
  */
-function globalHasExtension(g: Global): g is Global & { __REDUX_DEVTOOLS_EXTENSION__: Extension } {
-  return '__REDUX_DEVTOOLS_EXTENSION__' in g
+function hasExtension(global: Global): global is Global & { __REDUX_DEVTOOLS_EXTENSION__: Extension } {
+  return '__REDUX_DEVTOOLS_EXTENSION__' in global
 }
 
 /**
  * **[UNSAFE]** Debug through _Redux DevTool Extension_
  * @since 0.5.0
  */
-export function reduxDevToolDebugger<Model, Msg>(
-  connection: Connection<Model, Msg>
-): (dispatch: Dispatch<Msg>) => (data: DebugData<Model, Msg>) => void {
-  return dispatch => {
+export function reduxDevToolDebugger<Model, Msg>(connection: Connection<Model, Msg>): Debugger<Model, Msg> {
+  return (init, data$, dispatch) => {
     // --- Subscribe to extension in order to receive messages from monitor
-    connection.subscribe(handleSubscription(dispatch))
+    connection.subscribe(handleSubscription(connection, init, data$, dispatch))
 
     return handleActions(connection)
   }
 }
 
 /**
- * **[UNSAFE]** Handles incoming messages sent from extension monitor.
+ * **[UNSAFE]** Handles the execution of an effect related to an incoming messages sent from extension monitor.
  *
- * Only few features are supported.
- *
- * **Note:** the monitor can dispatch messages of any shape that will be re-dispatched into the application; these messages **are not validated** and can lead to unexpected beahviours.
  * @since 0.5.0
  */
-function handleSubscription<Msg>(dispatch: Dispatch<Msg>): (msg: Message) => void {
-  return msg => {
-    // --- Bypass not allowed messages
-    if (!isAllowedMessage(msg)) {
-      return warnNotSupportedFeature(msg)()
-    }
+function handleSubscription<Model, Msg>(
+  connection: Connection<Model, Msg>,
+  init: Model,
+  data$: BehaviorSubject<DebugData<Model, Msg>>,
+  dispatch: Dispatch<MsgWithDebug<Model, Msg>>
+): Dispatch<DevToolMsg> {
+  const handler = handleIncomingMsg(connection, init, data$, dispatch)
 
+  return msg =>
+    pipe(
+      handler(msg),
+      E.fold(err => console.warn('[REDUX DEV TOOL]', err), eff => eff())
+    )
+}
+
+/**
+ * **[UNSAFE]** Handles incoming messages sent from extension monitor.
+ *
+ * This is largely inspired by https://github.com/zalmoxisus/mobx-remotedev/blob/master/src/monitorActions.js
+ *
+ * **Note:** the monitor can dispatch messages of any shape that will be re-dispatched into the application; these messages **are not validated** and can lead to unexpected behaviours.
+ * @since 0.5.0
+ */
+function handleIncomingMsg<Model, Msg>(
+  connection: Connection<Model, Msg>,
+  init: Model,
+  data$: BehaviorSubject<DebugData<Model, Msg>>,
+  dispatch: Dispatch<MsgWithDebug<Model, Msg>>
+): (msg: DevToolMsg) => Either<string, IO<void>> {
+  const dispatchToApp = (m: unknown): IO<void> => () => dispatch(m as Msg)
+  const reinit: IO<void> = () => connection.init(init)
+  const update = (payload: Model): IO<void> => dispatchToApp({ type: '__DebugUpdateModel__', payload })
+  const restart = (model: Model): IO<void> => () => connection.init(model)
+  const liftState = (state: LiftedState<Model>): IO<void> => () => connection.send(null, state)
+  const toggle = toggleAction(dispatch)
+
+  return msg => {
     switch (msg.type) {
+      case 'START':
+        return E.right(reinit)
+
       case 'ACTION':
         return pipe(
-          parseJSON(msg.payload, toError),
-          fold(e => console.warn('[REDUX DEV TOOL]', e.message), m => dispatch(m as Msg))
+          E.parseJSON(msg.payload, E.toError),
+          E.bimap(e => e.message, dispatchToApp)
         )
 
-      case 'START':
-        return
+      case 'DISPATCH':
+        switch (msg.payload.type) {
+          case 'JUMP_TO_STATE':
+          case 'JUMP_TO_ACTION':
+            return pipe(
+              parseJump<Model>(msg),
+              E.map(update)
+            )
+
+          case 'RESET':
+            return E.right(
+              pipe(
+                update(init),
+                IO_.chain(() => reinit)
+              )
+            )
+
+          case 'ROLLBACK':
+            return pipe(
+              parseRollback<Model>(msg),
+              E.map(m =>
+                pipe(
+                  update(m),
+                  IO_.chain(() => restart(m))
+                )
+              )
+            )
+
+          case 'COMMIT':
+            return E.right(restart(data$.getValue()[1]))
+
+          case 'IMPORT_STATE':
+            return pipe(
+              parseImportState<Model>(msg),
+              E.map(liftedState =>
+                pipe(
+                  update(liftedState.computedStates[liftedState.computedStates.length - 1].state),
+                  IO_.chain(() => liftState(liftedState))
+                )
+              )
+            )
+
+          case 'TOGGLE_ACTION':
+            return pipe(
+              parseToggleAction<Model>(msg),
+              E.map(([id, liftedState]) =>
+                pipe(
+                  toggle(data$.getValue()[1], id, liftedState),
+                  IO_.chain(liftState)
+                )
+              )
+            )
+
+          default:
+            return E.left(msg.payload.type)
+        }
     }
   }
 }
@@ -160,58 +218,108 @@ function handleSubscription<Msg>(dispatch: Dispatch<Msg>): (msg: Message) => voi
 /**
  * Handles debugging actions.
  *
- * The `INIT` action will set the init state on the connected extension (`connection`).
- *
  * The `MESSAGE` action will send the message payload and state to the connected extension (`connection`).
  * @since 0.5.0
  */
-function handleActions<Model, Msg>(connection: Connection<Model, Msg>): (data: DebugData<Model, Msg>) => void {
-  return data => {
-    const [action, model] = data
-
-    // --- Init
-    if (action.type === 'INIT') {
-      return connection.init(model)
-    }
-
-    // --- Send
-    if (action.type === 'MESSAGE') {
-      return connection.send(action.payload, model)
-    }
-  }
+function handleActions<Model, Msg>(connection: Connection<Model, Msg>): Debug<Model, Msg> {
+  return ([action, model]) => (action.type === 'MESSAGE' ? connection.send(action.payload, model) : undefined)
 }
 
 /**
- * Warns about not supported feature.
+ * Parses a `JUMP` message.
  *
- * `msg` is an incoming message from extension.
  * @since 0.5.0
  */
-function warnNotSupportedFeature(msg: Message): IO<void> {
-  return () => {
-    console.warn('[REDUX DEV TOOL]', 'This feature is not yet supported:', getFeatureLabel(msg))
-  }
-}
-
-/**
- * Type guard to check if incoming `msg` is an allowed one.
- *
- * `msg` is an incoming message from extension.
- * @since 0.5.0
- */
-function isAllowedMessage(msg: Message): msg is AllowedMessage {
-  return ['START', 'ACTION'].includes(msg.type)
-}
-
-/**
- * Gets the feature label/type from a `Message`.
- * @since 0.5.0
- */
-function getFeatureLabel(msg: Message): string {
+function parseJump<Model>(msg: Monitor): Either<string, Model> {
   return pipe(
-    fromNullable(msg.payload),
-    chain(payload => (typeof payload === 'object' ? fromNullable(payload.type) : none)),
-    chain(type => (typeof type === 'string' ? some(type) : none)),
-    getOrElse(() => msg.type)
+    E.parseJSON(msg.state, E.toError),
+    E.bimap(e => e.message, u => u as Model)
   )
+}
+
+/**
+ * Parses a `ROLLBACK` message.
+ *
+ * @since 0.5.0
+ */
+function parseRollback<Model>(msg: Monitor): Either<string, Model> {
+  return pipe(
+    E.parseJSON(msg.state, E.toError),
+    E.bimap(e => e.message, u => u as Model)
+  )
+}
+
+/**
+ * Parses an `IMPORT_STATE` message.
+ *
+ * @since 0.5.0
+ */
+function parseImportState<Model>(msg: Monitor): Either<string, LiftedState<Model>> {
+  return typeof msg.payload.nextLiftedState === 'object' && msg.payload.nextLiftedState !== null
+    ? E.right(msg.payload.nextLiftedState as LiftedState<Model>)
+    : E.left('IMPORT_STATE message has some bad payload...')
+}
+
+/**
+ * Parses a `TOGGLE_ACTION` message.
+ *
+ * @since 0.5.0
+ */
+function parseToggleAction<Model>(msg: Monitor): Either<string, [number, LiftedState<Model>]> {
+  const getId = pipe(
+    msg.payload.id,
+    E.fromNullable('TOGGLE_ACTION message has some bad payload...'),
+    E.map<any, number>(x => x)
+  )
+
+  const parseState = pipe(
+    E.parseJSON(msg.state, E.toError),
+    E.bimap(e => e.message, u => u as LiftedState<Model>)
+  )
+
+  return sequenceTEither(getId, parseState)
+}
+
+/**
+ * Handles toggling a specific action (identified by `id` parameter).
+ *
+ * It re-executes all the actions (and updates the store) excluding the toggled one.
+ *
+ * The implementation is taken from [MobX dev tool integration](https://github.com/zalmoxisus/mobx-remotedev/blob/master/src/monitorActions.js#L22)
+ *
+ * @since 0.5.0
+ */
+function toggleAction<Model, Msg>(
+  dispatch: Dispatch<MsgWithDebug<Model, Msg>>
+): (current: Model, id: number, liftedState: LiftedState<Model>) => IO<LiftedState<Model>> {
+  return (current, id, liftedState) => () => {
+    const state = JSON.parse(JSON.stringify(liftedState)) // poor man deep clone...
+    const idx = state.skippedActionIds.indexOf(id)
+    const skipped = idx !== -1
+    const start = state.stagedActionIds.indexOf(id)
+
+    if (start === -1) {
+      return state
+    }
+
+    dispatch({ type: '__DebugUpdateModel__', payload: state.computedStates[start - 1].state })
+
+    for (let i = skipped ? start : start + 1; i < state.stagedActionIds.length; i++) {
+      if (i !== start && state.skippedActionIds.indexOf(state.stagedActionIds[i]) !== -1) {
+        continue // it's already skipped
+      }
+
+      dispatch(state.actionsById[state.stagedActionIds[i]].action as Msg)
+
+      state.computedStates[i].state = current
+    }
+
+    if (skipped) {
+      state.skippedActionIds.splice(idx, 1)
+    } else {
+      state.skippedActionIds.push(id)
+    }
+
+    return state
+  }
 }

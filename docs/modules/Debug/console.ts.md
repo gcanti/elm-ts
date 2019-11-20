@@ -23,7 +23,7 @@ Debug via standard browser's `console`
 **Signature**
 
 ```ts
-export function consoleDebugger<Model, Msg>(_: Dispatch<Msg>): (data: DebugData<Model, Msg>) => void { ... }
+export function consoleDebugger<Model, Msg>(): Debugger<Model, Msg> { ... }
 ```
 
 Added in v0.5.0

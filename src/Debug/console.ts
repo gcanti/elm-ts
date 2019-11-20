@@ -4,15 +4,14 @@
 
 import { Option, alt, fromNullable, getOrElse } from 'fp-ts/lib/Option'
 import { pipe } from 'fp-ts/lib/pipeable'
-import { Dispatch } from '../Platform'
-import { DebugData, DebugMsg } from './commons'
+import { DebugMsg, Debugger } from './commons'
 
 /**
  * **[UNSAFE]** Simple debugger that uses the standard browser's `console`
  * @since 0.5.0
  */
-export function consoleDebugger<Model, Msg>(_: Dispatch<Msg>): (data: DebugData<Model, Msg>) => void {
-  return data => {
+export function consoleDebugger<Model, Msg>(): Debugger<Model, Msg> {
+  return () => data => {
     const [action, model] = data
 
     console.group('%cELM-TS', 'background-color: green; color: black')
@@ -29,6 +28,7 @@ export function consoleDebugger<Model, Msg>(_: Dispatch<Msg>): (data: DebugData<
       console.dir(action.payload)
       console.groupEnd()
     }
+
     // --- Model
     console.groupCollapsed('[MODEL]')
     console.dir(model)

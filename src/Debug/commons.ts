@@ -1,3 +1,6 @@
+import { BehaviorSubject } from 'rxjs'
+import { Dispatch } from '../Platform'
+
 /**
  * @since 0.5.0
  */
@@ -37,3 +40,28 @@ export interface DebugMsg<Msg> {
  * @since 0.5.0
  */
 export const debugMsg = <Msg>(payload: Msg): DebugMsg<Msg> => ({ type: 'MESSAGE', payload })
+
+/**
+ * Extends `Msg` with a special kind of message from Debugger
+ * @since 0.5.0
+ */
+export type MsgWithDebug<Model, Msg> = Msg | { type: '__DebugUpdateModel__'; payload: Model }
+
+/**
+ * Defines a generic debugging function
+ * @since 0.5.0
+ */
+export interface Debug<Model, Msg> {
+  (data: DebugData<Model, Msg>): void
+}
+
+/**
+ * Defines a generic `Debugger`
+ * @since 0.5.0
+ */
+export interface Debugger<Model, Msg> {
+  (init: Model, data$: BehaviorSubject<DebugData<Model, Msg>>, dispatch: Dispatch<MsgWithDebug<Model, Msg>>): Debug<
+    Model,
+    Msg
+  >
+}

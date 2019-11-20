@@ -7,81 +7,83 @@
  *
  * This is an example of usage:
  * ```ts
- * import {react} from 'elm-ts'
- * import {withDebugger} from 'elm-ts/lib/Debug'
+ * import {react, cmd} from 'elm-ts'
+ * import {programWithDebugger} from 'elm-ts/lib/Debug'
  * import { render } from 'react-dom'
  *
  * type Model = number
  * type Msg = 'INCREMENT' | 'DECREMENT'
  *
- * declare const main: react.Program<Model, Msg>
+ * declare const init: [Model, cmd.none]
+ * declare function update(msg: Msg, model: Model): [Model, cmd.Cmd<Msg>]
+ * declare function view(model: Model): react.Html<Msg>
  *
- * const runner = process.NODE_ENV === 'production' ? react.run : withDebugger(react.run)
+ * const program = process.NODE_ENV === 'production' ? react.program : programWithDebugger
  *
- * runner(main, dom => render(document.getElementById('app')))
+ * const main = program(init, update, view)
+ *
+ * react.run(main, dom => render(document.getElementById('app')))
  * ```
  */
 
 import { IO, chain, map } from 'fp-ts/lib/IO'
 import { fold } from 'fp-ts/lib/Option'
 import { pipe } from 'fp-ts/lib/pipeable'
-import { Observable, Subject, zip } from 'rxjs'
-import { tap } from 'rxjs/operators'
-import { Program, Renderer } from '../Html'
+import { BehaviorSubject } from 'rxjs'
+import * as cmd from '../Cmd'
+import { Html, Program, program } from '../Html'
 import { Dispatch } from '../Platform'
-import { DebugAction, Global, debugInit, debugMsg } from './commons'
+import { Sub, none } from '../Sub'
+import { DebugData, Global, MsgWithDebug, debugInit, debugMsg } from './commons'
 import { consoleDebugger } from './console'
 import { getConnection, reduxDevToolDebugger } from './redux-devtool'
 
 /**
- * Represents a generic `Html` `run` function
- * @since 0.5.0
- */
-export interface Runner<Model, Msg, Dom> {
-  (program: Program<Model, Msg, Dom>, renderer: Renderer<Dom>): Observable<Model>
-}
-
-/**
- * Adds a debugging capability to a generic `Html` `run` function.
+ * Adds a debugging capability to a generic `Html` `Program`.
  *
  * It tracks every `Message` dispatched and resulting `Model` update.
+ *
+ * It also lets updating the application's state with a special `Message` of type:
+ *
+ * ```ts
+ * {
+ *   type: '__DebugUpdateModel__'
+ *   payload: Model
+ * }
+ * ```
  * @since 0.5.0
  */
-export function withDebugger<Model, Msg, Dom>(run: Runner<Model, Msg, Dom>): Runner<Model, Msg, Dom> {
+export function programWithDebugger<Model, Msg, Dom>(
+  init: [Model, cmd.Cmd<Msg>],
+  update: (msg: Msg, model: Model) => [Model, cmd.Cmd<Msg>],
+  view: (model: Model) => Html<Dom, Msg>,
+  subscriptions: (model: Model) => Sub<Msg> = () => none
+): Program<Model, MsgWithDebug<Model, Msg>, Dom> {
   const debug = runDebugger<Model, Msg>(window)
 
-  const actionDebug$ = new Subject<DebugAction<Msg>>()
+  const initModel = init[0]
 
-  let initialized: boolean = false
+  const data$ = new BehaviorSubject<DebugData<Model, Msg>>([debugInit(), initModel])
 
-  // --- Acts like the real `Runner`
-  return (program, renderer) => {
-    const { dispatch, model$ } = program
-
-    // --- Tracks dispatched messages
-    const dispatchWithDebug: Dispatch<Msg> = msg => {
-      actionDebug$.next(debugMsg(msg))
-      return dispatch(msg)
+  const updateWithDebug = (msg: MsgWithDebug<Model, Msg>, model: Model): [Model, cmd.Cmd<Msg>] => {
+    if ('type' in msg && msg.type === '__DebugUpdateModel__') {
+      return [msg.payload, cmd.none]
     }
 
-    // --- Tracks the initial model
-    const modelDebug$ = model$.pipe(
-      // This is a very hacky way to intercept the first value of model$ (namely the "init" value)
-      // but it is the only way to avoid that the stream would be consumed before reaching the debugger
-      tap(() => {
-        if (!initialized) {
-          actionDebug$.next(debugInit())
-          initialized = true
-        }
-      })
-    )
+    const msg_ = msg as Msg // risky, but needed...
+    const result = update(msg_, model)
 
-    // --- Run the debugger
-    debug(actionDebug$, modelDebug$, dispatchWithDebug)()
+    data$.next([debugMsg(msg_), result[0]])
 
-    // --- Execute the real runner
-    return run({ ...program, dispatch: dispatchWithDebug }, renderer)
+    return result
   }
+
+  const p = program<Model, MsgWithDebug<Model, Msg>, Dom>(init, updateWithDebug, view, subscriptions)
+
+  // --- Run the debugger
+  debug(data$, initModel, p.dispatch)()
+
+  return p
 }
 
 /**
@@ -89,12 +91,16 @@ export function withDebugger<Model, Msg, Dom>(run: Runner<Model, Msg, Dom>): Run
  * @since 0.5.0
  */
 function runDebugger<Model, Msg>(
-  w: Global
-): (action$: Observable<DebugAction<Msg>>, model$: Observable<Model>, dispatch: Dispatch<Msg>) => IO<void> {
-  return (action$, model$, dispatch) =>
+  win: Global
+): (
+  data$: BehaviorSubject<DebugData<Model, Msg>>,
+  init: Model,
+  dispatch: Dispatch<MsgWithDebug<Model, Msg>>
+) => IO<void> {
+  return (data$, init, dispatch) =>
     pipe(
-      getConnection<Model, Msg>(w),
-      map(fold(() => consoleDebugger, reduxDevToolDebugger)),
-      chain(debug => () => zip(action$, model$).subscribe(debug(dispatch)))
+      getConnection<Model, Msg>(win),
+      map(fold(() => consoleDebugger<Model, Msg>(), reduxDevToolDebugger)),
+      chain(debug => () => data$.subscribe(debug(init, data$, dispatch)))
     )
 }
