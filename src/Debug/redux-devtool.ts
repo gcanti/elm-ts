@@ -294,30 +294,38 @@ function toggleAction<Model, Msg>(
 ): (current: Model, id: number, liftedState: LiftedState<Model>) => IO<LiftedState<Model>> {
   return (current, id, liftedState) => () => {
     const state = JSON.parse(JSON.stringify(liftedState)) // poor man deep clone...
-    const idx = state.skippedActionIds.indexOf(id)
-    const skipped = idx !== -1
-    const start = state.stagedActionIds.indexOf(id)
 
-    if (start === -1) {
+    const { skippedActionIds, stagedActionIds, computedStates, actionsById } = state
+
+    const skippedIndex = skippedActionIds.indexOf(id)
+    const skipped = skippedIndex !== -1
+    const actionIndex = stagedActionIds.indexOf(id)
+
+    if (actionIndex === -1) {
       return state
     }
 
-    dispatch({ type: '__DebugUpdateModel__', payload: state.computedStates[start - 1].state })
+    dispatch({ type: '__DebugUpdateModel__', payload: computedStates[actionIndex - 1].state })
 
-    for (let i = skipped ? start : start + 1; i < state.stagedActionIds.length; i++) {
-      if (i !== start && state.skippedActionIds.indexOf(state.stagedActionIds[i]) !== -1) {
+    const start = skipped ? actionIndex : actionIndex + 1
+    const end = stagedActionIds.length
+
+    for (let i = start; i < end; i++) {
+      const currentActionId = stagedActionIds[i]
+
+      if (i !== actionIndex && skippedActionIds.indexOf(currentActionId) !== -1) {
         continue // it's already skipped
       }
 
-      dispatch(state.actionsById[state.stagedActionIds[i]].action as Msg)
+      dispatch(actionsById[currentActionId].action as Msg)
 
-      state.computedStates[i].state = current
+      computedStates[i].state = current
     }
 
     if (skipped) {
-      state.skippedActionIds.splice(idx, 1)
+      skippedActionIds.splice(skippedIndex, 1)
     } else {
-      state.skippedActionIds.push(id)
+      skippedActionIds.push(id)
     }
 
     return state
