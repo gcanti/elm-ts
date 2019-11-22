@@ -33,7 +33,7 @@ import { BehaviorSubject } from 'rxjs'
 import * as cmd from '../Cmd'
 import { Html, Program, program } from '../Html'
 import { Dispatch } from '../Platform'
-import { Sub, none } from '../Sub'
+import { Sub } from '../Sub'
 import { DebugData, Global, MsgWithDebug, debugInit, debugMsg } from './commons'
 import { consoleDebugger } from './console'
 import { getConnection, reduxDevToolDebugger } from './redux-devtool'
@@ -57,7 +57,7 @@ export function programWithDebugger<Model, Msg, Dom>(
   init: [Model, cmd.Cmd<Msg>],
   update: (msg: Msg, model: Model) => [Model, cmd.Cmd<Msg>],
   view: (model: Model) => Html<Dom, Msg>,
-  subscriptions: (model: Model) => Sub<Msg> = () => none
+  subscriptions?: (model: Model) => Sub<Msg>
 ): Program<Model, MsgWithDebug<Model, Msg>, Dom> {
   const debug = runDebugger<Model, Msg>(window)
 
