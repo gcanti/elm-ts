@@ -38,6 +38,7 @@ react.run(main, dom => render(document.getElementById('app')))
 <h2 class="text-delta">Table of contents</h2>
 
 - [programWithDebugger (function)](#programwithdebugger-function)
+- [programWithDebuggerWithFlags (function)](#programwithdebuggerwithflags-function)
 
 ---
 
@@ -63,8 +64,25 @@ export function programWithDebugger<Model, Msg, Dom>(
   init: [Model, cmd.Cmd<Msg>],
   update: (msg: Msg, model: Model) => [Model, cmd.Cmd<Msg>],
   view: (model: Model) => Html<Dom, Msg>,
-  subscriptions: (model: Model) => Sub<Msg> = () => none
+  subscriptions?: (model: Model) => Sub<Msg>
 ): Program<Model, MsgWithDebug<Model, Msg>, Dom> { ... }
+```
+
+Added in v0.5.0
+
+# programWithDebuggerWithFlags (function)
+
+Same as `programWithDebugger()` but with `Flags` that can be passed when the `Program` is created in order to manage initial values.
+
+**Signature**
+
+```ts
+export function programWithDebuggerWithFlags<Flags, Model, Msg, Dom>(
+  init: (flags: Flags) => [Model, cmd.Cmd<Msg>],
+  update: (msg: Msg, model: Model) => [Model, cmd.Cmd<Msg>],
+  view: (model: Model) => Html<Dom, Msg>,
+  subscriptions?: (model: Model) => Sub<Msg>
+): (flags: Flags) => Program<Model, MsgWithDebug<Model, Msg>, Dom> { ... }
 ```
 
 Added in v0.5.0

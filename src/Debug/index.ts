@@ -66,11 +66,18 @@ export function programWithDebugger<Model, Msg, Dom>(
   const data$ = new BehaviorSubject<DebugData<Model, Msg>>([debugInit(), initModel])
 
   const updateWithDebug = (msg: MsgWithDebug<Model, Msg>, model: Model): [Model, cmd.Cmd<Msg>] => {
-    if ('type' in msg && msg.type === '__DebugUpdateModel__') {
-      return [msg.payload, cmd.none]
+    if ('type' in msg) {
+      switch (msg.type) {
+        case '__DebugUpdateModel__':
+          return [msg.payload, cmd.none]
+
+        case '__DebugApplyMsg__':
+          const [newModel] = update(msg.payload, model)
+          return [newModel, cmd.none]
+      }
     }
 
-    const msg_ = msg as Msg // risky, but needed...
+    const msg_ = msg // risky, but needed...
     const result = update(msg_, model)
 
     data$.next([debugMsg(msg_), result[0]])
@@ -84,6 +91,19 @@ export function programWithDebugger<Model, Msg, Dom>(
   debug(data$, initModel, p.dispatch)()
 
   return p
+}
+
+/**
+ * Same as `programWithDebugger()` but with `Flags` that can be passed when the `Program` is created in order to manage initial values.
+ * @since 0.5.0
+ */
+export function programWithDebuggerWithFlags<Flags, Model, Msg, Dom>(
+  init: (flags: Flags) => [Model, cmd.Cmd<Msg>],
+  update: (msg: Msg, model: Model) => [Model, cmd.Cmd<Msg>],
+  view: (model: Model) => Html<Dom, Msg>,
+  subscriptions?: (model: Model) => Sub<Msg>
+): (flags: Flags) => Program<Model, MsgWithDebug<Model, Msg>, Dom> {
+  return flags => programWithDebugger(init(flags), update, view, subscriptions)
 }
 
 /**

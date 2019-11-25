@@ -45,7 +45,10 @@ export const debugMsg = <Msg>(payload: Msg): DebugMsg<Msg> => ({ type: 'MESSAGE'
  * Extends `Msg` with a special kind of message from Debugger
  * @since 0.5.0
  */
-export type MsgWithDebug<Model, Msg> = Msg | { type: '__DebugUpdateModel__'; payload: Model }
+export type MsgWithDebug<Model, Msg> =
+  | Msg
+  | { type: '__DebugUpdateModel__'; payload: Model }
+  | { type: '__DebugApplyMsg__'; payload: Msg }
 
 /**
  * Defines a generic debugging function

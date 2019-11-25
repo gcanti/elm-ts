@@ -202,7 +202,7 @@ function handleIncomingMsg<Model, Msg>(
               parseToggleAction<Model>(msg),
               E.map(([id, liftedState]) =>
                 pipe(
-                  toggle(data$.getValue()[1], id, liftedState),
+                  toggle(id, liftedState),
                   IO_.chain(liftState)
                 )
               )
@@ -291,8 +291,8 @@ function parseToggleAction<Model>(msg: Monitor): Either<string, [number, LiftedS
  */
 function toggleAction<Model, Msg>(
   dispatch: Dispatch<MsgWithDebug<Model, Msg>>
-): (current: Model, id: number, liftedState: LiftedState<Model>) => IO<LiftedState<Model>> {
-  return (current, id, liftedState) => () => {
+): (id: number, liftedState: LiftedState<Model>) => IO<LiftedState<Model>> {
+  return (id, liftedState) => () => {
     const state = JSON.parse(JSON.stringify(liftedState)) // poor man deep clone...
 
     const { skippedActionIds, stagedActionIds, computedStates, actionsById } = state
@@ -317,9 +317,7 @@ function toggleAction<Model, Msg>(
         continue // it's already skipped
       }
 
-      dispatch(actionsById[currentActionId].action as Msg)
-
-      computedStates[i].state = current
+      dispatch({ type: '__DebugApplyMsg__', payload: actionsById[currentActionId].action })
     }
 
     if (skipped) {

@@ -114,7 +114,10 @@ Extends `Msg` with a special kind of message from Debugger
 **Signature**
 
 ```ts
-export type MsgWithDebug<Model, Msg> = Msg | { type: '__DebugUpdateModel__'; payload: Model }
+export type MsgWithDebug<Model, Msg> =
+  | Msg
+  | { type: '__DebugUpdateModel__'; payload: Model }
+  | { type: '__DebugApplyMsg__'; payload: Msg }
 ```
 
 Added in v0.5.0

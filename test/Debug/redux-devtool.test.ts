@@ -182,27 +182,16 @@ describe('Debug/redux-dev-tool', () => {
     it('should handle "TOGGLE_ACTION" message from extension', () => {
       const warn = console.warn as jest.Mock<any, any>
       const send = connection.send as jest.Mock<any, any>
-      const data$ = new BehaviorSubject<DebugData<Model, Msg>>([{ type: 'INIT' }, 0])
       const dispatch = jest.fn()
-      reduxDevToolDebugger(connection)(0, data$, dispatch)
-
-      // Add some values in data$ stream to simulate a "living" application
-      data$.next([{ type: 'MESSAGE', payload: { type: 'Inc' } }, 1])
-      data$.next([{ type: 'MESSAGE', payload: { type: 'Inc' } }, 2])
-      data$.next([{ type: 'MESSAGE', payload: { type: 'Inc' } }, 3])
-      data$.next([{ type: 'MESSAGE', payload: { type: 'Dec' } }, 2])
+      reduxDevToolDebugger(connection)(0, DATA$, dispatch)
 
       // --- OK
       emit({ type: 'DISPATCH', payload: { type: 'TOGGLE_ACTION', id: 2 }, state: JSON.stringify(LIFTED_STATE) })
 
       assertCalledNWith(1, dispatch, { type: '__DebugUpdateModel__', payload: 1 })
-      assertCalledNWith(2, dispatch, { type: 'Dec' })
-      assertCalledNWith(3, dispatch, { type: 'Inc' })
-      assertCalledNWith(1, send, null, {
-        ...LIFTED_STATE,
-        computedStates: [{ state: 0 }, { state: 1 }, { state: 2 }, { state: 2 }, { state: 2 }],
-        skippedActionIds: [2]
-      })
+      assertCalledNWith(2, dispatch, { type: '__DebugApplyMsg__', payload: { type: 'Dec' } })
+      assertCalledNWith(3, dispatch, { type: '__DebugApplyMsg__', payload: { type: 'Inc' } })
+      assertCalledNWith(1, send, null, { ...LIFTED_STATE, skippedActionIds: [2] })
 
       // --- Parse error
       emit({ type: 'DISPATCH', payload: { type: 'TOGGLE_ACTION' }, state: JSON.stringify(LIFTED_STATE) })
@@ -236,14 +225,11 @@ describe('Debug/redux-dev-tool', () => {
       })
 
       assertCalledNWith(1, dispatch, { type: '__DebugUpdateModel__', payload: 1 })
-      assertCalledNWith(2, dispatch, { type: 'Inc' })
-      assertCalledNWith(3, dispatch, { type: 'Dec' })
-      assertCalledNWith(4, dispatch, { type: 'Inc' })
+      assertCalledNWith(2, dispatch, { type: '__DebugApplyMsg__', payload: { type: 'Inc' } })
+      assertCalledNWith(3, dispatch, { type: '__DebugApplyMsg__', payload: { type: 'Dec' } })
+      assertCalledNWith(4, dispatch, { type: '__DebugApplyMsg__', payload: { type: 'Inc' } })
 
-      assertCalledWith(send, null, {
-        ...LIFTED_STATE,
-        computedStates: [{ state: 0 }, { state: 1 }, { state: 0 }, { state: 0 }, { state: 0 }]
-      })
+      assertCalledWith(send, null, LIFTED_STATE)
     })
 
     it('should handle "TOGGLE_ACTION" message from extension - action already toggled with others', () => {
@@ -258,13 +244,12 @@ describe('Debug/redux-dev-tool', () => {
       })
 
       assertCalledNWith(1, dispatch, { type: '__DebugUpdateModel__', payload: 1 })
-      assertCalledNWith(2, dispatch, { type: 'Inc' })
-      assertCalledNWith(3, dispatch, { type: 'Dec' })
+      assertCalledNWith(2, dispatch, { type: '__DebugApplyMsg__', payload: { type: 'Inc' } })
+      assertCalledNWith(3, dispatch, { type: '__DebugApplyMsg__', payload: { type: 'Dec' } })
 
       assertCalledWith(send, null, {
         ...LIFTED_STATE,
-        skippedActionIds: [4],
-        computedStates: [{ state: 0 }, { state: 1 }, { state: 0 }, { state: 0 }, { state: 2 }]
+        skippedActionIds: [4]
       })
     })
 
