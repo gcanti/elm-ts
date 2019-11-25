@@ -63,8 +63,15 @@ export interface Debug<Model, Msg> {
  * @since 0.5.0
  */
 export interface Debugger<Model, Msg> {
-  (init: Model, data$: BehaviorSubject<DebugData<Model, Msg>>, dispatch: Dispatch<MsgWithDebug<Model, Msg>>): Debug<
-    Model,
-    Msg
-  >
+  (d: DebuggerR<Model, Msg>): Debug<Model, Msg>
+}
+
+/**
+ * Defines the dependencies for a `Debugger` function.
+ * @since 0.5.0
+ */
+export interface DebuggerR<Model, Msg> {
+  init: Model
+  data$: BehaviorSubject<DebugData<Model, Msg>>
+  dispatch: Dispatch<MsgWithDebug<Model, Msg>>
 }

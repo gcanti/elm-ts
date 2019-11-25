@@ -1,9 +1,10 @@
 import * as assert from 'assert'
 import { none, some } from 'fp-ts/lib/Option'
 import { BehaviorSubject } from 'rxjs'
-import { DebugData, Global } from '../../src/Debug/commons'
+import { DebugData, DebuggerR, Global, MsgWithDebug } from '../../src/Debug/commons'
 import { Connection, getConnection, reduxDevToolDebugger } from '../../src/Debug/redux-devtool'
 import { Dispatch } from '../../src/Platform'
+import { Model, Msg, STD_DEPS } from './_helpers'
 
 describe('Debug/redux-dev-tool', () => {
   it('getConnection() should return an IO of Some<Connection> if dev-tool extension is available', () => {
@@ -23,11 +24,6 @@ describe('Debug/redux-dev-tool', () => {
 
   describe('reduxDevToolDebugger()', () => {
     // --- Setup
-    type Model = number
-    type Msg = { type: 'Inc' } | { type: 'Dec' }
-
-    const DATA$ = new BehaviorSubject<DebugData<Model, Msg>>([{ type: 'INIT' }, 0])
-
     const oriConsoleWarn = console.warn
 
     let connection: Connection<Model, Msg>
@@ -55,7 +51,7 @@ describe('Debug/redux-dev-tool', () => {
     // --- Tests
     it('should handle actions dispatched by application', () => {
       const send = connection.send as jest.Mock<any, any>
-      const debug = reduxDevToolDebugger(connection)(0, DATA$, () => undefined)
+      const debug = reduxDevToolDebugger(connection)(STD_DEPS)
 
       debug([{ type: 'INIT' }, 0])
 
@@ -68,7 +64,7 @@ describe('Debug/redux-dev-tool', () => {
 
     it('should handle "START" message from extension', () => {
       const init = connection.init as jest.Mock<any, any>
-      reduxDevToolDebugger(connection)(0, DATA$, () => undefined)
+      reduxDevToolDebugger(connection)(STD_DEPS)
 
       emit({ type: 'START' })
 
@@ -78,7 +74,7 @@ describe('Debug/redux-dev-tool', () => {
     it('should handle "ACTION" message from extension', () => {
       const warn = console.warn as jest.Mock<any, any>
       const dispatch = jest.fn()
-      reduxDevToolDebugger(connection)(0, DATA$, dispatch)
+      reduxDevToolDebugger(connection)(depsWith(dispatch))
 
       // --- OK
       emit({ type: 'ACTION', payload: JSON.stringify({ type: 'Inc' }) })
@@ -94,7 +90,7 @@ describe('Debug/redux-dev-tool', () => {
     it('should handle "JUMP_TO_STATE" and "JUMP_TO_ACTION" messages from extension', () => {
       const warn = console.warn as jest.Mock<any, any>
       const dispatch = jest.fn()
-      reduxDevToolDebugger(connection)(0, DATA$, dispatch)
+      reduxDevToolDebugger(connection)(depsWith(dispatch))
 
       // --- JUMP_TO_STATE - OK
       emit({ type: 'DISPATCH', payload: { type: 'JUMP_TO_STATE' }, state: JSON.stringify(123) })
@@ -120,7 +116,7 @@ describe('Debug/redux-dev-tool', () => {
     it('should handle "RESET" message from extension', () => {
       const init = connection.init as jest.Mock<any, any>
       const dispatch = jest.fn()
-      reduxDevToolDebugger(connection)(0, DATA$, dispatch)
+      reduxDevToolDebugger(connection)(depsWith(dispatch))
 
       emit({ type: 'DISPATCH', payload: { type: 'RESET' } })
 
@@ -132,7 +128,7 @@ describe('Debug/redux-dev-tool', () => {
       const warn = console.warn as jest.Mock<any, any>
       const init = connection.init as jest.Mock<any, any>
       const dispatch = jest.fn()
-      reduxDevToolDebugger(connection)(0, DATA$, dispatch)
+      reduxDevToolDebugger(connection)(depsWith(dispatch))
 
       // --- OK
       emit({ type: 'DISPATCH', payload: { type: 'ROLLBACK' }, state: JSON.stringify(123) })
@@ -149,7 +145,7 @@ describe('Debug/redux-dev-tool', () => {
     it('should handle "COMMIT" message from extension', () => {
       const init = connection.init as jest.Mock<any, any>
       const data$ = new BehaviorSubject<DebugData<Model, Msg>>([{ type: 'INIT' }, 0])
-      reduxDevToolDebugger(connection)(0, data$, () => undefined)
+      reduxDevToolDebugger(connection)({ ...STD_DEPS, data$ })
 
       // Add some values in data$ stream to simulate a "living" application
       data$.next([{ type: 'MESSAGE', payload: { type: 'Inc' } }, 1])
@@ -166,7 +162,7 @@ describe('Debug/redux-dev-tool', () => {
       const warn = console.warn as jest.Mock<any, any>
       const send = connection.send as jest.Mock<any, any>
       const dispatch = jest.fn()
-      reduxDevToolDebugger(connection)(0, DATA$, dispatch)
+      reduxDevToolDebugger(connection)(depsWith(dispatch))
 
       // --- OK
       emit({ type: 'DISPATCH', payload: { type: 'IMPORT_STATE', nextLiftedState: LIFTED_STATE } })
@@ -183,7 +179,7 @@ describe('Debug/redux-dev-tool', () => {
       const warn = console.warn as jest.Mock<any, any>
       const send = connection.send as jest.Mock<any, any>
       const dispatch = jest.fn()
-      reduxDevToolDebugger(connection)(0, DATA$, dispatch)
+      reduxDevToolDebugger(connection)(depsWith(dispatch))
 
       // --- OK
       emit({ type: 'DISPATCH', payload: { type: 'TOGGLE_ACTION', id: 2 }, state: JSON.stringify(LIFTED_STATE) })
@@ -204,7 +200,7 @@ describe('Debug/redux-dev-tool', () => {
     it('should handle "TOGGLE_ACTION" message from extension - action not staged', () => {
       const send = connection.send as jest.Mock<any, any>
       const dispatch = jest.fn()
-      reduxDevToolDebugger(connection)(0, DATA$, dispatch)
+      reduxDevToolDebugger(connection)(depsWith(dispatch))
 
       emit({ type: 'DISPATCH', payload: { type: 'TOGGLE_ACTION', id: 5 }, state: JSON.stringify(LIFTED_STATE) })
 
@@ -216,7 +212,7 @@ describe('Debug/redux-dev-tool', () => {
     it('should handle "TOGGLE_ACTION" message from extension - action already toggled', () => {
       const send = connection.send as jest.Mock<any, any>
       const dispatch = jest.fn()
-      reduxDevToolDebugger(connection)(0, DATA$, dispatch)
+      reduxDevToolDebugger(connection)(depsWith(dispatch))
 
       emit({
         type: 'DISPATCH',
@@ -235,7 +231,7 @@ describe('Debug/redux-dev-tool', () => {
     it('should handle "TOGGLE_ACTION" message from extension - action already toggled with others', () => {
       const send = connection.send as jest.Mock<any, any>
       const dispatch = jest.fn()
-      reduxDevToolDebugger(connection)(0, DATA$, dispatch)
+      reduxDevToolDebugger(connection)(depsWith(dispatch))
 
       emit({
         type: 'DISPATCH',
@@ -255,7 +251,7 @@ describe('Debug/redux-dev-tool', () => {
 
     it('should warn if message is not handled', () => {
       const warn = console.warn as jest.Mock<any, any>
-      reduxDevToolDebugger(connection)(0, DATA$, () => undefined)
+      reduxDevToolDebugger(connection)(STD_DEPS)
 
       emit({ type: 'DISPATCH', payload: { type: 'UNKNOWN_TYPE' } })
 
@@ -265,6 +261,26 @@ describe('Debug/redux-dev-tool', () => {
 })
 
 // --- Helpers
+const depsWith = (dispatch: Dispatch<MsgWithDebug<Model, Msg>>): DebuggerR<Model, Msg> => ({
+  ...STD_DEPS,
+  dispatch
+})
+
+const LIFTED_STATE = {
+  actionsById: {
+    '0': { action: { type: '@@INIT' }, timestamp: 1574269844816, type: 'PERFORM_ACTION' },
+    '1': { action: { type: 'Inc' }, timestamp: 1574269853594, type: 'PERFORM_ACTION' },
+    '2': { action: { type: 'Inc' }, timestamp: 1574269853726, type: 'PERFORM_ACTION' },
+    '3': { action: { type: 'Dec' }, timestamp: 1574269853888, type: 'PERFORM_ACTION' },
+    '4': { action: { type: 'Inc' }, timestamp: 1574269854031, type: 'PERFORM_ACTION' }
+  },
+  computedStates: [{ state: 0 }, { state: 1 }, { state: 2 }, { state: 1 }, { state: 2 }],
+  currentStateIndex: 4,
+  nextActionId: 5,
+  skippedActionIds: [],
+  stagedActionIds: [0, 1, 2, 3, 4]
+}
+
 /**
  * Asserts that the mocked function was called **__1__** time with provided parameters
  */
@@ -289,19 +305,4 @@ function assertCalledNWith(n: number, fn: jest.Mock<any, any[]>, ...params: any[
   calls[n - 1].forEach((p, i) => {
     assert.deepStrictEqual(p, params[i])
   })
-}
-
-const LIFTED_STATE = {
-  actionsById: {
-    '0': { action: { type: '@@INIT' }, timestamp: 1574269844816, type: 'PERFORM_ACTION' },
-    '1': { action: { type: 'Inc' }, timestamp: 1574269853594, type: 'PERFORM_ACTION' },
-    '2': { action: { type: 'Inc' }, timestamp: 1574269853726, type: 'PERFORM_ACTION' },
-    '3': { action: { type: 'Dec' }, timestamp: 1574269853888, type: 'PERFORM_ACTION' },
-    '4': { action: { type: 'Inc' }, timestamp: 1574269854031, type: 'PERFORM_ACTION' }
-  },
-  computedStates: [{ state: 0 }, { state: 1 }, { state: 2 }, { state: 1 }, { state: 2 }],
-  currentStateIndex: 4,
-  nextActionId: 5,
-  skippedActionIds: [],
-  stagedActionIds: [0, 1, 2, 3, 4]
 }

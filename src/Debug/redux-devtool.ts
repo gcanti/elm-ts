@@ -9,9 +9,8 @@ import * as E from 'fp-ts/lib/Either'
 import * as IO_ from 'fp-ts/lib/IO'
 import * as O from 'fp-ts/lib/Option'
 import { pipe } from 'fp-ts/lib/pipeable'
-import { BehaviorSubject } from 'rxjs'
 import { Dispatch } from '../Platform'
-import { Debug, DebugData, Debugger, Global, MsgWithDebug } from './commons'
+import { Debug, Debugger, DebuggerR, Global, MsgWithDebug } from './commons'
 
 // --- Aliases for docs
 import Option = O.Option
@@ -72,6 +71,10 @@ interface LiftedState<Model> {
   isPaused: boolean
 }
 
+interface DevToolHandlerR<Model, Msg> extends DebuggerR<Model, Msg> {
+  connection: Connection<Model, Msg>
+}
+
 /**
  * Gets a _Redux DevTool Extension_ connection in case the extension is available
  * @since 0.5.0
@@ -95,11 +98,13 @@ function hasExtension(global: Global): global is Global & { __REDUX_DEVTOOLS_EXT
  * @since 0.5.0
  */
 export function reduxDevToolDebugger<Model, Msg>(connection: Connection<Model, Msg>): Debugger<Model, Msg> {
-  return (init, data$, dispatch) => {
-    // --- Subscribe to extension in order to receive messages from monitor
-    connection.subscribe(handleSubscription(connection, init, data$, dispatch))
+  return d => {
+    const deps = { ...d, connection }
 
-    return handleActions(connection)
+    // --- Subscribe to extension in order to receive messages from monitor
+    connection.subscribe(handleSubscription(deps))
+
+    return handleActions(deps)
   }
 }
 
@@ -108,13 +113,8 @@ export function reduxDevToolDebugger<Model, Msg>(connection: Connection<Model, M
  *
  * @since 0.5.0
  */
-function handleSubscription<Model, Msg>(
-  connection: Connection<Model, Msg>,
-  init: Model,
-  data$: BehaviorSubject<DebugData<Model, Msg>>,
-  dispatch: Dispatch<MsgWithDebug<Model, Msg>>
-): Dispatch<DevToolMsg> {
-  const handler = handleIncomingMsg(connection, init, data$, dispatch)
+function handleSubscription<Model, Msg>(deps: DevToolHandlerR<Model, Msg>): (msg: DevToolMsg) => void {
+  const handler = handleIncomingMsg(deps)
 
   return msg =>
     pipe(
@@ -131,12 +131,12 @@ function handleSubscription<Model, Msg>(
  * **Note:** the monitor can dispatch messages of any shape that will be re-dispatched into the application; these messages **are not validated** and can lead to unexpected behaviours.
  * @since 0.5.0
  */
-function handleIncomingMsg<Model, Msg>(
-  connection: Connection<Model, Msg>,
-  init: Model,
-  data$: BehaviorSubject<DebugData<Model, Msg>>,
-  dispatch: Dispatch<MsgWithDebug<Model, Msg>>
-): (msg: DevToolMsg) => Either<string, IO<void>> {
+function handleIncomingMsg<Model, Msg>({
+  connection,
+  init,
+  data$,
+  dispatch
+}: DevToolHandlerR<Model, Msg>): (msg: DevToolMsg) => Either<string, IO<void>> {
   const dispatchToApp = (m: unknown): IO<void> => () => dispatch(m as Msg)
   const reinit: IO<void> = () => connection.init(init)
   const update = (payload: Model): IO<void> => dispatchToApp({ type: '__DebugUpdateModel__', payload })
@@ -221,7 +221,7 @@ function handleIncomingMsg<Model, Msg>(
  * The `MESSAGE` action will send the message payload and state to the connected extension (`connection`).
  * @since 0.5.0
  */
-function handleActions<Model, Msg>(connection: Connection<Model, Msg>): Debug<Model, Msg> {
+function handleActions<Model, Msg>({ connection }: DevToolHandlerR<Model, Msg>): Debug<Model, Msg> {
   return ([action, model]) => (action.type === 'MESSAGE' ? connection.send(action.payload, model) : undefined)
 }
 

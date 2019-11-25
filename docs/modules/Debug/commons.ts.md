@@ -12,6 +12,7 @@ parent: Modules
 - [DebugInit (interface)](#debuginit-interface)
 - [DebugMsg (interface)](#debugmsg-interface)
 - [Debugger (interface)](#debugger-interface)
+- [DebuggerR (interface)](#debuggerr-interface)
 - [DebugAction (type alias)](#debugaction-type-alias)
 - [DebugData (type alias)](#debugdata-type-alias)
 - [Global (type alias)](#global-type-alias)
@@ -68,10 +69,23 @@ Defines a generic `Debugger`
 
 ```ts
 export interface Debugger<Model, Msg> {
-  (init: Model, data$: BehaviorSubject<DebugData<Model, Msg>>, dispatch: Dispatch<MsgWithDebug<Model, Msg>>): Debug<
-    Model,
-    Msg
-  >
+  (d: DebuggerR<Model, Msg>): Debug<Model, Msg>
+}
+```
+
+Added in v0.5.0
+
+# DebuggerR (interface)
+
+Defines the dependencies for a `Debugger` function.
+
+**Signature**
+
+```ts
+export interface DebuggerR<Model, Msg> {
+  init: Model
+  data$: BehaviorSubject<DebugData<Model, Msg>>
+  dispatch: Dispatch<MsgWithDebug<Model, Msg>>
 }
 ```
 

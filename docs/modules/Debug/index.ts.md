@@ -48,12 +48,21 @@ Adds a debugging capability to a generic `Html` `Program`.
 
 It tracks every `Message` dispatched and resulting `Model` update.
 
-It also lets updating the application's state with a special `Message` of type:
+It also lets directly updating the application's state with a special `Message` of type:
 
 ```ts
 {
   type: '__DebugUpdateModel__'
   payload: Model
+}
+```
+
+or applying a message with:
+
+```ts
+{
+  type: '__DebugApplyMsg__'
+  payload: Msg
 }
 ```
 

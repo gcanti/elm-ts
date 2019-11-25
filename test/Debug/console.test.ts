@@ -1,8 +1,6 @@
 import * as assert from 'assert'
-import { BehaviorSubject } from 'rxjs'
 import { consoleDebugger } from '../../src/Debug/console'
-
-const DATA$ = new BehaviorSubject<any>([])
+import { Model, Msg, STD_DEPS } from './_helpers'
 
 describe('Debug/console', () => {
   const oriConsoleLog = console.log
@@ -38,10 +36,7 @@ describe('Debug/console', () => {
 
   // --- Tests
   it('consoleDebugger() should debug to console', () => {
-    type Model = number
-    type Msg = { type: 'Inc' } | { type: 'Dec' }
-
-    const debug = consoleDebugger<Model, Msg>()(0, DATA$, () => undefined)
+    const debug = consoleDebugger<Model, Msg>()(STD_DEPS)
 
     debug([{ type: 'INIT' }, 0])
     debug([{ type: 'MESSAGE', payload: { type: 'Inc' } }, 1])
@@ -67,7 +62,6 @@ describe('Debug/console', () => {
   })
 
   it('consoleDebugger() should handle messages with different tag property names', () => {
-    type Model = number
     type MsgTag = { tag: 'FooTag' }
     type Msg_Tag = { _tag: 'Foo_Tag' }
     type MsgType = { type: 'FooType' }
@@ -75,9 +69,9 @@ describe('Debug/console', () => {
     type MsgKind = { kind: 'FooKind' }
     type Msg_Kind = { _kind: 'Foo_Kind' }
     type MsgOther = { other: 'FooOther' }
-    type Msg = MsgTag | Msg_Tag | MsgType | Msg_Type | MsgKind | Msg_Kind | MsgOther
+    type MsgDetect = MsgTag | Msg_Tag | MsgType | Msg_Type | MsgKind | Msg_Kind | MsgOther
 
-    const debug = consoleDebugger<Model, Msg>()(0, DATA$, () => undefined)
+    const debug = consoleDebugger<Model, MsgDetect>()(STD_DEPS as any)
 
     debug([{ type: 'MESSAGE', payload: { tag: 'FooTag' } }, 1])
     debug([{ type: 'MESSAGE', payload: { _tag: 'Foo_Tag' } }, 1])

@@ -32,9 +32,8 @@ import { pipe } from 'fp-ts/lib/pipeable'
 import { BehaviorSubject } from 'rxjs'
 import * as cmd from '../Cmd'
 import { Html, Program, program } from '../Html'
-import { Dispatch } from '../Platform'
 import { Sub } from '../Sub'
-import { DebugData, Global, MsgWithDebug, debugInit, debugMsg } from './commons'
+import { DebugData, DebuggerR, Global, MsgWithDebug, debugInit, debugMsg } from './commons'
 import { consoleDebugger } from './console'
 import { getConnection, reduxDevToolDebugger } from './redux-devtool'
 
@@ -43,12 +42,20 @@ import { getConnection, reduxDevToolDebugger } from './redux-devtool'
  *
  * It tracks every `Message` dispatched and resulting `Model` update.
  *
- * It also lets updating the application's state with a special `Message` of type:
+ * It also lets directly updating the application's state with a special `Message` of type:
  *
  * ```ts
  * {
  *   type: '__DebugUpdateModel__'
  *   payload: Model
+ * }
+ * ```
+ *
+ * or applying a message with:
+ * ```ts
+ * {
+ *   type: '__DebugApplyMsg__';
+ *   payload: Msg
  * }
  * ```
  * @since 0.5.0
@@ -72,15 +79,13 @@ export function programWithDebugger<Model, Msg, Dom>(
           return [msg.payload, cmd.none]
 
         case '__DebugApplyMsg__':
-          const [newModel] = update(msg.payload, model)
-          return [newModel, cmd.none]
+          return [update(msg.payload, model)[0], cmd.none]
       }
     }
 
-    const msg_ = msg // risky, but needed...
-    const result = update(msg_, model)
+    const result = update(msg, model)
 
-    data$.next([debugMsg(msg_), result[0]])
+    data$.next([debugMsg(msg), result[0]])
 
     return result
   }
@@ -88,7 +93,7 @@ export function programWithDebugger<Model, Msg, Dom>(
   const p = program<Model, MsgWithDebug<Model, Msg>, Dom>(init, updateWithDebug, view, subscriptions)
 
   // --- Run the debugger
-  debug(data$, initModel, p.dispatch)()
+  debug({ data$, init: initModel, dispatch: p.dispatch })()
 
   return p
 }
@@ -110,17 +115,11 @@ export function programWithDebuggerWithFlags<Flags, Model, Msg, Dom>(
  * Checks which type of debugger can be used (standard `console` or _Redux DevTool Extension_) based on provided `window` and prepares the subscription to the "debug" stream
  * @since 0.5.0
  */
-function runDebugger<Model, Msg>(
-  win: Global
-): (
-  data$: BehaviorSubject<DebugData<Model, Msg>>,
-  init: Model,
-  dispatch: Dispatch<MsgWithDebug<Model, Msg>>
-) => IO<void> {
-  return (data$, init, dispatch) =>
+function runDebugger<Model, Msg>(win: Global): (deps: DebuggerR<Model, Msg>) => IO<void> {
+  return deps =>
     pipe(
       getConnection<Model, Msg>(win),
       map(fold(() => consoleDebugger<Model, Msg>(), reduxDevToolDebugger)),
-      chain(debug => () => data$.subscribe(debug(init, data$, dispatch)))
+      chain(debug => () => deps.data$.subscribe(debug(deps)))
     )
 }
