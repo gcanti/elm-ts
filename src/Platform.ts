@@ -6,7 +6,7 @@
 
 import * as O from 'fp-ts/lib/Option'
 import { BehaviorSubject, Observable } from 'rxjs'
-import { distinctUntilChanged, map, mergeAll, share, startWith, switchMap } from 'rxjs/operators'
+import { distinctUntilChanged, map, mergeAll, switchMap } from 'rxjs/operators'
 import { Cmd } from './Cmd'
 import { Sub, none } from './Sub'
 
@@ -29,14 +29,6 @@ export interface Program<Model, Msg> {
   model$: Observable<Model>
 }
 
-function modelCompare<A, B>(x: [A, B], y: [A, B]): boolean {
-  return x === y || x[0] === y[0]
-}
-
-function cmdCompare<A, B>(x: [A, B], y: [A, B]): boolean {
-  return x === y || x[1] === y[1]
-}
-
 /**
  * `program()` is the real core of `elm-ts`.
  *
@@ -54,22 +46,17 @@ export function program<Model, Msg>(
   const dispatch: Dispatch<Msg> = msg => state$.next(update(msg, state$.getValue()[0]))
 
   const cmd$ = state$.pipe(
-    startWith(init), // added to make the initial cmd work
-    distinctUntilChanged(cmdCompare),
     map(state => state[1]),
+    distinctUntilChanged(),
     mergeAll()
   )
 
   const model$ = state$.pipe(
-    distinctUntilChanged(modelCompare),
     map(state => state[0]),
-    share()
+    distinctUntilChanged()
   )
 
-  const sub$ = model$.pipe(
-    startWith(init[0]),
-    switchMap(model => subscriptions(model))
-  )
+  const sub$ = model$.pipe(switchMap(model => subscriptions(model)))
 
   return { dispatch, cmd$, sub$, model$ }
 }
