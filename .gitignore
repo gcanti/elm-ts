@@ -1,5 +1,8 @@
+.cache
 *.log
 node_modules
 lib
+dist
 dev
 coverage
+tmp
