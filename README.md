@@ -42,6 +42,21 @@ function fromCodec<A>(codec: t.Decoder<unknown, A>): Decoder<A> {
 }
 ```
 
+## Enable debugger in development mode
+
+```ts
+import { programWithDebugger } from 'elm-ts/lib/Debug'
+import * as React from 'elm-ts/lib/React'
+import { render } from 'react-dom'
+import * as component from './examples/Counter'
+
+const program = process.env.NODE_ENV === 'production' ? React.program : programWithDebugger
+
+const main = program(component.init, component.update, component.view)
+
+React.run(main, dom => render(dom, document.getElementById('app')!))
+```
+
 ## Examples
 
 - [Counter](examples/Counter.tsx)
