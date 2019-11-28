@@ -18,9 +18,10 @@ high state of flux, you're at risk of it changing without notice.
 - **Breaking Change**
   - upgrade to `fp-ts@2.x` (@gcanti)
   - upgrade to `rxjs@6.x` (@gcanti)
-  - by default do not export `Navigation` from `index` (@gcanti)
+  - by default do not export `Navigation` from `index`, resolves #14 (@gcanti)
   - `Cmd`
     - make `map` data-last (@gcanti)
+    - add `of` function - it lifts a `Msg` into a command (@StefanoMagrassi)
   - `Decode`
     - remove dependency on `io-ts` (@gcanti)
     - refactor `Decoder` definition (@gcanti)
@@ -38,6 +39,12 @@ high state of flux, you're at risk of it changing without notice.
     - make `perform` data-last (@gcanti)
     - make `attempt` data-last (@gcanti)
     - remove `sequence` (@gcanti)
+- **New Feature**
+  - Debugger support, resolves #3 (@StefanoMagrassi, @minedeljkovic)
+- **Internal**
+  - Remove `axios` as dependency, resolves #4 (@StefanoMagrassi)
+  - Full tests coverage (@StefanoMagrassi)
+  - switch from `Mocha` to `Jest` as test runner (@StefanoMagrassi)
 
 # 0.4.3
 
