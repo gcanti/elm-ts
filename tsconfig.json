@@ -1,12 +1,13 @@
 {
   "compilerOptions": {
+    "allowJs": false,
     "noEmit": true,
     "outDir": "./lib",
     "target": "es5",
     "module": "commonjs",
     "moduleResolution": "node",
     "lib": ["esnext", "dom"],
-    "sourceMap": true,
+    "sourceMap": false,
     "declaration": true,
     "jsx": "react",
     "alwaysStrict": true,
@@ -15,8 +16,7 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
-    "forceConsistentCasingInFileNames": true,
-    "allowJs": false
+    "forceConsistentCasingInFileNames": true
   },
   "include": ["./scripts", "./src", "./test", "./examples"]
 }

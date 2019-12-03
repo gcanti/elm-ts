@@ -1,13 +1,14 @@
 {
   "name": "elm-ts",
-  "version": "0.5.0",
+  "version": "0.5.1",
   "description": "A porting of TEA to TypeScript featuring fp-ts, rxjs6 and React",
   "files": [
-    "lib"
+    "lib",
+    "es6"
   ],
   "main": "lib/index.js",
+  "module": "es6/index.js",
   "typings": "lib/index.d.ts",
-  "module": "lib/es6/index.js",
   "repository": {
     "type": "git",
     "url": "https://github.com/gcanti/elm-ts.git"
@@ -28,6 +29,7 @@
     "elm",
     "fp-ts"
   ],
+  "sideEffects": false,
   "scripts": {
     "check": "tsc -p .",
     "lint": "tslint -p . -t verbose",
@@ -35,7 +37,7 @@
     "pretest": "npm run check && npm run lint",
     "test": "npm run jest",
     "posttest": "npm run docs",
-    "prebuild": "rm -rf lib",
+    "prebuild": "rm -rf ./lib ./es6",
     "build": "tsc -p ./tsconfig.build.json && tsc -p ./tsconfig.build-es6.json",
     "docs": "docs-ts",
     "postdocs": "ts-node scripts/docs-index"
