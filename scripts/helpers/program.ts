@@ -6,21 +6,21 @@ export interface Eff<A> extends TE.TaskEither<string, A> {}
 
 export interface Program<C, A> extends RTE.ReaderTaskEither<C, string, A> {}
 
-export function run(te: TE.TaskEither<string, string>): void {
+export function run<A>(te: TE.TaskEither<string, A>): void {
   te()
     .then(
       fold(
         e => {
-          console.error(e)
-
-          process.exitCode = 1
+          throw e
         },
-        r => {
-          console.log(r)
-
+        _ => {
           process.exitCode = 0
         }
       )
     )
-    .catch(e => console.error('Unexpected error', e))
+    .catch(e => {
+      console.error('[ERROR]', e)
+
+      process.exitCode = 1
+    })
 }
