@@ -6,8 +6,8 @@ export interface Eff<A> extends TE.TaskEither<string, A> {}
 
 export interface Program<C, A> extends RTE.ReaderTaskEither<C, string, A> {}
 
-export function run<A>(te: TE.TaskEither<string, A>): void {
-  te()
+export function run<A>(eff: Eff<A>): void {
+  eff()
     .then(
       fold(
         e => {
