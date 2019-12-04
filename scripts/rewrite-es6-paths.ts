@@ -2,8 +2,8 @@ import { array } from 'fp-ts/lib/Array'
 import * as RTE from 'fp-ts/lib/ReaderTaskEither'
 import * as TE from 'fp-ts/lib/TaskEither'
 import { pipe } from 'fp-ts/lib/pipeable'
-import * as FS from './helpers/fs'
-import * as Logger from './helpers/logger'
+import { FileSystem, fileSystemNode } from './helpers/fs'
+import { Logger, loggerConsole } from './helpers/logger'
 import { Program, run } from './helpers/program'
 
 const PATH_REGEXP = /(\s(?:from|module)\s['|"]fp-ts)\/lib\/([\w-\/]+['|"])/gm
@@ -11,7 +11,7 @@ const ES6_GLOB_PATTERN = 'es6/**/*.@(ts|js)'
 
 const traverseRTE = array.traverse(RTE.readerTaskEither)
 
-interface Capabilities extends FS.MonadFileSystem, Logger.MonadLogger {}
+interface Capabilities extends FileSystem, Logger {}
 
 interface AppEff<A> extends Program<Capabilities, A> {}
 
@@ -38,7 +38,7 @@ const main: AppEff<void[]> = pipe(
 // --- Run the program
 run(
   main({
-    ...FS.effects,
-    ...Logger.effects
+    ...fileSystemNode,
+    ...loggerConsole
   })
 )

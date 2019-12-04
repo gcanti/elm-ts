@@ -1,7 +1,7 @@
 import * as TE from 'fp-ts/lib/TaskEither'
 import { pipe } from 'fp-ts/lib/pipeable'
-import * as FS from './helpers/fs'
-import * as Logger from './helpers/logger'
+import { FileSystem, fileSystemNode } from './helpers/fs'
+import { Logger, loggerConsole } from './helpers/logger'
 import { Program, run } from './helpers/program'
 
 const README_FILE = 'README.md'
@@ -13,7 +13,7 @@ nav_order: 1
 
 `
 
-interface Capabilities extends FS.MonadFileSystem, Logger.MonadLogger {}
+interface Capabilities extends FileSystem, Logger {}
 
 interface AppEff<A> extends Program<Capabilities, A> {}
 
@@ -31,7 +31,7 @@ const main: AppEff<void> = C =>
 // --- Run the program
 run(
   main({
-    ...FS.effects,
-    ...Logger.effects
+    ...fileSystemNode,
+    ...loggerConsole
   })
 )

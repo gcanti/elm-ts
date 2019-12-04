@@ -5,7 +5,7 @@ import * as fs from 'fs'
 import Glob from 'glob'
 import { Eff } from './program'
 
-export interface MonadFileSystem {
+export interface FileSystem {
   readonly readFile: (path: string) => Eff<string>
   readonly writeFile: (path: string, content: string) => Eff<void>
   readonly glob: (pattern: string) => Eff<string[]>
@@ -16,7 +16,7 @@ const writeFileTE = taskify<fs.PathLike, string, NodeJS.ErrnoException, void>(fs
 const globTE = taskify<string, Error, string[]>(Glob)
 const toError = (e: Error): string => e.message
 
-export const effects: MonadFileSystem = {
+export const fileSystemNode: FileSystem = {
   readFile: path =>
     pipe(
       readFileTE(path, 'utf8'),
