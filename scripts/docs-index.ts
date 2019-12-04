@@ -1,9 +1,8 @@
-import { chain, map, mapLeft, rightIO, taskify } from 'fp-ts/lib/TaskEither'
-import { flow } from 'fp-ts/lib/function'
+import * as TE from 'fp-ts/lib/TaskEither'
 import { pipe } from 'fp-ts/lib/pipeable'
-import * as fs from 'fs'
-import * as path from 'path'
-import { Eff, Program, run } from './program'
+import { FileSystem, fileSystemNode } from './helpers/fs'
+import { Logger, loggerConsole } from './helpers/logger'
+import { Program, run } from './helpers/program'
 
 const README_FILE = 'README.md'
 const DOCS_INDEX_FILE = 'docs/index.md'
@@ -13,47 +12,26 @@ nav_order: 1
 ---
 
 `
-interface MonadProcess {
-  cwd: Eff<string>
-}
 
-interface MonadFileSystem {
-  readonly readFile: (path: string) => Eff<string>
-  readonly writeFile: (path: string, content: string) => Eff<void>
-}
+interface Capabilities extends FileSystem, Logger {}
 
-interface Capabilities extends MonadProcess, MonadFileSystem {}
+interface AppEff<A> extends Program<Capabilities, A> {}
 
-const readFileTE = taskify<fs.PathLike, string, NodeJS.ErrnoException, string>(fs.readFile)
-const writeFileTE = taskify<fs.PathLike, string, NodeJS.ErrnoException, void>(fs.writeFile)
+const withHeadline = (content: string): string => `${HEADLINE}${content}`
 
-const capabilities: Capabilities = {
-  cwd: rightIO(() => process.cwd()),
-
-  readFile: path =>
-    pipe(
-      readFileTE(path, 'utf8'),
-      mapLeft(e => e.message)
-    ),
-
-  writeFile: flow(
-    writeFileTE,
-    mapLeft(e => e.message)
-  )
-}
-
-const main: Program<Capabilities, string> = C =>
+const main: AppEff<void> = C =>
   pipe(
-    C.cwd,
-    map(dir => [path.join(dir, README_FILE), path.join(dir, DOCS_INDEX_FILE)] as const),
-    chain(([input, output]) =>
-      pipe(
-        C.readFile(input),
-        chain(data => C.writeFile(output, `${HEADLINE}${data}`))
-      )
-    ),
-    map(() => 'Docs index updated')
+    C.info(`Copy content of ${README_FILE} into ${DOCS_INDEX_FILE}...`),
+    TE.chain(() => C.readFile(README_FILE)),
+    TE.map(withHeadline),
+    TE.chain(content => C.writeFile(DOCS_INDEX_FILE, content)),
+    TE.chainFirst(() => C.log('Docs index updated'))
   )
 
 // --- Run the program
-run(main(capabilities))
+run(
+  main({
+    ...fileSystemNode,
+    ...loggerConsole
+  })
+)

@@ -39,6 +39,7 @@
     "posttest": "npm run docs",
     "prebuild": "rm -rf ./lib ./es6",
     "build": "tsc -p ./tsconfig.build.json && tsc -p ./tsconfig.build-es6.json",
+    "postbuild": "ts-node scripts/rewrite-es6-paths",
     "docs": "docs-ts",
     "postdocs": "ts-node scripts/docs-index"
   },
@@ -53,6 +54,7 @@
   },
   "devDependencies": {
     "@types/blessed": "^0.1.8",
+    "@types/glob": "^7.1.1",
     "@types/history": "^4.6.2",
     "@types/jest": "^24.0.18",
     "@types/node": "^8.10.54",
@@ -62,6 +64,7 @@
     "blessed": "^0.1.81",
     "docs-ts": "^0.2.0",
     "fp-ts": "^2.0.2",
+    "glob": "^7.1.6",
     "husky": "^3.0.8",
     "io-ts": "^2.0.0",
     "jest": "^24.9.0",
