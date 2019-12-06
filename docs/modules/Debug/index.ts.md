@@ -70,11 +70,11 @@ or applying a message with:
 
 ```ts
 export function programWithDebugger<Model, Msg, Dom>(
-  init: [Model, cmd.Cmd<Msg>],
-  update: (msg: Msg, model: Model) => [Model, cmd.Cmd<Msg>],
+  init: [Model, Cmd<Msg>],
+  update: (msg: Msg, model: Model) => [Model, Cmd<Msg>],
   view: (model: Model) => Html<Dom, Msg>,
   subscriptions?: (model: Model) => Sub<Msg>
-): Program<Model, MsgWithDebug<Model, Msg>, Dom> { ... }
+): Program<Model, Msg, Dom> { ... }
 ```
 
 Added in v0.5.0
@@ -87,11 +87,11 @@ Same as `programWithDebugger()` but with `Flags` that can be passed when the `Pr
 
 ```ts
 export function programWithDebuggerWithFlags<Flags, Model, Msg, Dom>(
-  init: (flags: Flags) => [Model, cmd.Cmd<Msg>],
-  update: (msg: Msg, model: Model) => [Model, cmd.Cmd<Msg>],
+  init: (flags: Flags) => [Model, Cmd<Msg>],
+  update: (msg: Msg, model: Model) => [Model, Cmd<Msg>],
   view: (model: Model) => Html<Dom, Msg>,
   subscriptions?: (model: Model) => Sub<Msg>
-): (flags: Flags) => Program<Model, MsgWithDebug<Model, Msg>, Dom> { ... }
+): (flags: Flags) => Program<Model, Msg, Dom> { ... }
 ```
 
 Added in v0.5.0
