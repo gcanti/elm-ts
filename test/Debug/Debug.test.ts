@@ -24,10 +24,12 @@ describe('Debug', () => {
     const program = programWithDebugger(init, update, view)
 
     program.dispatch({ tag: 'Inc' })
-    program.dispatch({ type: '__DebugUpdateModel__', payload: 10 })
+    // we need to cast as any to test internal handling of this "special" message
+    program.dispatch({ type: '__DebugUpdateModel__', payload: 10 } as any)
     program.dispatch({ tag: 'Dec' })
     program.dispatch({ tag: 'Inc' })
-    program.dispatch({ type: '__DebugApplyMsg__', payload: { tag: 'Inc' } })
+    // we need to cast as any to test internal handling of this "special" message
+    program.dispatch({ type: '__DebugApplyMsg__', payload: { tag: 'Inc' } } as any)
     program.dispatch({ tag: 'Inc' })
 
     assert.strictEqual(log.length, 5)
@@ -56,7 +58,8 @@ describe('Debug', () => {
     const program = programWithDebugger(init, update, view, subscription)
 
     program.dispatch({ tag: 'Inc' })
-    program.dispatch({ type: '__DebugUpdateModel__', payload: 10 })
+    // we need to cast as any to test internal handling of this "special" message
+    program.dispatch({ type: '__DebugUpdateModel__', payload: 10 } as any)
     program.dispatch({ tag: 'Dec' })
     program.dispatch({ tag: 'Inc' })
     program.dispatch({ tag: 'Inc' })
