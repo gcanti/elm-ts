@@ -26,16 +26,11 @@
  * ```
  */
 
-// import { IO, chain, map } from 'fp-ts/lib/IO'
-// import { fold } from 'fp-ts/lib/Option'
-// import { pipe } from 'fp-ts/lib/pipeable'
 import { BehaviorSubject } from 'rxjs'
-import { Cmd, none } from '../Cmd'
+import { Cmd } from '../Cmd'
 import { Html, Program, program } from '../Html'
 import { Sub } from '../Sub'
-import { DebugData, DebuggerR, MsgWithDebug, debugInit, debugMsg, runDebugger } from './commons'
-// import { consoleDebugger } from './console'
-// import { getConnection, reduxDevToolDebugger } from './redux-devtool'
+import { DebugData, DebuggerR, debugInit, runDebugger, updateWithDebug } from './commons'
 
 /**
  * Adds a debugging capability to a generic `Html` `Program`.
@@ -72,25 +67,7 @@ export function programWithDebugger<Model, Msg, Dom>(
 
   const debug$ = new BehaviorSubject<DebugData<Model, Msg>>([debugInit(), initModel])
 
-  const updateWithDebug = (msg: MsgWithDebug<Model, Msg>, model: Model): [Model, Cmd<Msg>] => {
-    if ('type' in msg) {
-      switch (msg.type) {
-        case '__DebugUpdateModel__':
-          return [msg.payload, none]
-
-        case '__DebugApplyMsg__':
-          return [update(msg.payload, model)[0], none]
-      }
-    }
-
-    const result = update(msg, model)
-
-    debug$.next([debugMsg(msg), result[0]])
-
-    return result
-  }
-
-  const p = program(init, updateWithDebug, view, subscriptions)
+  const p = program(init, updateWithDebug(debug$, update), view, subscriptions)
 
   // --- Run the debugger
   // --- we need to make a type assertion for `dispatch` because we cannot change the intrinsic `msg` type of `program`;

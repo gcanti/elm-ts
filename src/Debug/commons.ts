@@ -2,6 +2,7 @@ import { IO, chain, map } from 'fp-ts/lib/IO'
 import { fold } from 'fp-ts/lib/Option'
 import { pipe } from 'fp-ts/lib/pipeable'
 import { BehaviorSubject } from 'rxjs'
+import { Cmd, none } from '../Cmd'
 import { Dispatch } from '../Platform'
 import { consoleDebugger } from './console'
 import { getConnection, reduxDevToolDebugger } from './redux-devtool'
@@ -82,8 +83,54 @@ export interface DebuggerR<Model, Msg> {
 }
 
 /**
+ * Adds debugging capability to the provided `update` function.
+ *
+ * It tracks through the `debug$` stream every `Message` dispatched and resulting `Model` update.
+ *
+ * It also lets directly updating the application's state with a special `Message` of type:
+ *
+ * ```ts
+ * {
+ *   type: '__DebugUpdateModel__'
+ *   payload: Model
+ * }
+ * ```
+ *
+ * or applying a message with:
+ * ```ts
+ * {
+ *   type: '__DebugApplyMsg__';
+ *   payload: Msg
+ * }
+ * ```
+ * @since 0.5.3
+ */
+export function updateWithDebug<Model, Msg>(
+  debug$: BehaviorSubject<DebugData<Model, Msg>>,
+  update: (msg: Msg, model: Model) => [Model, Cmd<Msg>]
+): (msg: MsgWithDebug<Model, Msg>, model: Model) => [Model, Cmd<Msg>] {
+  return (msg, model) => {
+    if ('type' in msg) {
+      switch (msg.type) {
+        case '__DebugUpdateModel__':
+          return [msg.payload, none]
+
+        case '__DebugApplyMsg__':
+          return [update(msg.payload, model)[0], none]
+      }
+    }
+
+    const result = update(msg, model)
+
+    debug$.next([debugMsg(msg), result[0]])
+
+    return result
+  }
+}
+
+/**
  * Checks which type of debugger can be used (standard `console` or _Redux DevTool Extension_) based on provided `window` and prepares the subscription to the "debug" stream
- * @since 0.5.0
+ * @since 0.5.3
  */
 export function runDebugger<Model, Msg>(win: Global): (deps: DebuggerR<Model, Msg>) => IO<void> {
   return deps =>
