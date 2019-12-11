@@ -1,7 +1,7 @@
 import * as assert from 'assert'
 import { EMPTY } from 'rxjs'
 import { Cmd, none } from '../../src/Cmd'
-import { programWithDebugger, programWithDebuggerWithFlags } from '../../src/Debug'
+import { programWithDebugger, programWithDebuggerWithFlags } from '../../src/Debug/Html'
 import { DebugData } from '../../src/Debug/commons'
 import * as ConsoleDebugger from '../../src/Debug/console'
 import * as DevToolDebugger from '../../src/Debug/redux-devtool'

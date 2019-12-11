@@ -4,6 +4,10 @@ nav_order: 2
 parent: Modules
 ---
 
+# Overview
+
+Common utilities and type definitions for the `Debug` module.
+
 ---
 
 <h2 class="text-delta">Table of contents</h2>
@@ -19,6 +23,8 @@ parent: Modules
 - [MsgWithDebug (type alias)](#msgwithdebug-type-alias)
 - [debugInit (function)](#debuginit-function)
 - [debugMsg (function)](#debugmsg-function)
+- [runDebugger (function)](#rundebugger-function)
+- [updateWithDebug (function)](#updatewithdebug-function)
 
 ---
 
@@ -84,7 +90,7 @@ Defines the dependencies for a `Debugger` function.
 ```ts
 export interface DebuggerR<Model, Msg> {
   init: Model
-  data$: BehaviorSubject<DebugData<Model, Msg>>
+  debug$: BehaviorSubject<DebugData<Model, Msg>>
   dispatch: Dispatch<MsgWithDebug<Model, Msg>>
 }
 ```
@@ -159,3 +165,50 @@ export const debugMsg = <Msg>(payload: Msg): DebugMsg<Msg> => ...
 ```
 
 Added in v0.5.0
+
+# runDebugger (function)
+
+Checks which type of debugger can be used (standard `console` or _Redux DevTool Extension_) based on provided `window` and prepares the subscription to the "debug" stream
+
+**Signature**
+
+```ts
+export function runDebugger<Model, Msg>(win: Global): (deps: DebuggerR<Model, Msg>) => IO<void> { ... }
+```
+
+Added in v0.5.3
+
+# updateWithDebug (function)
+
+Adds debugging capability to the provided `update` function.
+
+It tracks through the `debug$` stream every `Message` dispatched and resulting `Model` update.
+
+It also lets directly updating the application's state with a special `Message` of type:
+
+```ts
+{
+  type: '__DebugUpdateModel__'
+  payload: Model
+}
+```
+
+or applying a message with:
+
+```ts
+{
+  type: '__DebugApplyMsg__'
+  payload: Msg
+}
+```
+
+**Signature**
+
+```ts
+export function updateWithDebug<Model, Msg>(
+  debug$: BehaviorSubject<DebugData<Model, Msg>>,
+  update: (msg: Msg, model: Model) => [Model, Cmd<Msg>]
+): (msg: MsgWithDebug<Model, Msg>, model: Model) => [Model, Cmd<Msg>] { ... }
+```
+
+Added in v0.5.3

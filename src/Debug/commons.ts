@@ -1,3 +1,8 @@
+/**
+ * @file Common utilities and type definitions for the `Debug` module.
+ *
+ * @since 0.5.0
+ */
 import { IO, chain, map } from 'fp-ts/lib/IO'
 import { fold } from 'fp-ts/lib/Option'
 import { pipe } from 'fp-ts/lib/pipeable'

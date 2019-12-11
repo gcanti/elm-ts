@@ -49,8 +49,10 @@ function fromCodec<A>(codec: t.Decoder<unknown, A>): Decoder<A> {
 
 ## Enable debugger in development mode
 
+For `Html` (and its specializations) programs:
+
 ```ts
-import { programWithDebugger } from 'elm-ts/lib/Debug'
+import { programWithDebugger } from 'elm-ts/lib/Debug/Html'
 import * as React from 'elm-ts/lib/React'
 import { render } from 'react-dom'
 import * as component from './examples/Counter'
