@@ -1,5 +1,10 @@
+import { IO, chain, map } from 'fp-ts/lib/IO'
+import { fold } from 'fp-ts/lib/Option'
+import { pipe } from 'fp-ts/lib/pipeable'
 import { BehaviorSubject } from 'rxjs'
 import { Dispatch } from '../Platform'
+import { consoleDebugger } from './console'
+import { getConnection, reduxDevToolDebugger } from './redux-devtool'
 
 /**
  * @since 0.5.0
@@ -72,6 +77,19 @@ export interface Debugger<Model, Msg> {
  */
 export interface DebuggerR<Model, Msg> {
   init: Model
-  data$: BehaviorSubject<DebugData<Model, Msg>>
+  debug$: BehaviorSubject<DebugData<Model, Msg>>
   dispatch: Dispatch<MsgWithDebug<Model, Msg>>
+}
+
+/**
+ * Checks which type of debugger can be used (standard `console` or _Redux DevTool Extension_) based on provided `window` and prepares the subscription to the "debug" stream
+ * @since 0.5.0
+ */
+export function runDebugger<Model, Msg>(win: Global): (deps: DebuggerR<Model, Msg>) => IO<void> {
+  return deps =>
+    pipe(
+      getConnection<Model, Msg>(win),
+      map(fold(() => consoleDebugger<Model, Msg>(), reduxDevToolDebugger)),
+      chain(Debugger => () => deps.debug$.subscribe(Debugger(deps)))
+    )
 }

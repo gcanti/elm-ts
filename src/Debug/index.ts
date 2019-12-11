@@ -26,16 +26,16 @@
  * ```
  */
 
-import { IO, chain, map } from 'fp-ts/lib/IO'
-import { fold } from 'fp-ts/lib/Option'
-import { pipe } from 'fp-ts/lib/pipeable'
+// import { IO, chain, map } from 'fp-ts/lib/IO'
+// import { fold } from 'fp-ts/lib/Option'
+// import { pipe } from 'fp-ts/lib/pipeable'
 import { BehaviorSubject } from 'rxjs'
 import { Cmd, none } from '../Cmd'
 import { Html, Program, program } from '../Html'
 import { Sub } from '../Sub'
-import { DebugData, DebuggerR, Global, MsgWithDebug, debugInit, debugMsg } from './commons'
-import { consoleDebugger } from './console'
-import { getConnection, reduxDevToolDebugger } from './redux-devtool'
+import { DebugData, DebuggerR, MsgWithDebug, debugInit, debugMsg, runDebugger } from './commons'
+// import { consoleDebugger } from './console'
+// import { getConnection, reduxDevToolDebugger } from './redux-devtool'
 
 /**
  * Adds a debugging capability to a generic `Html` `Program`.
@@ -66,11 +66,11 @@ export function programWithDebugger<Model, Msg, Dom>(
   view: (model: Model) => Html<Dom, Msg>,
   subscriptions?: (model: Model) => Sub<Msg>
 ): Program<Model, Msg, Dom> {
-  const debug = runDebugger<Model, Msg>(window)
+  const Debugger = runDebugger<Model, Msg>(window)
 
   const initModel = init[0]
 
-  const data$ = new BehaviorSubject<DebugData<Model, Msg>>([debugInit(), initModel])
+  const debug$ = new BehaviorSubject<DebugData<Model, Msg>>([debugInit(), initModel])
 
   const updateWithDebug = (msg: MsgWithDebug<Model, Msg>, model: Model): [Model, Cmd<Msg>] => {
     if ('type' in msg) {
@@ -85,7 +85,7 @@ export function programWithDebugger<Model, Msg, Dom>(
 
     const result = update(msg, model)
 
-    data$.next([debugMsg(msg), result[0]])
+    debug$.next([debugMsg(msg), result[0]])
 
     return result
   }
@@ -95,7 +95,7 @@ export function programWithDebugger<Model, Msg, Dom>(
   // --- Run the debugger
   // --- we need to make a type assertion for `dispatch` because we cannot change the intrinsic `msg` type of `program`;
   // --- otherwise `programWithDebugger` won't be usable as a transparent extension/substitution of `Html`'s programs
-  debug({ data$, init: initModel, dispatch: p.dispatch as DebuggerR<Model, Msg>['dispatch'] })()
+  Debugger({ debug$: debug$, init: initModel, dispatch: p.dispatch as DebuggerR<Model, Msg>['dispatch'] })()
 
   return p
 }
@@ -111,17 +111,4 @@ export function programWithDebuggerWithFlags<Flags, Model, Msg, Dom>(
   subscriptions?: (model: Model) => Sub<Msg>
 ): (flags: Flags) => Program<Model, Msg, Dom> {
   return flags => programWithDebugger(init(flags), update, view, subscriptions)
-}
-
-/**
- * Checks which type of debugger can be used (standard `console` or _Redux DevTool Extension_) based on provided `window` and prepares the subscription to the "debug" stream
- * @since 0.5.0
- */
-function runDebugger<Model, Msg>(win: Global): (deps: DebuggerR<Model, Msg>) => IO<void> {
-  return deps =>
-    pipe(
-      getConnection<Model, Msg>(win),
-      map(fold(() => consoleDebugger<Model, Msg>(), reduxDevToolDebugger)),
-      chain(debug => () => deps.data$.subscribe(debug(deps)))
-    )
 }

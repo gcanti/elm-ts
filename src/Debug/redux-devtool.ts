@@ -134,7 +134,7 @@ function handleSubscription<Model, Msg>(deps: DevToolHandlerR<Model, Msg>): (msg
 function handleIncomingMsg<Model, Msg>({
   connection,
   init,
-  data$,
+  debug$,
   dispatch
 }: DevToolHandlerR<Model, Msg>): (msg: DevToolMsg) => Either<string, IO<void>> {
   const dispatchToApp = (m: unknown): IO<void> => () => dispatch(m as Msg)
@@ -184,7 +184,7 @@ function handleIncomingMsg<Model, Msg>({
             )
 
           case 'COMMIT':
-            return E.right(restart(data$.getValue()[1]))
+            return E.right(restart(debug$.getValue()[1]))
 
           case 'IMPORT_STATE':
             return pipe(

@@ -144,14 +144,14 @@ describe('Debug/redux-dev-tool', () => {
 
     it('should handle "COMMIT" message from extension', () => {
       const init = connection.init as jest.Mock<any, any>
-      const data$ = new BehaviorSubject<DebugData<Model, Msg>>([{ type: 'INIT' }, 0])
-      reduxDevToolDebugger(connection)({ ...STD_DEPS, data$ })
+      const debug$ = new BehaviorSubject<DebugData<Model, Msg>>([{ type: 'INIT' }, 0])
+      reduxDevToolDebugger(connection)({ ...STD_DEPS, debug$ })
 
       // Add some values in data$ stream to simulate a "living" application
-      data$.next([{ type: 'MESSAGE', payload: { type: 'Inc' } }, 1])
-      data$.next([{ type: 'MESSAGE', payload: { type: 'Inc' } }, 2])
-      data$.next([{ type: 'MESSAGE', payload: { type: 'Inc' } }, 3])
-      data$.next([{ type: 'MESSAGE', payload: { type: 'Dec' } }, 2])
+      debug$.next([{ type: 'MESSAGE', payload: { type: 'Inc' } }, 1])
+      debug$.next([{ type: 'MESSAGE', payload: { type: 'Inc' } }, 2])
+      debug$.next([{ type: 'MESSAGE', payload: { type: 'Inc' } }, 3])
+      debug$.next([{ type: 'MESSAGE', payload: { type: 'Dec' } }, 2])
 
       emit({ type: 'DISPATCH', payload: { type: 'COMMIT' } })
 
