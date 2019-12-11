@@ -8,6 +8,6 @@ export const DATA$ = new BehaviorSubject<DebugData<Model, Msg>>([{ type: 'INIT' 
 
 export const STD_DEPS: DebuggerR<Model, Msg> = {
   init: 0,
-  data$: DATA$,
+  debug$: DATA$,
   dispatch: () => undefined
 }
