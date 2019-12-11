@@ -1,5 +1,5 @@
 import { render } from 'react-dom'
-import { programWithDebugger } from '../src/Debug'
+import { programWithDebugger } from '../src/Debug/Html'
 import * as React from '../src/React'
 import * as component from './Counter'
 
