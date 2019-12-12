@@ -1,50 +1,15 @@
+// --- Helpers
+import * as H from './_helpers'
+
 // --- Mocking `History` module - super tricky...
 import { mocked } from 'ts-jest/utils'
 jest.mock('history')
 import * as history from 'history'
 const historyM = mocked(history)
 
-let log: string[] = []
-let listener: history.LocationListener
+const log: string[] = []
 
-historyM.createHashHistory.mockImplementation(() => ({
-  location: {
-    pathname: log.length > 0 ? log[log.length - 1] : '',
-    search: '',
-    state: null,
-    hash: ''
-  },
-
-  push: (path: string | history.LocationDescriptorObject): void => {
-    const p = typeof path === 'string' ? path : typeof path.pathname !== 'undefined' ? path.pathname : ''
-    log.push(p)
-
-    listener(
-      {
-        pathname: p,
-        search: '',
-        state: null,
-        hash: ''
-      },
-      'PUSH'
-    )
-  },
-
-  listen: (fn: history.History.LocationListener): history.UnregisterCallback => {
-    listener = fn
-    return () => undefined
-  },
-
-  // These are needed by `history` types declaration
-  length: log.length,
-  action: 'PUSH',
-  replace: () => undefined,
-  go: () => undefined,
-  goBack: () => undefined,
-  goForward: () => undefined,
-  block: () => () => undefined,
-  createHref: () => ''
-}))
+historyM.createHashHistory.mockImplementation(H.createMockHistory(log))
 // --- /Mocking
 
 import * as assert from 'assert'
@@ -55,10 +20,9 @@ import { Cmd, none } from '../src/Cmd'
 import { Html } from '../src/Html'
 import { Location, program, programWithFlags, push } from '../src/Navigation'
 import { Sub } from '../src/Sub'
-import * as H from './_helpers'
 
 beforeEach(() => {
-  log = []
+  log.splice(0, log.length)
 })
 
 afterAll(() => {
