@@ -1,3 +1,4 @@
+import chalk from 'chalk'
 import { fold } from 'fp-ts/lib/Either'
 import * as RTE from 'fp-ts/lib/ReaderTaskEither'
 import * as TE from 'fp-ts/lib/TaskEither'
@@ -19,7 +20,7 @@ export function run<A>(eff: Eff<A>): void {
       )
     )
     .catch(e => {
-      console.error('[ERROR]', e)
+      console.error(chalk.red('[ERROR]', e))
 
       process.exitCode = 1
     })
