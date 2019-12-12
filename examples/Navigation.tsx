@@ -30,12 +30,12 @@ function getRoute(location: Location): Route {
   return isRoute(route) ? route : defaultRoute
 }
 
-export function locationToMessage(location: Location): Msg {
+export function locationToMsg(location: Location): Msg {
   return { type: getRoute(location) } as Msg
 }
 
-export function init(_: Flags, location: Location): [Model, cmd.Cmd<Msg>] {
-  return [getRoute(location), cmd.none]
+export function init(_: Flags): (location: Location) => [Model, cmd.Cmd<Msg>] {
+  return location => [getRoute(location), cmd.none]
 }
 
 // --- Messages
