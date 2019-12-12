@@ -39,8 +39,7 @@ describe('Debug', () => {
     const program = programWithDebugger(locationToMsg, init, update, view)
     const updates = run(program, _ => undefined)
 
-    // the difference between the number of Model updates (expressed by model$ stream)
-    // and the length of the debug log
+    // the difference between the number of Model and the length of the debug log
     // is due to `__DebugUpdateModel__` and `__DebugApplyMsg__` messages
     // that generate a new Model update but are not tracked by the debugger
     updates.pipe(take(9)).subscribe({
@@ -48,25 +47,25 @@ describe('Debug', () => {
         assert.strictEqual(log.length, 7)
         assert.deepStrictEqual(log, [
           [{ type: 'INIT' }, ''],
-          [{ type: 'MESSAGE', payload: { tag: 'GoTo', path: '/a' } }, ''],
-          [{ type: 'MESSAGE', payload: { tag: 'Route', path: '/a' } }, '/a'],
-          [{ type: 'MESSAGE', payload: { tag: 'GoTo', path: '/c' } }, '/b'],
-          [{ type: 'MESSAGE', payload: { tag: 'Route', path: '/c' } }, '/c'],
-          [{ type: 'MESSAGE', payload: { tag: 'GoTo', path: '/e' } }, '/d'],
-          [{ type: 'MESSAGE', payload: { tag: 'Route', path: '/e' } }, '/e']
+          [{ type: 'MESSAGE', payload: { type: 'GoTo', path: '/a' } }, ''],
+          [{ type: 'MESSAGE', payload: { type: 'Route', path: '/a' } }, '/a'],
+          [{ type: 'MESSAGE', payload: { type: 'GoTo', path: '/c' } }, '/b'],
+          [{ type: 'MESSAGE', payload: { type: 'Route', path: '/c' } }, '/c'],
+          [{ type: 'MESSAGE', payload: { type: 'GoTo', path: '/e' } }, '/d'],
+          [{ type: 'MESSAGE', payload: { type: 'Route', path: '/e' } }, '/e']
         ])
 
         done()
       }
     })
 
-    program.dispatch({ tag: 'GoTo', path: '/a' })
+    program.dispatch({ type: 'GoTo', path: '/a' })
     // we need to cast as any to test internal handling of this "special" message
     program.dispatch({ type: '__DebugUpdateModel__', payload: '/b' } as any)
-    program.dispatch({ tag: 'GoTo', path: '/c' })
+    program.dispatch({ type: 'GoTo', path: '/c' })
     // we need to cast as any to test internal handling of this "special" message
-    program.dispatch({ type: '__DebugApplyMsg__', payload: { tag: 'Route', path: '/d' } } as any)
-    program.dispatch({ tag: 'GoTo', path: '/e' })
+    program.dispatch({ type: '__DebugApplyMsg__', payload: { type: 'Route', path: '/d' } } as any)
+    program.dispatch({ type: 'GoTo', path: '/e' })
   })
 
   it('programWithDebugger() should return a Program with a Debugger (redux devtool)', done => {
@@ -86,8 +85,7 @@ describe('Debug', () => {
     const program = programWithDebugger(locationToMsg, init, update, view, () => Sub.none)
     const updates = run(program, _ => undefined)
 
-    // the difference between the number of Model updates (expressed by model$ stream)
-    // and the length of the debug log
+    // the difference between the number of Model and the length of the debug log
     // is due to `__DebugUpdateModel__` and `__DebugApplyMsg__` messages
     // that generate a new Model update but are not tracked by the debugger
     updates.pipe(take(8)).subscribe({
@@ -95,12 +93,12 @@ describe('Debug', () => {
         assert.strictEqual(log.length, 7)
         assert.deepStrictEqual(log, [
           [{ type: 'INIT' }, ''],
-          [{ type: 'MESSAGE', payload: { tag: 'GoTo', path: '/a' } }, ''],
-          [{ type: 'MESSAGE', payload: { tag: 'Route', path: '/a' } }, '/a'],
-          [{ type: 'MESSAGE', payload: { tag: 'GoTo', path: '/c' } }, '/b'],
-          [{ type: 'MESSAGE', payload: { tag: 'Route', path: '/c' } }, '/c'],
-          [{ type: 'MESSAGE', payload: { tag: 'GoTo', path: '/d' } }, '/c'],
-          [{ type: 'MESSAGE', payload: { tag: 'Route', path: '/d' } }, '/d']
+          [{ type: 'MESSAGE', payload: { type: 'GoTo', path: '/a' } }, ''],
+          [{ type: 'MESSAGE', payload: { type: 'Route', path: '/a' } }, '/a'],
+          [{ type: 'MESSAGE', payload: { type: 'GoTo', path: '/c' } }, '/b'],
+          [{ type: 'MESSAGE', payload: { type: 'Route', path: '/c' } }, '/c'],
+          [{ type: 'MESSAGE', payload: { type: 'GoTo', path: '/d' } }, '/c'],
+          [{ type: 'MESSAGE', payload: { type: 'Route', path: '/d' } }, '/d']
         ])
 
         delete win.__REDUX_DEVTOOLS_EXTENSION__
@@ -109,11 +107,11 @@ describe('Debug', () => {
       }
     })
 
-    program.dispatch({ tag: 'GoTo', path: '/a' })
+    program.dispatch({ type: 'GoTo', path: '/a' })
     // we need to cast as any to test internal handling of this "special" message
     program.dispatch({ type: '__DebugUpdateModel__', payload: '/b' } as any)
-    program.dispatch({ tag: 'GoTo', path: '/c' })
-    program.dispatch({ tag: 'GoTo', path: '/d' })
+    program.dispatch({ type: 'GoTo', path: '/c' })
+    program.dispatch({ type: 'GoTo', path: '/d' })
   })
 
   it('programWithDebuggerWithFlags() should return a function that returns a Program with a Debugger and flags on `init`', () => {
@@ -133,23 +131,23 @@ describe('Debug', () => {
         assert.strictEqual(log.length, 3)
         assert.deepStrictEqual(log, [
           [{ type: 'INIT' }, '/start'],
-          [{ type: 'MESSAGE', payload: { tag: 'GoTo', path: '/a' } }, '/start'],
-          [{ type: 'MESSAGE', payload: { tag: 'Route', path: '/a' } }, '/a']
+          [{ type: 'MESSAGE', payload: { type: 'GoTo', path: '/a' } }, '/start'],
+          [{ type: 'MESSAGE', payload: { type: 'Route', path: '/a' } }, '/a']
         ])
       }
     })
 
-    program.dispatch({ tag: 'GoTo', path: '/a' })
+    program.dispatch({ type: 'GoTo', path: '/a' })
   })
 })
 
 // --- Fake application
 type Model = string
-type Msg = { tag: 'GoTo'; path: string } | { tag: 'Route'; path: string }
+type Msg = { type: 'GoTo'; path: string } | { type: 'Route'; path: string }
 
 function locationToMsg(l: history.Location): Msg {
   return {
-    tag: 'Route',
+    type: 'Route',
     path: l.pathname
   }
 }
@@ -157,7 +155,7 @@ function locationToMsg(l: history.Location): Msg {
 const init = (l: history.Location): [Model, Cmd<Msg>] => [l.pathname, none]
 
 const update = (msg: Msg, model: Model): [Model, Cmd<Msg>] => {
-  switch (msg.tag) {
+  switch (msg.type) {
     case 'GoTo':
       return [model, push(msg.path)]
     case 'Route':
