@@ -1,7 +1,9 @@
 /**
- * @file A specialization of `Program` that handles application navigation via location's hash.
+ * A specialization of `Program` that handles application navigation via location's hash.
  *
- * It uses [`history`](https://github.com/ReactTraining/history) package
+ * It uses [`history`](https://github.com/ReactTraining/history) package.
+ *
+ * @since 0.5.0
  */
 
 import * as O from 'fp-ts/lib/Option'

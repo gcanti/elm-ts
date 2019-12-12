@@ -4,11 +4,13 @@ nav_order: 10
 parent: Modules
 ---
 
-# Overview
+# Http overview
 
 Makes http calls to remote resources as `Cmd`s.
 
 See [Http](https://package.elm-lang.org/packages/elm/http/latest/Http) Elm package.
+
+Added in v0.5.0
 
 ---
 

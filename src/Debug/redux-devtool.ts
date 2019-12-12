@@ -1,7 +1,9 @@
 /**
- * @file Integration with _Redux DevTool Extension_.
+ * Integration with _Redux DevTool Extension_.
  *
  * Please check the [docs](https://github.com/zalmoxisus/redux-devtools-extension/tree/master/docs/API) fur further information.
+ *
+ * @since 0.5.0
  */
 
 import { sequenceT } from 'fp-ts/lib/Apply'

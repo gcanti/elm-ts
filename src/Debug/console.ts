@@ -1,5 +1,7 @@
 /**
- * @file Debug via standard browser's `console`
+ * Debug via standard browser's `console`.
+ *
+ * @since 0.5.0
  */
 
 import { Option, alt, fromNullable, getOrElse } from 'fp-ts/lib/Option'

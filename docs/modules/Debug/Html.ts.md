@@ -4,7 +4,7 @@ nav_order: 4
 parent: Modules
 ---
 
-# Overview
+# Html overview
 
 This module makes available a debugging utility for `elm-ts` applications running `Html` programs.
 
@@ -32,6 +32,8 @@ const main = program(init, update, view)
 
 react.run(main, dom => render(document.getElementById('app')))
 ```
+
+Added in v0.5.3
 
 ---
 

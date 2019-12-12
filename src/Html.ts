@@ -1,8 +1,10 @@
 /**
- * @file A specialization of `Program` with the capability of mapping `Model` to `View`
+ * A specialization of `Program` with the capability of mapping `Model` to `View`
  * and rendering it into a DOM node.
  *
  * `Html` is a base abstraction in order to work with any library that renders html.
+ *
+ * @since 0.5.0
  */
 
 import { Observable } from 'rxjs'

@@ -4,9 +4,11 @@ nav_order: 14
 parent: Modules
 ---
 
-# Overview
+# React overview
 
 A specialization of `Html` that uses `React` as renderer.
+
+Added in v0.5.0
 
 ---
 

@@ -4,12 +4,14 @@ nav_order: 9
 parent: Modules
 ---
 
-# Overview
+# Html overview
 
 A specialization of `Program` with the capability of mapping `Model` to `View`
 and rendering it into a DOM node.
 
 `Html` is a base abstraction in order to work with any library that renders html.
+
+Added in v0.5.0
 
 ---
 

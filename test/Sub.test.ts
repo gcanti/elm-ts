@@ -21,7 +21,7 @@ describe('Sub', () => {
       next: v => log.push(v),
 
       complete: () => {
-        assert.deepEqual(log, ['a', 'b', 'c'])
+        assert.deepStrictEqual(log, ['a', 'b', 'c'])
 
         done()
       }

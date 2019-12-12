@@ -1,9 +1,9 @@
 /**
- * @file This module makes available a debugging utility for `elm-ts` applications.
+ * This module makes available a debugging utility for `elm-ts` applications.
  *
  * Use of the functions directly exported from this module is **deprecated**.
  *
- * Please use the specialized versions that you can find under `Debug/`
+ * Please use the specialized versions that you can find under `Debug/`.
  *
  * @since 0.5.0
  */

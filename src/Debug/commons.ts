@@ -1,5 +1,5 @@
 /**
- * @file Common utilities and type definitions for the `Debug` module.
+ * Common utilities and type definitions for the `Debug` module.
  *
  * @since 0.5.0
  */

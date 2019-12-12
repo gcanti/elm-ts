@@ -4,11 +4,13 @@ nav_order: 12
 parent: Modules
 ---
 
-# Overview
+# Navigation overview
 
 A specialization of `Program` that handles application navigation via location's hash.
 
-It uses [`history`](https://github.com/ReactTraining/history) package
+It uses [`history`](https://github.com/ReactTraining/history) package.
+
+Added in v0.5.0
 
 ---
 

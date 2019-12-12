@@ -1,7 +1,9 @@
 /**
- * @file The `Platform` module is the backbone of `elm-ts`.
+ * The `Platform` module is the backbone of `elm-ts`.
  * It defines the base `program()` and `run()` functions which will be extended by more specialized modules.
  * _The Elm Architecture_ is implemented via **RxJS** `Observables`.
+ *
+ * @since 0.5.0
  */
 
 import * as O from 'fp-ts/lib/Option'

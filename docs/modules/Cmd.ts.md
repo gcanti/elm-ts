@@ -4,11 +4,13 @@ nav_order: 1
 parent: Modules
 ---
 
-# Overview
+# Cmd overview
 
 Defines `Cmd`s as streams of asynchronous operations which can not fail and that can optionally carry a message.
 
 See the [Platform.Cmd](https://package.elm-lang.org/packages/elm/core/latest/Platform-Cmd) Elm package.
+
+Added in v0.5.0
 
 ---
 
