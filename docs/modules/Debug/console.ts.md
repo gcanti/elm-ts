@@ -4,9 +4,11 @@ nav_order: 3
 parent: Modules
 ---
 
-# Overview
+# console overview
 
-Debug via standard browser's `console`
+Debug via standard browser's `console`.
+
+Added in v0.5.0
 
 ---
 

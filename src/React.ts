@@ -1,5 +1,7 @@
 /**
- * @file A specialization of `Html` that uses `React` as renderer.
+ * A specialization of `Html` that uses `React` as renderer.
+ *
+ * @since 0.5.0
  */
 
 import { ReactElement } from 'react'

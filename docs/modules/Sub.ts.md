@@ -4,9 +4,11 @@ nav_order: 15
 parent: Modules
 ---
 
-# Overview
+# Sub overview
 
 Defines `Sub`s as streams of messages.
+
+Added in v0.5.0
 
 ---
 

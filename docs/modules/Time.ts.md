@@ -4,10 +4,13 @@ nav_order: 17
 parent: Modules
 ---
 
-# Overview
+# Time overview
 
 Exposes some utilities to work with unix time.
+
 See [Time](https://package.elm-lang.org/packages/elm/time/latest/Time) Elm package.
+
+Added in v0.5.0
 
 ---
 

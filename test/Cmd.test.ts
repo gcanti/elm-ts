@@ -14,7 +14,7 @@ describe('Cmd', () => {
     return input.subscribe(async to => {
       const result = await to()
 
-      assert.deepEqual(result, O.some('TEST'))
+      assert.deepStrictEqual(result, O.some('TEST'))
 
       done()
     })
@@ -26,7 +26,7 @@ describe('Cmd', () => {
     return map(a => a + 'b')(cmdA).subscribe(async to => {
       const result = await to()
 
-      assert.deepEqual(result, O.some('ab'))
+      assert.deepStrictEqual(result, O.some('ab'))
 
       done()
     })
@@ -44,7 +44,7 @@ describe('Cmd', () => {
       complete: async () => {
         const result = await sequenceTask(log)()
 
-        assert.deepEqual(result, [O.some('a'), O.some('b'), O.some('c')])
+        assert.deepStrictEqual(result, [O.some('a'), O.some('b'), O.some('c')])
 
         done()
       }

@@ -1,6 +1,9 @@
 /**
- * @file Exposes some utilities to work with unix time.
+ * Exposes some utilities to work with unix time.
+ *
  * See [Time](https://package.elm-lang.org/packages/elm/time/latest/Time) Elm package.
+ *
+ * @since 0.5.0
  */
 
 import { Task } from 'fp-ts/lib/Task'

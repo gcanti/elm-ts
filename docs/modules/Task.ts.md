@@ -4,11 +4,13 @@ nav_order: 16
 parent: Modules
 ---
 
-# Overview
+# Task overview
 
 Handles the execution of asynchronous effectful operations.
 
 See the [Task](https://package.elm-lang.org/packages/elm/core/latest/Task) Elm package.
+
+Added in v0.5.0
 
 ---
 

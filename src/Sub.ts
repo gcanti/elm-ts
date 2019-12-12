@@ -1,5 +1,7 @@
 /**
- * @file Defines `Sub`s as streams of messages.
+ * Defines `Sub`s as streams of messages.
+ *
+ * @since 0.5.0
  */
 
 import { EMPTY, Observable, merge } from 'rxjs'

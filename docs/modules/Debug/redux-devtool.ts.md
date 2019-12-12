@@ -4,11 +4,13 @@ nav_order: 7
 parent: Modules
 ---
 
-# Overview
+# redux-devtool overview
 
 Integration with _Redux DevTool Extension_.
 
 Please check the [docs](https://github.com/zalmoxisus/redux-devtools-extension/tree/master/docs/API) fur further information.
+
+Added in v0.5.0
 
 ---
 

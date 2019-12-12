@@ -1,7 +1,9 @@
 /**
- * @file Handles the execution of asynchronous effectful operations.
+ * Handles the execution of asynchronous effectful operations.
  *
  * See the [Task](https://package.elm-lang.org/packages/elm/core/latest/Task) Elm package.
+ *
+ * @since 0.5.0
  */
 
 import { Either } from 'fp-ts/lib/Either'

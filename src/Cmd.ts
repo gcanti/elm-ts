@@ -1,7 +1,9 @@
 /**
- * @file Defines `Cmd`s as streams of asynchronous operations which can not fail and that can optionally carry a message.
+ * Defines `Cmd`s as streams of asynchronous operations which can not fail and that can optionally carry a message.
  *
  * See the [Platform.Cmd](https://package.elm-lang.org/packages/elm/core/latest/Platform-Cmd) Elm package.
+ *
+ * @since 0.5.0
  */
 
 import { Option, option, some } from 'fp-ts/lib/Option'

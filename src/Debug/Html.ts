@@ -1,5 +1,5 @@
 /**
- * @file This module makes available a debugging utility for `elm-ts` applications running `Html` programs.
+ * This module makes available a debugging utility for `elm-ts` applications running `Html` programs.
  *
  * `elm-ts` ships with a [Redux DevTool Extension](https://github.com/zalmoxisus/redux-devtools-extension) integration, falling back to a simple debugger via standard browser's [`console`](https://developer.mozilla.org/en-US/docs/Web/API/Console) in case the extension is not available.
  *

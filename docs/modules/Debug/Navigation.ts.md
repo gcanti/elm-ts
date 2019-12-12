@@ -4,7 +4,7 @@ nav_order: 6
 parent: Modules
 ---
 
-# Overview
+# Navigation overview
 
 This module makes available a debugging utility for `elm-ts` applications running `Navigation` programs.
 
@@ -34,6 +34,8 @@ const main = program(locationToMsg, init, update, view)
 
 react.run(main, dom => render(document.getElementById('app')))
 ```
+
+Added in v0.5.3
 
 ---
 

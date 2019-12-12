@@ -1,3 +1,6 @@
+/**
+ * @since 0.5.0
+ */
 import * as cmd from './Cmd'
 import * as decode from './Decode'
 import * as html from './Html'

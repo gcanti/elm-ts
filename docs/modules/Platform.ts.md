@@ -4,11 +4,13 @@ nav_order: 13
 parent: Modules
 ---
 
-# Overview
+# Platform overview
 
 The `Platform` module is the backbone of `elm-ts`.
 It defines the base `program()` and `run()` functions which will be extended by more specialized modules.
 _The Elm Architecture_ is implemented via **RxJS** `Observables`.
+
+Added in v0.5.0
 
 ---
 

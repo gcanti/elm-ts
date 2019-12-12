@@ -4,13 +4,15 @@ nav_order: 5
 parent: Modules
 ---
 
-# Overview
+# index overview
 
 This module makes available a debugging utility for `elm-ts` applications.
 
 Use of the functions directly exported from this module is **deprecated**.
 
-Please use the specialized versions that you can find under `Debug/`
+Please use the specialized versions that you can find under `Debug/`.
+
+Added in v0.5.0
 
 ---
 
