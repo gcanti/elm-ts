@@ -21,7 +21,7 @@ const replacePath = (content: string): string => content.replace(PATH_REGEXP, '$
 
 const rewritePaths = (file: string): AppEff<void> => C =>
   pipe(
-    C.info(`Rewriting file ${file}`),
+    C.debug(`Rewriting file ${file}`),
     TE.chain(() => C.readFile(file)),
     TE.map(replacePath),
     TE.chain(content => C.writeFile(file, content))

@@ -62,6 +62,7 @@
     "@types/react-dom": "^16.9.3",
     "@types/sinon": "^7.5.0",
     "blessed": "^0.1.81",
+    "chalk": "^3.0.0",
     "docs-ts": "^0.3.0",
     "fp-ts": "^2.0.2",
     "glob": "^7.1.6",
