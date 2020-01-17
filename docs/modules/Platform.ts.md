@@ -21,6 +21,7 @@ Added in v0.5.0
 - [program (function)](#program-function)
 - [programWithFlags (function)](#programwithflags-function)
 - [run (function)](#run-function)
+- [withStop (function)](#withstop-function)
 
 ---
 
@@ -102,3 +103,15 @@ export function run<Model, Msg>(program: Program<Model, Msg>): Observable<Model>
 ```
 
 Added in v0.5.0
+
+# withStop (function)
+
+Stops the `program` when `signal` Observable emits a value.
+
+**Signature**
+
+```ts
+export function withStop<Model, Msg>(program: Program<Model, Msg>, signal: Observable<unknown>): Program<Model, Msg> { ... }
+```
+
+Added in v0.5.4

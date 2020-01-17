@@ -8,7 +8,7 @@
 
 import * as O from 'fp-ts/lib/Option'
 import { BehaviorSubject, Observable } from 'rxjs'
-import { distinctUntilChanged, map, mergeAll, switchMap } from 'rxjs/operators'
+import { distinctUntilChanged, map, mergeAll, switchMap, takeUntil } from 'rxjs/operators'
 import { Cmd } from './Cmd'
 import { Sub, none } from './Sub'
 
@@ -73,6 +73,21 @@ export function programWithFlags<Flags, Model, Msg>(
   subscriptions: (model: Model) => Sub<Msg> = () => none
 ): (flags: Flags) => Program<Model, Msg> {
   return flags => program(init(flags), update, subscriptions)
+}
+
+/**
+ * Stops the `program` when `signal` Observable emits a value.
+ * @since 0.5.4
+ */
+export function withStop<Model, Msg>(program: Program<Model, Msg>, signal: Observable<unknown>): Program<Model, Msg> {
+  const { cmd$, model$, sub$, ...rest } = program
+
+  return {
+    ...rest,
+    model$: model$.pipe(takeUntil(signal)),
+    cmd$: cmd$.pipe(takeUntil(signal)),
+    sub$: sub$.pipe(takeUntil(signal))
+  }
 }
 
 /**
