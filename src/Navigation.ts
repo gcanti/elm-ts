@@ -26,10 +26,6 @@ const history = H.createHashHistory()
  */
 const location$ = new Subject<Location>()
 
-function getLocation(): Location {
-  return history.location
-}
-
 history.listen(location => {
   location$.next(location)
 })
@@ -65,7 +61,7 @@ export function program<Model, Msg, Dom>(
 
   const subs = (model: Model): Sub<Msg> => batch([subscriptions(model), onChangeLocation$])
 
-  return html.program(init(getLocation()), update, view, subs)
+  return html.program(init(history.location), update, view, subs)
 }
 
 /**

@@ -8,7 +8,7 @@
  */
 
 import { Observable } from 'rxjs'
-import { map as RxMap } from 'rxjs/operators'
+import { map as RxMap, takeUntil } from 'rxjs/operators'
 import { Cmd } from './Cmd'
 import * as platform from './Platform'
 import { Sub, none } from './Sub'
@@ -80,6 +80,23 @@ export function programWithFlags<Flags, Model, Msg, Dom>(
   subscriptions?: (model: Model) => Sub<Msg>
 ): (flags: Flags) => Program<Model, Msg, Dom> {
   return flags => program(init(flags), update, view, subscriptions)
+}
+
+/**
+ * Stops the `program` when `signal` Observable emits a value.
+ * @since 0.5.4
+ */
+export function withStop<Model, Msg, Dom>(
+  program: Program<Model, Msg, Dom>,
+  signal: Observable<unknown>
+): Program<Model, Msg, Dom> {
+  const platformProgram = platform.withStop(program, signal)
+
+  return {
+    ...platformProgram,
+
+    html$: program.html$.pipe(takeUntil(signal))
+  }
 }
 
 /**
