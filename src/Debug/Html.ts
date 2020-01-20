@@ -30,9 +30,12 @@
 
 import { BehaviorSubject } from 'rxjs'
 import { Cmd } from '../Cmd'
-import { Html, Program, program } from '../Html'
+import { Html, program } from '../Html'
 import { Sub } from '../Sub'
-import { DebugData, DebuggerR, debugInit, runDebugger, updateWithDebug } from './commons'
+import { DebugData, DebuggerR, ProgramWithDebugger, debugInit, runDebugger, updateWithDebug } from './commons'
+
+// --- Re-exports
+export { withDebuggerWithStop } from './commons'
 
 /**
  * Adds a debugging capability to a generic `Html` `Program`.
@@ -55,14 +58,14 @@ import { DebugData, DebuggerR, debugInit, runDebugger, updateWithDebug } from '.
  *   payload: Msg
  * }
  * ```
- * @since 0.5.0
+ * @since 0.5.4
  */
 export function programWithDebugger<Model, Msg, Dom>(
   init: [Model, Cmd<Msg>],
   update: (msg: Msg, model: Model) => [Model, Cmd<Msg>],
   view: (model: Model) => Html<Dom, Msg>,
   subscriptions?: (model: Model) => Sub<Msg>
-): Program<Model, Msg, Dom> {
+): ProgramWithDebugger<Model, Msg, Dom> {
   const Debugger = runDebugger<Model, Msg>(window)
 
   const initModel = init[0]
@@ -74,20 +77,24 @@ export function programWithDebugger<Model, Msg, Dom>(
   // --- Run the debugger
   // --- we need to make a type assertion for `dispatch` because we cannot change the intrinsic `msg` type of `program`;
   // --- otherwise `programWithDebugger` won't be usable as a transparent extension/substitution of `Html`'s programs
-  Debugger({ debug$, init: initModel, dispatch: p.dispatch as DebuggerR<Model, Msg>['dispatch'] })()
+  const { unsubscribe } = Debugger({
+    debug$,
+    init: initModel,
+    dispatch: p.dispatch as DebuggerR<Model, Msg>['dispatch']
+  })()
 
-  return p
+  return { ...p, stop: unsubscribe }
 }
 
 /**
  * Same as `programWithDebugger()` but with `Flags` that can be passed when the `Program` is created in order to manage initial values.
- * @since 0.5.0
+ * @since 0.5.4
  */
 export function programWithDebuggerWithFlags<Flags, Model, Msg, Dom>(
   init: (flags: Flags) => [Model, Cmd<Msg>],
   update: (msg: Msg, model: Model) => [Model, Cmd<Msg>],
   view: (model: Model) => Html<Dom, Msg>,
   subscriptions?: (model: Model) => Sub<Msg>
-): (flags: Flags) => Program<Model, Msg, Dom> {
+): (flags: Flags) => ProgramWithDebugger<Model, Msg, Dom> {
   return flags => programWithDebugger(init(flags), update, view, subscriptions)
 }

@@ -6,11 +6,20 @@
 import { IO, chain, map } from 'fp-ts/lib/IO'
 import { fold } from 'fp-ts/lib/Option'
 import { pipe } from 'fp-ts/lib/pipeable'
-import { BehaviorSubject } from 'rxjs'
+import { BehaviorSubject, Observable, Subscription } from 'rxjs'
 import { Cmd, none } from '../Cmd'
+import { Program, withStop } from '../Html'
 import { Dispatch } from '../Platform'
 import { consoleDebugger } from './console'
 import { getConnection, reduxDevToolDebugger } from './redux-devtool'
+
+/**
+ * Extends the `Program` interface with a function to stop consuming `DebugData` stream (`stop()`).
+ * @since 0.5.0
+ */
+export interface ProgramWithDebugger<Model, Msg, Dom> extends Program<Model, Msg, Dom> {
+  stop: () => void
+}
 
 /**
  * @since 0.5.0
@@ -137,11 +146,26 @@ export function updateWithDebug<Model, Msg>(
  * Checks which type of debugger can be used (standard `console` or _Redux DevTool Extension_) based on provided `window` and prepares the subscription to the "debug" stream
  * @since 0.5.3
  */
-export function runDebugger<Model, Msg>(win: Global): (deps: DebuggerR<Model, Msg>) => IO<void> {
+export function runDebugger<Model, Msg>(win: Global): (deps: DebuggerR<Model, Msg>) => IO<Subscription> {
   return deps =>
     pipe(
       getConnection<Model, Msg>(win),
       map(fold(() => consoleDebugger<Model, Msg>(), reduxDevToolDebugger)),
       chain(Debugger => () => deps.debug$.subscribe(Debugger(deps)))
     )
+}
+
+/**
+ * Stops the `program` with Debugger when `signal` Observable emits a value.
+ * @since 0.5.4
+ */
+export function withDebuggerWithStop<Model, Msg, Dom>(
+  program: ProgramWithDebugger<Model, Msg, Dom>,
+  signal: Observable<unknown>
+): ProgramWithDebugger<Model, Msg, Dom> {
+  const p = withStop(program, signal)
+
+  signal.subscribe(() => program.stop())
+
+  return { ...p, stop: program.stop }
 }
