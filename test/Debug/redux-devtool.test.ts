@@ -37,7 +37,8 @@ describe('Debug/redux-dev-tool', () => {
         },
         send: jest.fn(),
         init: jest.fn(),
-        error: jest.fn()
+        error: jest.fn(),
+        unsubscribe: jest.fn()
       }
 
       console.warn = jest.fn(() => undefined)
@@ -51,15 +52,24 @@ describe('Debug/redux-dev-tool', () => {
     // --- Tests
     it('should handle actions dispatched by application', () => {
       const send = connection.send as jest.Mock<any, any>
-      const debug = reduxDevToolDebugger(connection)(STD_DEPS)
+      const D = reduxDevToolDebugger(connection)(STD_DEPS)
 
-      debug([{ type: 'INIT' }, 0])
+      D.debug([{ type: 'INIT' }, 0])
 
       assert.strictEqual(send.mock.calls.length, 0)
 
-      debug([{ type: 'MESSAGE', payload: { type: 'Inc' } }, 1])
+      D.debug([{ type: 'MESSAGE', payload: { type: 'Inc' } }, 1])
 
       assertCalledWith(send, { type: 'Inc' }, 1)
+    })
+
+    it('should run connection.unsubscribe on stop', () => {
+      const unsubscribe = connection.unsubscribe as jest.Mock<any, any>
+      const D = reduxDevToolDebugger(connection)(STD_DEPS)
+
+      D.stop()
+
+      assert.strictEqual(unsubscribe.mock.calls.length, 1)
     })
 
     it('should handle "START" message from extension', () => {

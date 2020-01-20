@@ -19,6 +19,7 @@ Added in v0.5.0
 - [DebugMsg (interface)](#debugmsg-interface)
 - [Debugger (interface)](#debugger-interface)
 - [DebuggerR (interface)](#debuggerr-interface)
+- [ProgramWithDebugger (interface)](#programwithdebugger-interface)
 - [DebugAction (type alias)](#debugaction-type-alias)
 - [DebugData (type alias)](#debugdata-type-alias)
 - [Global (type alias)](#global-type-alias)
@@ -27,6 +28,7 @@ Added in v0.5.0
 - [debugMsg (function)](#debugmsg-function)
 - [runDebugger (function)](#rundebugger-function)
 - [updateWithDebug (function)](#updatewithdebug-function)
+- [withDebuggerWithStop (function)](#withdebuggerwithstop-function)
 
 ---
 
@@ -77,7 +79,10 @@ Defines a generic `Debugger`
 
 ```ts
 export interface Debugger<Model, Msg> {
-  (d: DebuggerR<Model, Msg>): Debug<Model, Msg>
+  (d: DebuggerR<Model, Msg>): {
+    debug: Debug<Model, Msg>
+    stop: DebuggerUnsubscribe
+  }
 }
 ```
 
@@ -94,6 +99,20 @@ export interface DebuggerR<Model, Msg> {
   init: Model
   debug$: BehaviorSubject<DebugData<Model, Msg>>
   dispatch: Dispatch<MsgWithDebug<Model, Msg>>
+}
+```
+
+Added in v0.5.0
+
+# ProgramWithDebugger (interface)
+
+Extends the `Program` interface with a function to stop consuming `DebugData` stream (`stop()`).
+
+**Signature**
+
+```ts
+export interface ProgramWithDebugger<Model, Msg, Dom> extends Program<Model, Msg, Dom> {
+  stop: () => void
 }
 ```
 
@@ -172,13 +191,15 @@ Added in v0.5.0
 
 Checks which type of debugger can be used (standard `console` or _Redux DevTool Extension_) based on provided `window` and prepares the subscription to the "debug" stream
 
+**Warning:** this function **SHOULD** be considered as an internal method; using it in your application **SHOULD** be avoided.
+
 **Signature**
 
 ```ts
-export function runDebugger<Model, Msg>(win: Global): (deps: DebuggerR<Model, Msg>) => IO<void> { ... }
+export function runDebugger<Model, Msg>(win: Global): (deps: DebuggerR<Model, Msg>) => IO<DebuggerUnsubscribe> { ... }
 ```
 
-Added in v0.5.3
+Added in v0.5.4
 
 # updateWithDebug (function)
 
@@ -214,3 +235,18 @@ export function updateWithDebug<Model, Msg>(
 ```
 
 Added in v0.5.3
+
+# withDebuggerWithStop (function)
+
+Stops the `program` with Debugger when `signal` Observable emits a value.
+
+**Signature**
+
+```ts
+export function withDebuggerWithStop<Model, Msg, Dom>(
+  program: ProgramWithDebugger<Model, Msg, Dom>,
+  signal: Observable<unknown>
+): ProgramWithDebugger<Model, Msg, Dom> { ... }
+```
+
+Added in v0.5.4

@@ -28,4 +28,4 @@ Added in v0.5.0
 export function consoleDebugger<Model, Msg>(): Debugger<Model, Msg> { ... }
 ```
 
-Added in v0.5.0
+Added in v0.5.4

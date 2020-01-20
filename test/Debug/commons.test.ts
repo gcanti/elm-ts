@@ -14,9 +14,12 @@ import {
 import * as ConsoleDebugger from '../../src/Debug/console'
 import * as DevToolDebugger from '../../src/Debug/redux-devtool'
 import { Html, run } from '../../src/Html'
+import { disableDebugger, mockDebugger } from './_helpers'
 
 afterEach(() => {
   jest.restoreAllMocks()
+
+  delete (window as any).__REDUX_DEVTOOLS_EXTENSION__
 })
 
 describe('Debug/commons', () => {
@@ -71,10 +74,8 @@ describe('Debug/commons', () => {
       const log: Array<DebugData<Model, Msg>> = []
 
       // --- Mock debuggers
-      jest.spyOn(DevToolDebugger, 'reduxDevToolDebugger').mockReturnValueOnce(() => _ => undefined)
-      jest
-        .spyOn(ConsoleDebugger, 'consoleDebugger')
-        .mockReturnValueOnce(() => data => log.push(data as DebugData<Model, Msg>))
+      jest.spyOn(DevToolDebugger, 'reduxDevToolDebugger').mockReturnValueOnce(disableDebugger)
+      jest.spyOn(ConsoleDebugger, 'consoleDebugger').mockReturnValueOnce(mockDebugger(log))
       // ---
 
       const Debugger = runDebugger<Model, Msg>(window)
@@ -91,14 +92,12 @@ describe('Debug/commons', () => {
       assert.strictEqual((DevToolDebugger.reduxDevToolDebugger as any).mock.calls.length, 0)
     })
 
-    it('should run a redux dev-toll debugger when is available', () => {
+    it('should run a redux dev-tool debugger when is available', () => {
       const log: Array<DebugData<Model, Msg>> = []
 
       // --- Mock debuggers
-      jest.spyOn(ConsoleDebugger, 'consoleDebugger').mockReturnValueOnce(() => _ => undefined)
-      jest
-        .spyOn(DevToolDebugger, 'reduxDevToolDebugger')
-        .mockReturnValueOnce(() => data => log.push(data as DebugData<Model, Msg>))
+      jest.spyOn(ConsoleDebugger, 'consoleDebugger').mockReturnValueOnce(disableDebugger)
+      jest.spyOn(DevToolDebugger, 'reduxDevToolDebugger').mockReturnValueOnce(mockDebugger(log))
       // ---
 
       const win = window as any
@@ -123,15 +122,17 @@ describe('Debug/commons', () => {
     })
   })
 
-  it.only('withDebuggerStop() should stop the Program when a signal is emitted', done => {
+  it('withDebuggerStop() should stop the Program when a signal is emitted', done => {
     const signal = new Subject<any>()
+    const debuggerStop = jest.fn()
 
     const log: Array<DebugData<Model, Msg>> = []
 
     // --- Trace only console debugger
-    jest
-      .spyOn(ConsoleDebugger, 'consoleDebugger')
-      .mockReturnValueOnce(() => data => log.push(data as DebugData<Model, Msg>))
+    jest.spyOn(ConsoleDebugger, 'consoleDebugger').mockReturnValueOnce(() => ({
+      debug: data => log.push(data as DebugData<Model, Msg>),
+      stop: debuggerStop
+    }))
 
     const program = withDebuggerWithStop(programWithDebugger(init, update, view), signal)
     const updates = run(program, _ => undefined)
@@ -144,6 +145,8 @@ describe('Debug/commons', () => {
           [{ type: 'MESSAGE', payload: { tag: 'Inc' } }, 1],
           [{ type: 'MESSAGE', payload: { tag: 'Dec' } }, 0]
         ])
+
+        assert.strictEqual(debuggerStop.mock.calls.length, 1)
 
         done()
       }
