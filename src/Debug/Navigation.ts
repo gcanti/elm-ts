@@ -33,10 +33,13 @@
 import * as H from 'history'
 import { BehaviorSubject } from 'rxjs'
 import { Cmd } from '../Cmd'
-import { Html, Program } from '../Html'
+import { Html } from '../Html'
 import { Location, program } from '../Navigation'
 import { Sub } from '../Sub'
-import { DebugData, DebuggerR, debugInit, runDebugger, updateWithDebug } from './commons'
+import { DebugData, DebuggerR, ProgramWithDebugger, debugInit, runDebugger, updateWithDebug } from './commons'
+
+// --- Re-exports
+export { withDebuggerWithStop } from './commons'
 
 /**
  * Adds a debugging capability to a generic `Navigation` `Program`.
@@ -67,7 +70,7 @@ export function programWithDebugger<Model, Msg, Dom>(
   update: (msg: Msg, model: Model) => [Model, Cmd<Msg>],
   view: (model: Model) => Html<Dom, Msg>,
   subscriptions?: (model: Model) => Sub<Msg>
-): Program<Model, Msg, Dom> {
+): ProgramWithDebugger<Model, Msg, Dom> {
   const history = H.createHashHistory() // this is needed only to generate init model for debug$ :S
 
   const Debugger = runDebugger<Model, Msg>(window)
@@ -81,9 +84,13 @@ export function programWithDebugger<Model, Msg, Dom>(
   // --- Run the debugger
   // --- we need to make a type assertion for `dispatch` because we cannot change the intrinsic `msg` type of `program`;
   // --- otherwise `programWithDebugger` won't be usable as a transparent extension/substitution of `Html`'s programs
-  Debugger({ debug$, init: initModel, dispatch: p.dispatch as DebuggerR<Model, Msg>['dispatch'] })()
+  const { unsubscribe } = Debugger({
+    debug$,
+    init: initModel,
+    dispatch: p.dispatch as DebuggerR<Model, Msg>['dispatch']
+  })()
 
-  return p
+  return { ...p, stop: unsubscribe }
 }
 
 /**
@@ -96,6 +103,6 @@ export function programWithDebuggerWithFlags<Flags, Model, Msg, Dom>(
   update: (msg: Msg, model: Model) => [Model, Cmd<Msg>],
   view: (model: Model) => Html<Dom, Msg>,
   subscriptions?: (model: Model) => Sub<Msg>
-): (flags: Flags) => Program<Model, Msg, Dom> {
+): (flags: Flags) => ProgramWithDebugger<Model, Msg, Dom> {
   return flags => programWithDebugger(locationToMessage, init(flags), update, view, subscriptions)
 }

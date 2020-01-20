@@ -1,9 +1,19 @@
 import * as assert from 'assert'
-import { BehaviorSubject } from 'rxjs'
+import { BehaviorSubject, Subject } from 'rxjs'
+import { take } from 'rxjs/operators'
 import { Cmd, none } from '../../src/Cmd'
-import { DebugData, debugInit, debugMsg, runDebugger, updateWithDebug } from '../../src/Debug/commons'
+import { programWithDebugger } from '../../src/Debug/Html'
+import {
+  DebugData,
+  debugInit,
+  debugMsg,
+  runDebugger,
+  updateWithDebug,
+  withDebuggerWithStop
+} from '../../src/Debug/commons'
 import * as ConsoleDebugger from '../../src/Debug/console'
 import * as DevToolDebugger from '../../src/Debug/redux-devtool'
+import { Html, run } from '../../src/Html'
 
 afterEach(() => {
   jest.restoreAllMocks()
@@ -112,11 +122,49 @@ describe('Debug/commons', () => {
       assert.strictEqual((ConsoleDebugger.consoleDebugger as any).mock.calls.length, 0)
     })
   })
+
+  it.only('withDebuggerStop() should stop the Program when a signal is emitted', done => {
+    const signal = new Subject<any>()
+
+    const log: Array<DebugData<Model, Msg>> = []
+
+    // --- Trace only console debugger
+    jest
+      .spyOn(ConsoleDebugger, 'consoleDebugger')
+      .mockReturnValueOnce(() => data => log.push(data as DebugData<Model, Msg>))
+
+    const program = withDebuggerWithStop(programWithDebugger(init, update, view), signal)
+    const updates = run(program, _ => undefined)
+
+    updates.pipe(take(4)).subscribe({
+      complete: () => {
+        assert.strictEqual(log.length, 3)
+        assert.deepStrictEqual(log, [
+          [{ type: 'INIT' }, 0],
+          [{ type: 'MESSAGE', payload: { tag: 'Inc' } }, 1],
+          [{ type: 'MESSAGE', payload: { tag: 'Dec' } }, 0]
+        ])
+
+        done()
+      }
+    })
+
+    program.dispatch({ tag: 'Inc' })
+    program.dispatch({ tag: 'Dec' })
+
+    // Emit stop signal and the other changes are bypassed
+    signal.next('stop me!')
+
+    program.dispatch({ tag: 'Inc' })
+    program.dispatch({ tag: 'Inc' })
+  })
 })
 
 // --- Helpers
 type Model = number
 type Msg = { tag: 'Inc' } | { tag: 'Dec' }
+
+const init: [Model, Cmd<Msg>] = [0, none]
 
 const update = (msg: Msg, model: Model): [Model, Cmd<Msg>] => {
   switch (msg.tag) {
@@ -126,3 +174,5 @@ const update = (msg: Msg, model: Model): [Model, Cmd<Msg>] => {
       return [model - 1, none]
   }
 }
+
+const view = (_: Model): Html<void, Msg> => _dispatch => undefined
