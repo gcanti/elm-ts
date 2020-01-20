@@ -11,3 +11,10 @@ export const STD_DEPS: DebuggerR<Model, Msg> = {
   debug$: DATA$,
   dispatch: () => undefined
 }
+
+export const mockDebugger = <Model, Msg>(log: DebugData<Model, Msg>[]) => () => ({
+  debug: (data: unknown) => log.push(data as DebugData<Model, Msg>),
+  stop: () => undefined
+})
+
+export const disableDebugger = () => ({ debug: () => undefined, stop: () => undefined })

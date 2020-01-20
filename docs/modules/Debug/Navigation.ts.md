@@ -43,6 +43,7 @@ Added in v0.5.3
 
 - [programWithDebugger (function)](#programwithdebugger-function)
 - [programWithDebuggerWithFlags (function)](#programwithdebuggerwithflags-function)
+- [withDebuggerWithStop (export)](#withdebuggerwithstop-export)
 
 ---
 
@@ -79,10 +80,10 @@ export function programWithDebugger<Model, Msg, Dom>(
   update: (msg: Msg, model: Model) => [Model, Cmd<Msg>],
   view: (model: Model) => Html<Dom, Msg>,
   subscriptions?: (model: Model) => Sub<Msg>
-): Program<Model, Msg, Dom> { ... }
+): ProgramWithDebugger<Model, Msg, Dom> { ... }
 ```
 
-Added in v0.5.3
+Added in v0.5.4
 
 # programWithDebuggerWithFlags (function)
 
@@ -97,7 +98,19 @@ export function programWithDebuggerWithFlags<Flags, Model, Msg, Dom>(
   update: (msg: Msg, model: Model) => [Model, Cmd<Msg>],
   view: (model: Model) => Html<Dom, Msg>,
   subscriptions?: (model: Model) => Sub<Msg>
-): (flags: Flags) => Program<Model, Msg, Dom> { ... }
+): (flags: Flags) => ProgramWithDebugger<Model, Msg, Dom> { ... }
 ```
 
-Added in v0.5.3
+Added in v0.5.4
+
+# withDebuggerWithStop (export)
+
+Stops the `program` with Debugger when `signal` Observable emits a value.
+
+**Signature**
+
+```ts
+typeof withDebuggerWithStop
+```
+
+Added in v0.5.4

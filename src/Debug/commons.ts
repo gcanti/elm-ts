@@ -6,7 +6,7 @@
 import { IO, chain, map } from 'fp-ts/lib/IO'
 import { fold } from 'fp-ts/lib/Option'
 import { pipe } from 'fp-ts/lib/pipeable'
-import { BehaviorSubject, Observable, Subscription } from 'rxjs'
+import { BehaviorSubject, Observable } from 'rxjs'
 import { Cmd, none } from '../Cmd'
 import { Program, withStop } from '../Html'
 import { Dispatch } from '../Platform'
@@ -78,12 +78,19 @@ export interface Debug<Model, Msg> {
   (data: DebugData<Model, Msg>): void
 }
 
+interface DebuggerUnsubscribe {
+  (): void
+}
+
 /**
  * Defines a generic `Debugger`
  * @since 0.5.0
  */
 export interface Debugger<Model, Msg> {
-  (d: DebuggerR<Model, Msg>): Debug<Model, Msg>
+  (d: DebuggerR<Model, Msg>): {
+    debug: Debug<Model, Msg>
+    stop: DebuggerUnsubscribe
+  }
 }
 
 /**
@@ -144,14 +151,25 @@ export function updateWithDebug<Model, Msg>(
 
 /**
  * Checks which type of debugger can be used (standard `console` or _Redux DevTool Extension_) based on provided `window` and prepares the subscription to the "debug" stream
- * @since 0.5.3
+ *
+ * **Warning:** this function **SHOULD** be considered as an internal method; using it in your application **SHOULD** be avoided.
+ * @since 0.5.4
  */
-export function runDebugger<Model, Msg>(win: Global): (deps: DebuggerR<Model, Msg>) => IO<Subscription> {
+export function runDebugger<Model, Msg>(win: Global): (deps: DebuggerR<Model, Msg>) => IO<DebuggerUnsubscribe> {
   return deps =>
     pipe(
       getConnection<Model, Msg>(win),
       map(fold(() => consoleDebugger<Model, Msg>(), reduxDevToolDebugger)),
-      chain(Debugger => () => deps.debug$.subscribe(Debugger(deps)))
+      chain(Debugger => () => {
+        const { debug, stop } = Debugger(deps)
+        const { unsubscribe } = deps.debug$.subscribe(debug)
+
+        return () => {
+          // The order of execution is important
+          stop()
+          unsubscribe()
+        }
+      })
     )
 }
 

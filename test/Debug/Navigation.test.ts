@@ -22,6 +22,7 @@ import * as DevToolDebugger from '../../src/Debug/redux-devtool'
 import { Html, run } from '../../src/Html'
 import { push } from '../../src/Navigation'
 import * as Sub from '../../src/Sub'
+import { mockDebugger } from './_helpers'
 
 beforeEach(() => {
   historyLog.splice(0, historyLog.length)
@@ -32,9 +33,7 @@ describe('Debug', () => {
     const log: Array<DebugData<Model, Msg>> = []
 
     // --- Trace only console debugger
-    jest
-      .spyOn(ConsoleDebugger, 'consoleDebugger')
-      .mockReturnValueOnce(() => data => log.push(data as DebugData<Model, Msg>))
+    jest.spyOn(ConsoleDebugger, 'consoleDebugger').mockReturnValueOnce(mockDebugger(log))
 
     const program = programWithDebugger(locationToMsg, init, update, view)
     const updates = run(program, _ => undefined)
@@ -78,9 +77,7 @@ describe('Debug', () => {
     }
 
     // --- Trace only devtool debugger
-    jest
-      .spyOn(DevToolDebugger, 'reduxDevToolDebugger')
-      .mockReturnValueOnce(() => data => log.push(data as DebugData<Model, Msg>))
+    jest.spyOn(DevToolDebugger, 'reduxDevToolDebugger').mockReturnValueOnce(mockDebugger(log))
 
     const program = programWithDebugger(locationToMsg, init, update, view, () => Sub.none)
     const updates = run(program, _ => undefined)
@@ -118,9 +115,7 @@ describe('Debug', () => {
     const log: Array<DebugData<Model, Msg>> = []
 
     // --- Trace only console debugger
-    jest
-      .spyOn(ConsoleDebugger, 'consoleDebugger')
-      .mockReturnValueOnce(() => data => log.push(data as DebugData<Model, Msg>))
+    jest.spyOn(ConsoleDebugger, 'consoleDebugger').mockReturnValueOnce(mockDebugger(log))
 
     const initWithFlags = (flag: string) => (_: history.Location): [Model, Cmd<Msg>] => [flag, none]
     const program = programWithDebuggerWithFlags(locationToMsg, initWithFlags, update, view)('/start')

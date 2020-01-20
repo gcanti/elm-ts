@@ -10,32 +10,42 @@ import { DebugMsg, Debugger } from './commons'
 
 /**
  * **[UNSAFE]** Simple debugger that uses the standard browser's `console`
- * @since 0.5.0
+ * @since 0.5.4
  */
 export function consoleDebugger<Model, Msg>(): Debugger<Model, Msg> {
-  return () => data => {
-    const [action, model] = data
+  return () => {
+    return {
+      debug: data => {
+        const [action, model] = data
 
-    console.group('%cELM-TS', 'background-color: green; color: black')
+        console.group('%cELM-TS', 'background-color: green; color: black')
 
-    // --- Action
-    if (action.type === 'INIT') {
-      console.log('[INIT]')
+        // --- Action
+        if (action.type === 'INIT') {
+          console.log('[INIT]')
+        }
+
+        if (action.type === 'MESSAGE') {
+          const showType = getOrElse(() => '')(getMsgType(action))
+
+          console.groupCollapsed(`[MESSAGE] %c${showType}`, 'font-weight: bold')
+          console.dir(action.payload)
+          console.groupEnd()
+        }
+
+        // --- Model
+        console.groupCollapsed('[MODEL]')
+        console.dir(model)
+        console.groupEnd()
+        console.groupEnd()
+      },
+
+      stop: () => {
+        console.group('%cELM-TS', 'background-color: green; color: black')
+        console.log('--- stop debugger ---')
+        console.groupEnd()
+      }
     }
-
-    if (action.type === 'MESSAGE') {
-      const showType = getOrElse(() => '')(getMsgType(action))
-
-      console.groupCollapsed(`[MESSAGE] %c${showType}`, 'font-weight: bold')
-      console.dir(action.payload)
-      console.groupEnd()
-    }
-
-    // --- Model
-    console.groupCollapsed('[MODEL]')
-    console.dir(model)
-    console.groupEnd()
-    console.groupEnd()
   }
 }
 

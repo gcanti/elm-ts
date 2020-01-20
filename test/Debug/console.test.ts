@@ -36,10 +36,10 @@ describe('Debug/console', () => {
 
   // --- Tests
   it('consoleDebugger() should debug to console', () => {
-    const debug = consoleDebugger<Model, Msg>()(STD_DEPS)
+    const D = consoleDebugger<Model, Msg>()(STD_DEPS)
 
-    debug([{ type: 'INIT' }, 0])
-    debug([{ type: 'MESSAGE', payload: { type: 'Inc' } }, 1])
+    D.debug([{ type: 'INIT' }, 0])
+    D.debug([{ type: 'MESSAGE', payload: { type: 'Inc' } }, 1])
 
     assert.deepStrictEqual(log, [
       // --- INIT
@@ -71,15 +71,15 @@ describe('Debug/console', () => {
     type MsgOther = { other: 'FooOther' }
     type MsgDetect = MsgTag | Msg_Tag | MsgType | Msg_Type | MsgKind | Msg_Kind | MsgOther
 
-    const debug = consoleDebugger<Model, MsgDetect>()(STD_DEPS as any)
+    const D = consoleDebugger<Model, MsgDetect>()(STD_DEPS as any)
 
-    debug([{ type: 'MESSAGE', payload: { tag: 'FooTag' } }, 1])
-    debug([{ type: 'MESSAGE', payload: { _tag: 'Foo_Tag' } }, 1])
-    debug([{ type: 'MESSAGE', payload: { type: 'FooType' } }, 1])
-    debug([{ type: 'MESSAGE', payload: { _type: 'Foo_Type' } }, 1])
-    debug([{ type: 'MESSAGE', payload: { kind: 'FooKind' } }, 1])
-    debug([{ type: 'MESSAGE', payload: { _kind: 'Foo_Kind' } }, 1])
-    debug([{ type: 'MESSAGE', payload: { other: 'FooOther' } }, 1])
+    D.debug([{ type: 'MESSAGE', payload: { tag: 'FooTag' } }, 1])
+    D.debug([{ type: 'MESSAGE', payload: { _tag: 'Foo_Tag' } }, 1])
+    D.debug([{ type: 'MESSAGE', payload: { type: 'FooType' } }, 1])
+    D.debug([{ type: 'MESSAGE', payload: { _type: 'Foo_Type' } }, 1])
+    D.debug([{ type: 'MESSAGE', payload: { kind: 'FooKind' } }, 1])
+    D.debug([{ type: 'MESSAGE', payload: { _kind: 'Foo_Kind' } }, 1])
+    D.debug([{ type: 'MESSAGE', payload: { other: 'FooOther' } }, 1])
 
     const result = log.filter(x => x.type === 'groupCollapsed' && x.value[0] !== '[MODEL]')
 
@@ -91,6 +91,18 @@ describe('Debug/console', () => {
       { type: 'groupCollapsed', value: [`[MESSAGE] %cFooKind`, 'font-weight: bold'] },
       { type: 'groupCollapsed', value: [`[MESSAGE] %cFoo_Kind`, 'font-weight: bold'] },
       { type: 'groupCollapsed', value: [`[MESSAGE] %c`, 'font-weight: bold'] }
+    ])
+  })
+
+  it('consoleDebugger() should log "stop" message on stop', () => {
+    const D = consoleDebugger<Model, Msg>()(STD_DEPS)
+
+    D.stop()
+
+    assert.deepStrictEqual(log, [
+      { type: 'group', value: ['%cELM-TS', 'background-color: green; color: black'] },
+      { type: 'log', value: ['--- stop debugger ---'] },
+      { type: 'groupEnd', value: [] }
     ])
   })
 })

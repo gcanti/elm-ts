@@ -39,7 +39,13 @@ import { Sub } from '../Sub'
 import { DebugData, DebuggerR, ProgramWithDebugger, debugInit, runDebugger, updateWithDebug } from './commons'
 
 // --- Re-exports
-export { withDebuggerWithStop } from './commons'
+export {
+  /**
+   * Stops the `program` with Debugger when `signal` Observable emits a value.
+   * @since 0.5.4
+   */
+  withDebuggerWithStop
+} from './commons'
 
 /**
  * Adds a debugging capability to a generic `Navigation` `Program`.
@@ -62,7 +68,7 @@ export { withDebuggerWithStop } from './commons'
  *   payload: Msg
  * }
  * ```
- * @since 0.5.3
+ * @since 0.5.4
  */
 export function programWithDebugger<Model, Msg, Dom>(
   locationToMessage: (location: Location) => Msg,
@@ -84,7 +90,7 @@ export function programWithDebugger<Model, Msg, Dom>(
   // --- Run the debugger
   // --- we need to make a type assertion for `dispatch` because we cannot change the intrinsic `msg` type of `program`;
   // --- otherwise `programWithDebugger` won't be usable as a transparent extension/substitution of `Html`'s programs
-  const { unsubscribe } = Debugger({
+  const unsubscribe = Debugger({
     debug$,
     init: initModel,
     dispatch: p.dispatch as DebuggerR<Model, Msg>['dispatch']
@@ -95,7 +101,7 @@ export function programWithDebugger<Model, Msg, Dom>(
 
 /**
  * Same as `programWithDebugger()` but with `Flags` that can be passed when the `Program` is created in order to manage initial values.
- * @since 0.5.3
+ * @since 0.5.4
  */
 export function programWithDebuggerWithFlags<Flags, Model, Msg, Dom>(
   locationToMessage: (location: Location) => Msg,

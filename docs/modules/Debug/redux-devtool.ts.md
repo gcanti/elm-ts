@@ -36,6 +36,7 @@ export interface Connection<Model, Msg> {
   send(action: Msg, state: Model): void
   init: (state: Model) => void
   error: (message: any) => void
+  unsubscribe: () => void
 }
 ```
 
@@ -77,4 +78,4 @@ Added in v0.5.0
 export function reduxDevToolDebugger<Model, Msg>(connection: Connection<Model, Msg>): Debugger<Model, Msg> { ... }
 ```
 
-Added in v0.5.0
+Added in v0.5.4

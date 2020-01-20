@@ -41,6 +41,7 @@ export interface Connection<Model, Msg> {
   send(action: Msg, state: Model): void
   init: (state: Model) => void
   error: (message: any) => void
+  unsubscribe: () => void
 }
 
 type DevToolMsg = Start | Action | Monitor
@@ -97,7 +98,7 @@ function hasExtension(global: Global): global is Global & { __REDUX_DEVTOOLS_EXT
 
 /**
  * **[UNSAFE]** Debug through _Redux DevTool Extension_
- * @since 0.5.0
+ * @since 0.5.4
  */
 export function reduxDevToolDebugger<Model, Msg>(connection: Connection<Model, Msg>): Debugger<Model, Msg> {
   return d => {
@@ -106,7 +107,10 @@ export function reduxDevToolDebugger<Model, Msg>(connection: Connection<Model, M
     // --- Subscribe to extension in order to receive messages from monitor
     connection.subscribe(handleSubscription(deps))
 
-    return handleActions(deps)
+    return {
+      debug: handleActions(deps),
+      stop: connection.unsubscribe
+    }
   }
 }
 
