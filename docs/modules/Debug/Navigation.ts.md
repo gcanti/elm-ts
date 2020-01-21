@@ -43,7 +43,8 @@ Added in v0.5.3
 
 - [programWithDebugger (function)](#programwithdebugger-function)
 - [programWithDebuggerWithFlags (function)](#programwithdebuggerwithflags-function)
-- [withDebuggerWithStop (export)](#withdebuggerwithstop-export)
+- [programWithDebuggerWithFlagsWithStop (function)](#programwithdebuggerwithflagswithstop-function)
+- [programWithDebuggerWithStop (function)](#programwithdebuggerwithstop-function)
 
 ---
 
@@ -80,10 +81,10 @@ export function programWithDebugger<Model, Msg, Dom>(
   update: (msg: Msg, model: Model) => [Model, Cmd<Msg>],
   view: (model: Model) => Html<Dom, Msg>,
   subscriptions?: (model: Model) => Sub<Msg>
-): ProgramWithDebugger<Model, Msg, Dom> { ... }
+): Program<Model, Msg, Dom> { ... }
 ```
 
-Added in v0.5.4
+Added in v0.5.3
 
 # programWithDebuggerWithFlags (function)
 
@@ -98,19 +99,45 @@ export function programWithDebuggerWithFlags<Flags, Model, Msg, Dom>(
   update: (msg: Msg, model: Model) => [Model, Cmd<Msg>],
   view: (model: Model) => Html<Dom, Msg>,
   subscriptions?: (model: Model) => Sub<Msg>
-): (flags: Flags) => ProgramWithDebugger<Model, Msg, Dom> { ... }
+): (flags: Flags) => Program<Model, Msg, Dom> { ... }
 ```
 
-Added in v0.5.4
+Added in v0.5.3
 
-# withDebuggerWithStop (export)
+# programWithDebuggerWithFlagsWithStop (function)
 
-Stops the `program` with Debugger when `signal` Observable emits a value.
+Same as `programWithDebuggerWithStop()` but with `Flags` that can be passed when the `Program` is created in order to manage initial values.
 
 **Signature**
 
 ```ts
-typeof withDebuggerWithStop
+export function programWithDebuggerWithFlagsWithStop<Flags, Model, Msg, Dom>(
+  stopDebuggerOn: Observable<unknown>,
+  locationToMessage: (location: Location) => Msg,
+  init: (flags: Flags) => (location: Location) => [Model, Cmd<Msg>],
+  update: (msg: Msg, model: Model) => [Model, Cmd<Msg>],
+  view: (model: Model) => Html<Dom, Msg>,
+  subscriptions?: (model: Model) => Sub<Msg>
+): (flags: Flags) => Program<Model, Msg, Dom> { ... }
+```
+
+Added in v0.5.4
+
+# programWithDebuggerWithStop (function)
+
+Same as `programWithDebugger()` but with an optional `stopDebuggerOn` parameter: the underlying debugger will stop when the `Observable` emits a value.
+
+**Signature**
+
+```ts
+export function programWithDebuggerWithStop<Model, Msg, Dom>(
+  stopDebuggerOn: Observable<unknown>,
+  locationToMessage: (location: Location) => Msg,
+  init: (location: Location) => [Model, Cmd<Msg>],
+  update: (msg: Msg, model: Model) => [Model, Cmd<Msg>],
+  view: (model: Model) => Html<Dom, Msg>,
+  subscriptions?: (model: Model) => Sub<Msg>
+): Program<Model, Msg, Dom> { ... }
 ```
 
 Added in v0.5.4

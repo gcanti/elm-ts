@@ -19,7 +19,6 @@ Added in v0.5.0
 - [DebugMsg (interface)](#debugmsg-interface)
 - [Debugger (interface)](#debugger-interface)
 - [DebuggerR (interface)](#debuggerr-interface)
-- [ProgramWithDebugger (interface)](#programwithdebugger-interface)
 - [DebugAction (type alias)](#debugaction-type-alias)
 - [DebugData (type alias)](#debugdata-type-alias)
 - [Global (type alias)](#global-type-alias)
@@ -28,7 +27,6 @@ Added in v0.5.0
 - [debugMsg (function)](#debugmsg-function)
 - [runDebugger (function)](#rundebugger-function)
 - [updateWithDebug (function)](#updatewithdebug-function)
-- [withDebuggerWithStop (function)](#withdebuggerwithstop-function)
 
 ---
 
@@ -81,12 +79,12 @@ Defines a generic `Debugger`
 export interface Debugger<Model, Msg> {
   (d: DebuggerR<Model, Msg>): {
     debug: Debug<Model, Msg>
-    stop: DebuggerUnsubscribe
+    stop: () => void
   }
 }
 ```
 
-Added in v0.5.0
+Added in v0.5.4
 
 # DebuggerR (interface)
 
@@ -99,20 +97,6 @@ export interface DebuggerR<Model, Msg> {
   init: Model
   debug$: BehaviorSubject<DebugData<Model, Msg>>
   dispatch: Dispatch<MsgWithDebug<Model, Msg>>
-}
-```
-
-Added in v0.5.0
-
-# ProgramWithDebugger (interface)
-
-Extends the `Program` interface with a function to stop consuming `DebugData` stream (`stop()`).
-
-**Signature**
-
-```ts
-export interface ProgramWithDebugger<Model, Msg, Dom> extends Program<Model, Msg, Dom> {
-  stop: () => void
 }
 ```
 
@@ -196,7 +180,10 @@ Checks which type of debugger can be used (standard `console` or _Redux DevTool 
 **Signature**
 
 ```ts
-export function runDebugger<Model, Msg>(win: Global): (deps: DebuggerR<Model, Msg>) => IO<DebuggerUnsubscribe> { ... }
+export function runDebugger<Model, Msg>(
+  win: Global,
+  stop$: Observable<unknown>
+): (deps: DebuggerR<Model, Msg>) => IO<void> { ... }
 ```
 
 Added in v0.5.4
@@ -235,18 +222,3 @@ export function updateWithDebug<Model, Msg>(
 ```
 
 Added in v0.5.3
-
-# withDebuggerWithStop (function)
-
-Stops the `program` with Debugger when `signal` Observable emits a value.
-
-**Signature**
-
-```ts
-export function withDebuggerWithStop<Model, Msg, Dom>(
-  program: ProgramWithDebugger<Model, Msg, Dom>,
-  signal: Observable<unknown>
-): ProgramWithDebugger<Model, Msg, Dom> { ... }
-```
-
-Added in v0.5.4

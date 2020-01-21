@@ -1,19 +1,9 @@
 import * as assert from 'assert'
-import { BehaviorSubject, Subject } from 'rxjs'
-import { take } from 'rxjs/operators'
+import { BehaviorSubject, EMPTY, Subject } from 'rxjs'
 import { Cmd, none } from '../../src/Cmd'
-import { programWithDebugger } from '../../src/Debug/Html'
-import {
-  DebugData,
-  debugInit,
-  debugMsg,
-  runDebugger,
-  updateWithDebug,
-  withDebuggerWithStop
-} from '../../src/Debug/commons'
+import { DebugData, debugInit, debugMsg, runDebugger, updateWithDebug } from '../../src/Debug/commons'
 import * as ConsoleDebugger from '../../src/Debug/console'
 import * as DevToolDebugger from '../../src/Debug/redux-devtool'
-import { Html, run } from '../../src/Html'
 import { disableDebugger, mockDebugger } from './_helpers'
 
 afterEach(() => {
@@ -78,7 +68,7 @@ describe('Debug/commons', () => {
       jest.spyOn(ConsoleDebugger, 'consoleDebugger').mockReturnValueOnce(mockDebugger(log))
       // ---
 
-      const Debugger = runDebugger<Model, Msg>(window)
+      const Debugger = runDebugger<Model, Msg>(window, EMPTY)
       const init = 0
       const debug$ = new BehaviorSubject<DebugData<Model, Msg>>([debugInit(), init])
       const dispatch = () => undefined
@@ -107,7 +97,7 @@ describe('Debug/commons', () => {
         connect: () => ({})
       }
 
-      const Debugger = runDebugger<Model, Msg>(win)
+      const Debugger = runDebugger<Model, Msg>(win, EMPTY)
       const init = 0
       const debug$ = new BehaviorSubject<DebugData<Model, Msg>>([debugInit(), init])
       const dispatch = () => undefined
@@ -120,54 +110,44 @@ describe('Debug/commons', () => {
 
       assert.strictEqual((ConsoleDebugger.consoleDebugger as any).mock.calls.length, 0)
     })
-  })
 
-  it('withDebuggerStop() should stop the Program when a signal is emitted', done => {
-    const signal = new Subject<any>()
-    const debuggerStop = jest.fn()
+    it('should stop debugger when signal is emitted', () => {
+      const signal = new Subject<any>()
+      const log: Array<DebugData<Model, Msg>> = []
+      const spyStop = jest.fn()
 
-    const log: Array<DebugData<Model, Msg>> = []
+      // --- Mock debuggers
+      jest.spyOn(ConsoleDebugger, 'consoleDebugger').mockReturnValueOnce(() => ({
+        debug: data => log.push(data as DebugData<Model, Msg>),
+        stop: spyStop
+      }))
+      // ---
 
-    // --- Trace only console debugger
-    jest.spyOn(ConsoleDebugger, 'consoleDebugger').mockReturnValueOnce(() => ({
-      debug: data => log.push(data as DebugData<Model, Msg>),
-      stop: debuggerStop
-    }))
+      const Debugger = runDebugger<Model, Msg>(window, signal)
+      const init = 0
+      const debug$ = new BehaviorSubject<DebugData<Model, Msg>>([debugInit(), init])
+      const dispatch = () => undefined
 
-    const program = withDebuggerWithStop(programWithDebugger(init, update, view), signal)
-    const updates = run(program, _ => undefined)
+      Debugger({ init, debug$, dispatch })()
 
-    updates.pipe(take(4)).subscribe({
-      complete: () => {
-        assert.strictEqual(log.length, 3)
-        assert.deepStrictEqual(log, [
-          [{ type: 'INIT' }, 0],
-          [{ type: 'MESSAGE', payload: { tag: 'Inc' } }, 1],
-          [{ type: 'MESSAGE', payload: { tag: 'Dec' } }, 0]
-        ])
+      debug$.next([debugMsg({ tag: 'Inc' }), 1])
+      debug$.next([debugMsg({ tag: 'Dec' }), 0])
 
-        assert.strictEqual(debuggerStop.mock.calls.length, 1)
+      // Emit stop signal and the other changes are bypassed
+      signal.next('stop me!')
 
-        done()
-      }
+      debug$.next([debugMsg({ tag: 'Inc' }), 1])
+      debug$.next([debugMsg({ tag: 'Inc' }), 1])
+
+      assert.deepStrictEqual(log, [[debugInit(), 0], [debugMsg({ tag: 'Inc' }), 1], [debugMsg({ tag: 'Dec' }), 0]])
+      assert.strictEqual(spyStop.mock.calls.length, 1)
     })
-
-    program.dispatch({ tag: 'Inc' })
-    program.dispatch({ tag: 'Dec' })
-
-    // Emit stop signal and the other changes are bypassed
-    signal.next('stop me!')
-
-    program.dispatch({ tag: 'Inc' })
-    program.dispatch({ tag: 'Inc' })
   })
 })
 
 // --- Helpers
 type Model = number
 type Msg = { tag: 'Inc' } | { tag: 'Dec' }
-
-const init: [Model, Cmd<Msg>] = [0, none]
 
 const update = (msg: Msg, model: Model): [Model, Cmd<Msg>] => {
   switch (msg.tag) {
@@ -177,5 +157,3 @@ const update = (msg: Msg, model: Model): [Model, Cmd<Msg>] => {
       return [model - 1, none]
   }
 }
-
-const view = (_: Model): Html<void, Msg> => _dispatch => undefined
