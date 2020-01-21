@@ -124,7 +124,8 @@ describe('Debug', () => {
     // --- Trace only console debugger
     jest.spyOn(ConsoleDebugger, 'consoleDebugger').mockReturnValueOnce(mockDebugger(log))
 
-    const program = programWithDebuggerWithStop(signal, locationToMsg, init, update, view)
+    const withStop = programWithDebuggerWithStop(signal)
+    const program = withStop(locationToMsg, init, update, view)
     const updates = run(program, _ => undefined)
 
     updates.pipe(take(9)).subscribe({
@@ -184,7 +185,8 @@ describe('Debug', () => {
     jest.spyOn(ConsoleDebugger, 'consoleDebugger').mockReturnValueOnce(mockDebugger(log))
 
     const initWithFlags = (flag: string) => (_: history.Location): [Model, Cmd<Msg>] => [flag, none]
-    const program = programWithDebuggerWithFlagsWithStop(signal, locationToMsg, initWithFlags, update, view)('/start')
+    const withStop = programWithDebuggerWithFlagsWithStop(signal)
+    const program = withStop(locationToMsg, initWithFlags, update, view)('/start')
     const updates = run(program, _ => undefined)
 
     updates.pipe(take(9)).subscribe({

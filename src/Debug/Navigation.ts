@@ -68,14 +68,59 @@ export function programWithDebugger<Model, Msg, Dom>(
   view: (model: Model) => Html<Dom, Msg>,
   subscriptions?: (model: Model) => Sub<Msg>
 ): Program<Model, Msg, Dom> {
-  return programWithDebuggerWithStop(EMPTY, locationToMessage, init, update, view, subscriptions)
+  return createProgram(EMPTY, locationToMessage, init, update, view, subscriptions)
 }
 
 /**
- * Same as `programWithDebugger()` but with an optional `stopDebuggerOn` parameter: the underlying debugger will stop when the `Observable` emits a value.
+ * A function that requires an `Observable` and returns a `programWithDebugger()` function: the underlying debugger will stop when the `Observable` emits a value.
  * @since 0.5.4
  */
 export function programWithDebuggerWithStop<Model, Msg, Dom>(
+  stopDebuggerOn: Observable<unknown>
+): <S extends Model, M extends Msg, D extends Dom>(
+  locationToMessage: (location: Location) => M,
+  init: (location: Location) => [S, Cmd<M>],
+  update: (msg: M, model: S) => [S, Cmd<M>],
+  view: (model: S) => Html<D, M>,
+  subscriptions?: (model: S) => Sub<M>
+) => Program<S, M, D> {
+  return (locationToMessage, init, update, view, subscriptions) =>
+    createProgram(stopDebuggerOn, locationToMessage, init, update, view, subscriptions)
+}
+
+/**
+ * Same as `programWithDebugger()` but with `Flags` that can be passed when the `Program` is created in order to manage initial values.
+ * @since 0.5.3
+ */
+export function programWithDebuggerWithFlags<Flags, Model, Msg, Dom>(
+  locationToMessage: (location: Location) => Msg,
+  init: (flags: Flags) => (location: Location) => [Model, Cmd<Msg>],
+  update: (msg: Msg, model: Model) => [Model, Cmd<Msg>],
+  view: (model: Model) => Html<Dom, Msg>,
+  subscriptions?: (model: Model) => Sub<Msg>
+): (flags: Flags) => Program<Model, Msg, Dom> {
+  return flags => programWithDebugger(locationToMessage, init(flags), update, view, subscriptions)
+}
+
+/**
+ * Same as `programWithDebuggerWithStop()` but with `Flags` that can be passed when the `Program` is created in order to manage initial values.
+ * @since 0.5.4
+ */
+export function programWithDebuggerWithFlagsWithStop<Model, Msg, Dom>(
+  stopDebuggerOn: Observable<unknown>
+): <Flags, S extends Model, M extends Msg, D extends Dom>(
+  locationToMessage: (location: Location) => M,
+  init: (flags: Flags) => (location: Location) => [S, Cmd<M>],
+  update: (msg: M, model: S) => [S, Cmd<M>],
+  view: (model: S) => Html<D, M>,
+  subscriptions?: (model: S) => Sub<M>
+) => (flags: Flags) => Program<S, M, D> {
+  return (locationToMessage, init, update, view, subscriptions) => flags =>
+    createProgram(stopDebuggerOn, locationToMessage, init(flags), update, view, subscriptions)
+}
+
+// --- Internal
+function createProgram<Model, Msg, Dom>(
   stopDebuggerOn: Observable<unknown>,
   locationToMessage: (location: Location) => Msg,
   init: (location: Location) => [Model, Cmd<Msg>],
@@ -103,34 +148,4 @@ export function programWithDebuggerWithStop<Model, Msg, Dom>(
   })()
 
   return p
-}
-
-/**
- * Same as `programWithDebugger()` but with `Flags` that can be passed when the `Program` is created in order to manage initial values.
- * @since 0.5.3
- */
-export function programWithDebuggerWithFlags<Flags, Model, Msg, Dom>(
-  locationToMessage: (location: Location) => Msg,
-  init: (flags: Flags) => (location: Location) => [Model, Cmd<Msg>],
-  update: (msg: Msg, model: Model) => [Model, Cmd<Msg>],
-  view: (model: Model) => Html<Dom, Msg>,
-  subscriptions?: (model: Model) => Sub<Msg>
-): (flags: Flags) => Program<Model, Msg, Dom> {
-  return flags => programWithDebugger(locationToMessage, init(flags), update, view, subscriptions)
-}
-
-/**
- * Same as `programWithDebuggerWithStop()` but with `Flags` that can be passed when the `Program` is created in order to manage initial values.
- * @since 0.5.4
- */
-export function programWithDebuggerWithFlagsWithStop<Flags, Model, Msg, Dom>(
-  stopDebuggerOn: Observable<unknown>,
-  locationToMessage: (location: Location) => Msg,
-  init: (flags: Flags) => (location: Location) => [Model, Cmd<Msg>],
-  update: (msg: Msg, model: Model) => [Model, Cmd<Msg>],
-  view: (model: Model) => Html<Dom, Msg>,
-  subscriptions?: (model: Model) => Sub<Msg>
-): (flags: Flags) => Program<Model, Msg, Dom> {
-  return flags =>
-    programWithDebuggerWithStop(stopDebuggerOn, locationToMessage, init(flags), update, view, subscriptions)
 }

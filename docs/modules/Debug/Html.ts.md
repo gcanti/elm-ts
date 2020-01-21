@@ -107,31 +107,33 @@ Same as `programWithDebuggerWithStop()` but with `Flags` that can be passed when
 **Signature**
 
 ```ts
-export function programWithDebuggerWithFlagsWithStop<Flags, Model, Msg, Dom>(
-  stopDebuggerOn: Observable<unknown>,
-  init: (flags: Flags) => [Model, Cmd<Msg>],
-  update: (msg: Msg, model: Model) => [Model, Cmd<Msg>],
-  view: (model: Model) => Html<Dom, Msg>,
-  subscriptions?: (model: Model) => Sub<Msg>
-): (flags: Flags) => Program<Model, Msg, Dom> { ... }
+export function programWithDebuggerWithFlagsWithStop<Model, Msg, Dom>(
+  stopDebuggerOn: Observable<unknown>
+): <Flags, S extends Model, M extends Msg, D extends Dom>(
+  init: (flags: Flags) => [S, Cmd<M>],
+  update: (msg: M, model: S) => [S, Cmd<M>],
+  view: (model: S) => Html<D, M>,
+  subscriptions?: (model: S) => Sub<M>
+) => (flags: Flags) => Program<S, M, D> { ... }
 ```
 
 Added in v0.5.4
 
 # programWithDebuggerWithStop (function)
 
-Same as `programWithDebugger()` but with an optional `stopDebuggerOn` parameter: the underlying debugger will stop when the `Observable` emits a value.
+A function that requires an `Observable` and returns a `programWithDebugger()` function: the underlying debugger will stop when the `Observable` emits a value.
 
 **Signature**
 
 ```ts
 export function programWithDebuggerWithStop<Model, Msg, Dom>(
-  stopDebuggerOn: Observable<unknown>,
-  init: [Model, Cmd<Msg>],
-  update: (msg: Msg, model: Model) => [Model, Cmd<Msg>],
-  view: (model: Model) => Html<Dom, Msg>,
-  subscriptions?: (model: Model) => Sub<Msg>
-): Program<Model, Msg, Dom> { ... }
+  stopDebuggerOn: Observable<unknown>
+): <S extends Model, M extends Msg, D extends Dom>(
+  init: [S, Cmd<M>],
+  update: (msg: M, model: S) => [S, Cmd<M>],
+  view: (model: S) => Html<D, M>,
+  subscriptions?: (model: S) => Sub<M>
+) => Program<S, M, D> { ... }
 ```
 
 Added in v0.5.4
