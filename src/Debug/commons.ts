@@ -7,19 +7,11 @@ import { IO, chain, map } from 'fp-ts/lib/IO'
 import { fold } from 'fp-ts/lib/Option'
 import { pipe } from 'fp-ts/lib/pipeable'
 import { BehaviorSubject, Observable } from 'rxjs'
+import { takeUntil } from 'rxjs/operators'
 import { Cmd, none } from '../Cmd'
-import { Program, withStop } from '../Html'
 import { Dispatch } from '../Platform'
 import { consoleDebugger } from './console'
 import { getConnection, reduxDevToolDebugger } from './redux-devtool'
-
-/**
- * Extends the `Program` interface with a function to stop consuming `DebugData` stream (`stop()`).
- * @since 0.5.0
- */
-export interface ProgramWithDebugger<Model, Msg, Dom> extends Program<Model, Msg, Dom> {
-  stop: () => void
-}
 
 /**
  * @since 0.5.0
@@ -78,18 +70,14 @@ export interface Debug<Model, Msg> {
   (data: DebugData<Model, Msg>): void
 }
 
-interface DebuggerUnsubscribe {
-  (): void
-}
-
 /**
  * Defines a generic `Debugger`
- * @since 0.5.0
+ * @since 0.5.4
  */
 export interface Debugger<Model, Msg> {
   (d: DebuggerR<Model, Msg>): {
     debug: Debug<Model, Msg>
-    stop: DebuggerUnsubscribe
+    stop: () => void
   }
 }
 
@@ -155,35 +143,21 @@ export function updateWithDebug<Model, Msg>(
  * **Warning:** this function **SHOULD** be considered as an internal method; using it in your application **SHOULD** be avoided.
  * @since 0.5.4
  */
-export function runDebugger<Model, Msg>(win: Global): (deps: DebuggerR<Model, Msg>) => IO<DebuggerUnsubscribe> {
+export function runDebugger<Model, Msg>(
+  win: Global,
+  stop$: Observable<unknown>
+): (deps: DebuggerR<Model, Msg>) => IO<void> {
   return deps =>
     pipe(
       getConnection<Model, Msg>(win),
       map(fold(() => consoleDebugger<Model, Msg>(), reduxDevToolDebugger)),
       chain(Debugger => () => {
         const { debug, stop } = Debugger(deps)
-        const { unsubscribe } = deps.debug$.subscribe(debug)
 
-        return () => {
-          // The order of execution is important
-          stop()
-          unsubscribe()
-        }
+        deps.debug$.pipe(takeUntil(stop$)).subscribe({
+          next: debug,
+          complete: stop
+        })
       })
     )
-}
-
-/**
- * Stops the `program` with Debugger when `signal` Observable emits a value.
- * @since 0.5.4
- */
-export function withDebuggerWithStop<Model, Msg, Dom>(
-  program: ProgramWithDebugger<Model, Msg, Dom>,
-  signal: Observable<unknown>
-): ProgramWithDebugger<Model, Msg, Dom> {
-  const p = withStop(program, signal)
-
-  signal.subscribe(() => program.stop())
-
-  return { ...p, stop: program.stop }
 }

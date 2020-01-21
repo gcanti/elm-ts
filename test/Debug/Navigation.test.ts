@@ -13,9 +13,15 @@ historyM.createHashHistory.mockImplementation(H.createMockHistory(historyLog))
 // --- /Mocking
 
 import * as assert from 'assert'
+import { Subject } from 'rxjs'
 import { take } from 'rxjs/operators'
 import { Cmd, none } from '../../src/Cmd'
-import { programWithDebugger, programWithDebuggerWithFlags } from '../../src/Debug/Navigation'
+import {
+  programWithDebugger,
+  programWithDebuggerWithFlags,
+  programWithDebuggerWithFlagsWithStop,
+  programWithDebuggerWithStop
+} from '../../src/Debug/Navigation'
 import { DebugData } from '../../src/Debug/commons'
 import * as ConsoleDebugger from '../../src/Debug/console'
 import * as DevToolDebugger from '../../src/Debug/redux-devtool'
@@ -111,6 +117,41 @@ describe('Debug', () => {
     program.dispatch({ type: 'GoTo', path: '/d' })
   })
 
+  it('programWithDebuggerWithStop() should stop debugger when `stopDebuggerOn` emits a value', done => {
+    const signal = new Subject<any>()
+    const log: Array<DebugData<Model, Msg>> = []
+
+    // --- Trace only console debugger
+    jest.spyOn(ConsoleDebugger, 'consoleDebugger').mockReturnValueOnce(mockDebugger(log))
+
+    const program = programWithDebuggerWithStop(signal, locationToMsg, init, update, view)
+    const updates = run(program, _ => undefined)
+
+    updates.pipe(take(9)).subscribe({
+      complete: () => {
+        assert.strictEqual(log.length, 5)
+        assert.deepStrictEqual(log, [
+          [{ type: 'INIT' }, ''],
+          [{ type: 'MESSAGE', payload: { type: 'GoTo', path: '/a' } }, ''],
+          [{ type: 'MESSAGE', payload: { type: 'Route', path: '/a' } }, '/a'],
+          [{ type: 'MESSAGE', payload: { type: 'GoTo', path: '/b' } }, '/a'],
+          [{ type: 'MESSAGE', payload: { type: 'Route', path: '/b' } }, '/b']
+        ])
+
+        done()
+      }
+    })
+
+    program.dispatch({ type: 'GoTo', path: '/a' })
+    program.dispatch({ type: 'GoTo', path: '/b' })
+
+    // Emit stop signal and the other changes are bypassed
+    signal.next('stop me!')
+
+    program.dispatch({ type: 'GoTo', path: '/c' })
+    program.dispatch({ type: 'GoTo', path: '/d' })
+  })
+
   it('programWithDebuggerWithFlags() should return a function that returns a Program with a Debugger and flags on `init`', () => {
     const log: Array<DebugData<Model, Msg>> = []
 
@@ -133,6 +174,42 @@ describe('Debug', () => {
     })
 
     program.dispatch({ type: 'GoTo', path: '/a' })
+  })
+
+  it('programWithDebuggerWithFlagsWithStop() should stop debugger when `stopDebuggerOn` emits a value', done => {
+    const signal = new Subject<any>()
+    const log: Array<DebugData<Model, Msg>> = []
+
+    // --- Trace only console debugger
+    jest.spyOn(ConsoleDebugger, 'consoleDebugger').mockReturnValueOnce(mockDebugger(log))
+
+    const initWithFlags = (flag: string) => (_: history.Location): [Model, Cmd<Msg>] => [flag, none]
+    const program = programWithDebuggerWithFlagsWithStop(signal, locationToMsg, initWithFlags, update, view)('/start')
+    const updates = run(program, _ => undefined)
+
+    updates.pipe(take(9)).subscribe({
+      complete: () => {
+        assert.strictEqual(log.length, 5)
+        assert.deepStrictEqual(log, [
+          [{ type: 'INIT' }, '/start'],
+          [{ type: 'MESSAGE', payload: { type: 'GoTo', path: '/a' } }, '/start'],
+          [{ type: 'MESSAGE', payload: { type: 'Route', path: '/a' } }, '/a'],
+          [{ type: 'MESSAGE', payload: { type: 'GoTo', path: '/b' } }, '/a'],
+          [{ type: 'MESSAGE', payload: { type: 'Route', path: '/b' } }, '/b']
+        ])
+
+        done()
+      }
+    })
+
+    program.dispatch({ type: 'GoTo', path: '/a' })
+    program.dispatch({ type: 'GoTo', path: '/b' })
+
+    // Emit stop signal and the other changes are bypassed
+    signal.next('stop me!')
+
+    program.dispatch({ type: 'GoTo', path: '/c' })
+    program.dispatch({ type: 'GoTo', path: '/d' })
   })
 })
 

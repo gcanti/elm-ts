@@ -1,7 +1,13 @@
 import * as assert from 'assert'
+import { Subject } from 'rxjs'
 import { take } from 'rxjs/operators'
 import { Cmd, none } from '../../src/Cmd'
-import { programWithDebugger, programWithDebuggerWithFlags } from '../../src/Debug/Html'
+import {
+  programWithDebugger,
+  programWithDebuggerWithFlags,
+  programWithDebuggerWithFlagsWithStop,
+  programWithDebuggerWithStop
+} from '../../src/Debug/Html'
 import { DebugData } from '../../src/Debug/commons'
 import * as ConsoleDebugger from '../../src/Debug/console'
 import * as DevToolDebugger from '../../src/Debug/redux-devtool'
@@ -90,6 +96,39 @@ describe('Debug', () => {
     program.dispatch({ type: 'Inc' })
   })
 
+  it('programWithDebuggerWithStop() should stop debugger when `stopDebuggerOn` emits a value', done => {
+    const signal = new Subject<any>()
+    const log: Array<DebugData<Model, Msg>> = []
+
+    // --- Trace only console debugger
+    jest.spyOn(ConsoleDebugger, 'consoleDebugger').mockReturnValueOnce(mockDebugger(log))
+
+    const program = programWithDebuggerWithStop(signal, init, update, view)
+    const updates = run(program, _ => undefined)
+
+    updates.pipe(take(5)).subscribe({
+      complete: () => {
+        assert.strictEqual(log.length, 3)
+        assert.deepStrictEqual(log, [
+          [{ type: 'INIT' }, 0],
+          [{ type: 'MESSAGE', payload: { type: 'Inc' } }, 1],
+          [{ type: 'MESSAGE', payload: { type: 'Dec' } }, 0]
+        ])
+
+        done()
+      }
+    })
+
+    program.dispatch({ type: 'Inc' })
+    program.dispatch({ type: 'Dec' })
+
+    // Emit stop signal and the other changes are bypassed
+    signal.next('stop me!')
+
+    program.dispatch({ type: 'Inc' })
+    program.dispatch({ type: 'Inc' })
+  })
+
   it('programWithDebuggerWithFlags() should return a function that returns a Program with a Debugger and flags on `init`', done => {
     const log: Array<DebugData<Model, Msg>> = []
 
@@ -109,6 +148,40 @@ describe('Debug', () => {
       }
     })
 
+    program.dispatch({ type: 'Inc' })
+  })
+
+  it('programWithDebuggerWithStopWithFlags() should stop debugger when `stopDebuggerOn` emits a value', done => {
+    const signal = new Subject<any>()
+    const log: Array<DebugData<Model, Msg>> = []
+
+    // --- Trace only console debugger
+    jest.spyOn(ConsoleDebugger, 'consoleDebugger').mockReturnValueOnce(mockDebugger(log))
+
+    const initWithFlags = (v: number): [Model, Cmd<Msg>] => [v, none]
+    const program = programWithDebuggerWithFlagsWithStop(signal, initWithFlags, update, view)(10)
+    const updates = run(program, _ => undefined)
+
+    updates.pipe(take(5)).subscribe({
+      complete: () => {
+        assert.strictEqual(log.length, 3)
+        assert.deepStrictEqual(log, [
+          [{ type: 'INIT' }, 10],
+          [{ type: 'MESSAGE', payload: { type: 'Inc' } }, 11],
+          [{ type: 'MESSAGE', payload: { type: 'Dec' } }, 10]
+        ])
+
+        done()
+      }
+    })
+
+    program.dispatch({ type: 'Inc' })
+    program.dispatch({ type: 'Dec' })
+
+    // Emit stop signal and the other changes are bypassed
+    signal.next('stop me!')
+
+    program.dispatch({ type: 'Inc' })
     program.dispatch({ type: 'Inc' })
   })
 })

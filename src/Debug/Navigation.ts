@@ -31,21 +31,12 @@
  */
 
 import * as H from 'history'
-import { BehaviorSubject } from 'rxjs'
+import { BehaviorSubject, EMPTY, Observable } from 'rxjs'
 import { Cmd } from '../Cmd'
-import { Html } from '../Html'
+import { Html, Program } from '../Html'
 import { Location, program } from '../Navigation'
 import { Sub } from '../Sub'
-import { DebugData, DebuggerR, ProgramWithDebugger, debugInit, runDebugger, updateWithDebug } from './commons'
-
-// --- Re-exports
-export {
-  /**
-   * Stops the `program` with Debugger when `signal` Observable emits a value.
-   * @since 0.5.4
-   */
-  withDebuggerWithStop
-} from './commons'
+import { DebugData, DebuggerR, debugInit, runDebugger, updateWithDebug } from './commons'
 
 /**
  * Adds a debugging capability to a generic `Navigation` `Program`.
@@ -68,7 +59,7 @@ export {
  *   payload: Msg
  * }
  * ```
- * @since 0.5.4
+ * @since 0.5.3
  */
 export function programWithDebugger<Model, Msg, Dom>(
   locationToMessage: (location: Location) => Msg,
@@ -76,10 +67,25 @@ export function programWithDebugger<Model, Msg, Dom>(
   update: (msg: Msg, model: Model) => [Model, Cmd<Msg>],
   view: (model: Model) => Html<Dom, Msg>,
   subscriptions?: (model: Model) => Sub<Msg>
-): ProgramWithDebugger<Model, Msg, Dom> {
+): Program<Model, Msg, Dom> {
+  return programWithDebuggerWithStop(EMPTY, locationToMessage, init, update, view, subscriptions)
+}
+
+/**
+ * Same as `programWithDebugger()` but with an optional `stopDebuggerOn` parameter: the underlying debugger will stop when the `Observable` emits a value.
+ * @since 0.5.4
+ */
+export function programWithDebuggerWithStop<Model, Msg, Dom>(
+  stopDebuggerOn: Observable<unknown>,
+  locationToMessage: (location: Location) => Msg,
+  init: (location: Location) => [Model, Cmd<Msg>],
+  update: (msg: Msg, model: Model) => [Model, Cmd<Msg>],
+  view: (model: Model) => Html<Dom, Msg>,
+  subscriptions?: (model: Model) => Sub<Msg>
+): Program<Model, Msg, Dom> {
   const history = H.createHashHistory() // this is needed only to generate init model for debug$ :S
 
-  const Debugger = runDebugger<Model, Msg>(window)
+  const Debugger = runDebugger<Model, Msg>(window, stopDebuggerOn)
 
   const initModel = init(history.location)[0]
 
@@ -90,18 +96,18 @@ export function programWithDebugger<Model, Msg, Dom>(
   // --- Run the debugger
   // --- we need to make a type assertion for `dispatch` because we cannot change the intrinsic `msg` type of `program`;
   // --- otherwise `programWithDebugger` won't be usable as a transparent extension/substitution of `Html`'s programs
-  const unsubscribe = Debugger({
+  Debugger({
     debug$,
     init: initModel,
     dispatch: p.dispatch as DebuggerR<Model, Msg>['dispatch']
   })()
 
-  return { ...p, stop: unsubscribe }
+  return p
 }
 
 /**
  * Same as `programWithDebugger()` but with `Flags` that can be passed when the `Program` is created in order to manage initial values.
- * @since 0.5.4
+ * @since 0.5.3
  */
 export function programWithDebuggerWithFlags<Flags, Model, Msg, Dom>(
   locationToMessage: (location: Location) => Msg,
@@ -109,6 +115,22 @@ export function programWithDebuggerWithFlags<Flags, Model, Msg, Dom>(
   update: (msg: Msg, model: Model) => [Model, Cmd<Msg>],
   view: (model: Model) => Html<Dom, Msg>,
   subscriptions?: (model: Model) => Sub<Msg>
-): (flags: Flags) => ProgramWithDebugger<Model, Msg, Dom> {
+): (flags: Flags) => Program<Model, Msg, Dom> {
   return flags => programWithDebugger(locationToMessage, init(flags), update, view, subscriptions)
+}
+
+/**
+ * Same as `programWithDebuggerWithStop()` but with `Flags` that can be passed when the `Program` is created in order to manage initial values.
+ * @since 0.5.4
+ */
+export function programWithDebuggerWithFlagsWithStop<Flags, Model, Msg, Dom>(
+  stopDebuggerOn: Observable<unknown>,
+  locationToMessage: (location: Location) => Msg,
+  init: (flags: Flags) => (location: Location) => [Model, Cmd<Msg>],
+  update: (msg: Msg, model: Model) => [Model, Cmd<Msg>],
+  view: (model: Model) => Html<Dom, Msg>,
+  subscriptions?: (model: Model) => Sub<Msg>
+): (flags: Flags) => Program<Model, Msg, Dom> {
+  return flags =>
+    programWithDebuggerWithStop(stopDebuggerOn, locationToMessage, init(flags), update, view, subscriptions)
 }
