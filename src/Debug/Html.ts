@@ -63,38 +63,22 @@ export function programWithDebugger<Model, Msg, Dom>(
   view: (model: Model) => Html<Dom, Msg>,
   subscriptions?: (model: Model) => Sub<Msg>
 ): Program<Model, Msg, Dom> {
-  return programWithDebuggerWithStop(EMPTY, init, update, view, subscriptions)
+  return createProgram(EMPTY, init, update, view, subscriptions)
 }
 
 /**
- * Same as `programWithDebugger()` but with an optional `stopDebuggerOn` parameter: the underlying debugger will stop when the `Observable` emits a value.
+ * A function that requires an `Observable` and returns a `programWithDebugger()` function: the underlying debugger will stop when the `Observable` emits a value.
  * @since 0.5.4
  */
 export function programWithDebuggerWithStop<Model, Msg, Dom>(
-  stopDebuggerOn: Observable<unknown>,
-  init: [Model, Cmd<Msg>],
-  update: (msg: Msg, model: Model) => [Model, Cmd<Msg>],
-  view: (model: Model) => Html<Dom, Msg>,
-  subscriptions?: (model: Model) => Sub<Msg>
-): Program<Model, Msg, Dom> {
-  const Debugger = runDebugger<Model, Msg>(window, stopDebuggerOn)
-
-  const initModel = init[0]
-
-  const debug$ = new BehaviorSubject<DebugData<Model, Msg>>([debugInit(), initModel])
-
-  const p = program(init, updateWithDebug(debug$, update), view, subscriptions)
-
-  // --- Run the debugger
-  // --- we need to make a type assertion for `dispatch` because we cannot change the intrinsic `msg` type of `program`;
-  // --- otherwise `programWithDebugger` won't be usable as a transparent extension/substitution of `Html`'s programs
-  Debugger({
-    debug$,
-    init: initModel,
-    dispatch: p.dispatch as DebuggerR<Model, Msg>['dispatch']
-  })()
-
-  return p
+  stopDebuggerOn: Observable<unknown>
+): <S extends Model, M extends Msg, D extends Dom>(
+  init: [S, Cmd<M>],
+  update: (msg: M, model: S) => [S, Cmd<M>],
+  view: (model: S) => Html<D, M>,
+  subscriptions?: (model: S) => Sub<M>
+) => Program<S, M, D> {
+  return (init, update, view, subscriptions) => createProgram(stopDebuggerOn, init, update, view, subscriptions)
 }
 
 /**
@@ -114,12 +98,42 @@ export function programWithDebuggerWithFlags<Flags, Model, Msg, Dom>(
  * Same as `programWithDebuggerWithStop()` but with `Flags` that can be passed when the `Program` is created in order to manage initial values.
  * @since 0.5.4
  */
-export function programWithDebuggerWithFlagsWithStop<Flags, Model, Msg, Dom>(
+export function programWithDebuggerWithFlagsWithStop<Model, Msg, Dom>(
+  stopDebuggerOn: Observable<unknown>
+): <Flags, S extends Model, M extends Msg, D extends Dom>(
+  init: (flags: Flags) => [S, Cmd<M>],
+  update: (msg: M, model: S) => [S, Cmd<M>],
+  view: (model: S) => Html<D, M>,
+  subscriptions?: (model: S) => Sub<M>
+) => (flags: Flags) => Program<S, M, D> {
+  return (init, update, view, subscriptions) => flags =>
+    createProgram(stopDebuggerOn, init(flags), update, view, subscriptions)
+}
+
+// --- Internal
+function createProgram<Model, Msg, Dom>(
   stopDebuggerOn: Observable<unknown>,
-  init: (flags: Flags) => [Model, Cmd<Msg>],
+  init: [Model, Cmd<Msg>],
   update: (msg: Msg, model: Model) => [Model, Cmd<Msg>],
   view: (model: Model) => Html<Dom, Msg>,
   subscriptions?: (model: Model) => Sub<Msg>
-): (flags: Flags) => Program<Model, Msg, Dom> {
-  return flags => programWithDebuggerWithStop(stopDebuggerOn, init(flags), update, view, subscriptions)
+): Program<Model, Msg, Dom> {
+  const Debugger = runDebugger<Model, Msg>(window, stopDebuggerOn)
+
+  const initModel = init[0]
+
+  const debug$ = new BehaviorSubject<DebugData<Model, Msg>>([debugInit(), initModel])
+
+  const p = program(init, updateWithDebug<Model, Msg>(debug$, update), view, subscriptions)
+
+  // --- Run the debugger
+  // --- we need to make a type assertion for `dispatch` because we cannot change the intrinsic `msg` type of `program`;
+  // --- otherwise `programWithDebugger` won't be usable as a transparent extension/substitution of `Html`'s programs
+  Debugger({
+    debug$,
+    init: initModel,
+    dispatch: p.dispatch as DebuggerR<Model, Msg>['dispatch']
+  })()
+
+  return p
 }

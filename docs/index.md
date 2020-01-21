@@ -80,6 +80,51 @@ const main = program(component.locationToMsg, component.init, component.update, 
 React.run(main(component.flags), dom => render(dom, document.getElementById('app')!))
 ```
 
+## Stop the application
+
+If you need to stop the application for any reason, you can use the `withStop` combinator:
+
+```ts
+import { withStop } from 'elm-ts/lib/Html'
+import * as React from 'elm-ts/lib/React'
+import { render } from 'react-dom'
+import { fromEvent } from 'rxjs'
+import * as component from './examples/Counter'
+
+const stopSignal$ = fromEvent(document.getElementById('stop-btn'), 'click')
+
+const program = React.program(component.init, component.update, component.view)
+
+const main = withStop(program, stopSignal$)
+
+React.run(main, dom => render(dom, document.getElementById('app')!))
+```
+
+The combinator takes a `Program` and stops consuming it when the provided `Observable` emits a value.
+
+In case you want to enable the debugger, you have to use some specific functions from the `Debug` sub-module:
+
+```ts
+// instead of `programWithDebuggerWithFlags`
+import { programWithDebuggerWithFlagsWithStop } from 'elm-ts/lib/Debug/Navigation'
+import { withStop } from 'elm-ts/lib/Html'
+import * as Navigation from 'elm-ts/lib/Navigation'
+import * as React from 'elm-ts/lib/React'
+import { render } from 'react-dom'
+import * as component from './examples/Navigation'
+
+const stopSignal$ = fromEvent(document.getElementById('stop-btn'), 'click')
+
+const program =
+  process.env.NODE_ENV === 'production'
+    ? Navigation.programWithFlags
+    : programWithDebuggerWithFlagsWithStop(stopSignal$)
+
+const main = withStop(program(component.locationToMsg, component.init, component.update, component.view), stopSignal$)
+
+React.run(main(component.flags), dom => render(dom, document.getElementById('app')!))
+```
+
 ## Examples
 
 - [Counter](examples/Counter.tsx)
