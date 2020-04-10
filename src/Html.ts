@@ -86,16 +86,17 @@ export function programWithFlags<Flags, Model, Msg, Dom>(
  * Stops the `program` when `signal` Observable emits a value.
  * @since 0.5.4
  */
-export function withStop<Model, Msg, Dom>(
-  program: Program<Model, Msg, Dom>,
+export function withStop(
   signal: Observable<unknown>
-): Program<Model, Msg, Dom> {
-  const platformProgram = platform.withStop(program, signal)
+): <Model, Msg, Dom>(program: Program<Model, Msg, Dom>) => Program<Model, Msg, Dom> {
+  return program => {
+    const platformProgram = platform.withStop(signal)(program)
 
-  return {
-    ...platformProgram,
+    return {
+      ...platformProgram,
 
-    html$: program.html$.pipe(takeUntil(signal))
+      html$: program.html$.pipe(takeUntil(signal))
+    }
   }
 }
 
