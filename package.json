@@ -33,9 +33,8 @@
   "scripts": {
     "check": "tsc -p .",
     "lint": "tslint -p . -t verbose",
-    "jest": "jest --ci --coverage",
     "pretest": "npm run check && npm run lint",
-    "test": "npm run jest",
+    "test": "jest",
     "posttest": "npm run docs",
     "prebuild": "rm -rf ./lib ./es6",
     "build": "tsc -p ./tsconfig.build.json && tsc -p ./tsconfig.build-es6.json",
@@ -91,6 +90,7 @@
       }
     },
     "bail": true,
+    "collectCoverage": true,
     "coveragePathIgnorePatterns": [
       "<rootDir>/test/",
       "<rootDir>/node_modules/"
