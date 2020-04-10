@@ -73,7 +73,7 @@ describe('Html', () => {
     const views: H.View[] = []
     const cmds: Array<Task<Option<H.Msg>>> = []
     const subs: H.Msg[] = []
-    const { sub$, html$, cmd$, dispatch } = withStop(program(H.init, H.update, H.view, H.subscriptions), signal)
+    const { sub$, html$, cmd$, dispatch } = withStop(signal)(program(H.init, H.update, H.view, H.subscriptions))
 
     cmd$.subscribe(v => cmds.push(v))
     html$.subscribe(v => views.push(v))
@@ -135,7 +135,7 @@ describe('Html', () => {
         renderings.push(`<${dom.tag}>${dom.text}</${dom.tag}>`)
       }
       const view = (model: H.Model) => H.span(model.x)
-      const p = withStop(program(H.init, H.update, view, H.subscriptions), signal)
+      const p = withStop(signal)(program(H.init, H.update, view, H.subscriptions))
 
       run(p, renderer)
 

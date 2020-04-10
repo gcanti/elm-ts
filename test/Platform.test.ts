@@ -90,7 +90,7 @@ describe('Platform', () => {
     const models: Model[] = []
     const cmds: Array<Task<Option<Msg>>> = []
     const subs: Msg[] = []
-    const { model$, cmd$, sub$, dispatch } = withStop(program(init, update, subscriptions), signal)
+    const { model$, cmd$, sub$, dispatch } = withStop(signal)(program(init, update, subscriptions))
 
     cmd$.subscribe(v => cmds.push(v))
     model$.subscribe(v => models.push(v))
@@ -149,7 +149,7 @@ describe('Platform', () => {
       // setup
       const signal = new Subject<any>()
       const models: Model[] = []
-      const p = withStop(program(init, update, subscriptions), signal)
+      const p = withStop(signal)(program(init, update, subscriptions))
       p.model$.subscribe(model => models.push(model))
 
       // run

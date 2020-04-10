@@ -111,7 +111,9 @@ Stops the `program` when `signal` Observable emits a value.
 **Signature**
 
 ```ts
-export function withStop<Model, Msg>(program: Program<Model, Msg>, signal: Observable<unknown>): Program<Model, Msg> { ... }
+export function withStop(
+  signal: Observable<unknown>
+): <Model, Msg>(program: Program<Model, Msg>) => Program<Model, Msg> { ... }
 ```
 
 Added in v0.5.4
