@@ -95,7 +95,7 @@ const stopSignal$ = fromEvent(document.getElementById('stop-btn'), 'click')
 
 const program = React.program(component.init, component.update, component.view)
 
-const main = withStop(program, stopSignal$)
+const main = withStop(stopSignal$)(program)
 
 React.run(main, dom => render(dom, document.getElementById('app')!))
 ```
@@ -120,7 +120,7 @@ const program =
     ? Navigation.programWithFlags
     : programWithDebuggerWithFlagsWithStop(stopSignal$)
 
-const main = withStop(program(component.locationToMsg, component.init, component.update, component.view), stopSignal$)
+const main = withStop(stopSignal$)(program(component.locationToMsg, component.init, component.update, component.view))
 
 React.run(main(component.flags), dom => render(dom, document.getElementById('app')!))
 ```
