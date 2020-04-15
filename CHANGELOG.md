@@ -13,6 +13,11 @@
 **Note**: Gaps between patch versions are faulty/broken releases. **Note**: A feature tagged as Experimental is in a
 high state of flux, you're at risk of it changing without notice.
 
+## 0.5.4
+
+- **New Feature**
+  - Stop/unsubscribe application (@StefanoMagrassi)
+
 ## 0.5.3
 
 - **New Feature**
