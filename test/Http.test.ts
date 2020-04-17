@@ -21,16 +21,17 @@ describe('Http', () => {
     })
 
     it('should fetch a valid url', async () => {
-      server.respondWith('GET', 'http://example.com/test', [200, {}, JSON.stringify('test')])
+      server.respondWith('GET', 'http://example.com/test', [200, {}, JSON.stringify({ a: 'test' })])
 
-      const request = Http.get('http://example.com/test', fromCodec(t.string))
+      const request = Http.get('http://example.com/test', fromCodec(t.type({ a: t.string })))
       const result = await Http.toTask(request)()
 
-      assert.deepStrictEqual(result, E.right('test'))
+      assert.deepStrictEqual(result, E.right({ a: 'test' }))
     })
 
     it('should validate the payload', async () => {
-      server.respondWith('GET', 'http://example.com/test', [200, {}, JSON.stringify('test')])
+      const body = JSON.stringify({ a: 'test' })
+      server.respondWith('GET', 'http://example.com/test', [200, {}, body])
 
       const request = Http.get('http://example.com/test', fromCodec(t.number))
       const result = await Http.toTask(request)()
@@ -39,12 +40,12 @@ describe('Http', () => {
         result,
         E.left({
           _tag: 'BadPayload',
-          value: 'Invalid value "test" supplied to : number',
+          value: 'Invalid value {"a":"test"} supplied to : number',
           response: {
             url: 'http://example.com/test',
             status: { code: 200, message: '' },
             headers: {},
-            body: 'test'
+            body
           }
         })
       )
@@ -60,12 +61,24 @@ describe('Http', () => {
     })
 
     it('should handle bad responses', async () => {
-      server.respondWith('GET', 'http://example.com/test', [500, {}, JSON.stringify('bad response')])
+      const body = JSON.stringify({ error: 'bad response' })
+      server.respondWith('GET', 'http://example.com/test', [500, {}, body])
 
       const request = Http.get('http://example.com/test', fromCodec(t.string))
       const result = await Http.toTask(request)()
 
-      assert.deepStrictEqual(result, E.left({ _tag: 'BadStatus', response: 'bad response' }))
+      assert.deepStrictEqual(
+        result,
+        E.left({
+          _tag: 'BadStatus',
+          response: {
+            url: 'http://example.com/test',
+            status: { code: 500, message: '' },
+            headers: {},
+            body
+          }
+        })
+      )
     })
 
     it('should handle a timeout', done => {
@@ -112,23 +125,32 @@ describe('Http', () => {
     })
 
     it('should handle a parsing error', async () => {
+      const body = '{bad:"test"}'
+
       server.respondWith('GET', 'http://example.com/test', xhr => {
         // This hack is needed in order to avoid JSON parsing of the response body by sinon fake server
         // and consequent error swallowing
         const tmp: any = xhr
         tmp.responseType = ''
 
-        xhr.respond(200, {}, '{bad:"test"}')
+        xhr.respond(200, {}, body)
       })
 
       const request = Http.get('http://example.com/test', fromCodec(t.unknown))
       const result = await Http.toTask(request)()
 
-      // server.restore()
-
       assert.deepStrictEqual(
         result,
-        E.left({ _tag: 'BadPayload', value: 'Unexpected token b in JSON at position 1', response: undefined })
+        E.left({
+          _tag: 'BadPayload',
+          value: 'Unexpected token b in JSON at position 1',
+          response: {
+            url: 'http://example.com/test',
+            status: { code: 200, message: '' },
+            headers: {},
+            body
+          }
+        })
       )
     })
   })
@@ -145,23 +167,24 @@ describe('Http', () => {
     })
 
     it('should request an http call and return a Cmd - OK', done => {
-      server.respondWith('GET', 'http://example.com/test', [200, {}, JSON.stringify('test')])
+      server.respondWith('GET', 'http://example.com/test', [200, {}, JSON.stringify({ a: 'test' })])
 
       const request = Http.send(E.fold(msg, msg))
 
-      const cmd = request(Http.get('http://example.com/test', fromCodec(t.string)))
+      const cmd = request(Http.get('http://example.com/test', fromCodec(t.type({ a: t.string }))))
 
       return cmd.subscribe(async to => {
         const result = await to()
 
-        assert.deepStrictEqual(result, some({ payload: 'test' }))
+        assert.deepStrictEqual(result, some({ payload: { a: 'test' } }))
 
         done()
       })
     })
 
     it('should request an http call and return a Cmd - KO', done => {
-      server.respondWith('GET', 'http://example.com/test', [500, {}, JSON.stringify('bad response')])
+      const body = JSON.stringify({ error: 'bad response' })
+      server.respondWith('GET', 'http://example.com/test', [500, {}, body])
 
       const request = Http.send(E.fold(msg, msg))
 
@@ -170,7 +193,20 @@ describe('Http', () => {
       return cmd.subscribe(async to => {
         const result = await to()
 
-        assert.deepStrictEqual(result, some({ payload: { _tag: 'BadStatus', response: 'bad response' } }))
+        assert.deepStrictEqual(
+          result,
+          some({
+            payload: {
+              _tag: 'BadStatus',
+              response: {
+                url: 'http://example.com/test',
+                status: { code: 500, message: '' },
+                headers: {},
+                body
+              }
+            }
+          })
+        )
 
         done()
       })
@@ -192,7 +228,7 @@ describe('Http', () => {
   })
 
   it('post() should return a POST Request', () => {
-    const body = JSON.stringify({ some: 'data' })
+    const body = { some: 'data' }
     const decoder = fromCodec(t.string)
 
     assert.deepStrictEqual(Http.post('http://example.com', body, decoder), {

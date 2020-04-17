@@ -44,17 +44,7 @@ export interface Request<A> {
 /**
  * @since 0.5.0
  */
-export type HttpError =
-  | { readonly _tag: 'BadUrl'; readonly value: string }
-  | { readonly _tag: 'Timeout' }
-  | { readonly _tag: 'NetworkError'; readonly value: string }
-  | { readonly _tag: 'BadStatus'; readonly response: Response<string> }
-  | { readonly _tag: 'BadPayload'; readonly value: string; readonly response: Response<string> }
-
-/**
- * @since 0.5.0
- */
-export type Response<Body> = {
+export interface Response<Body> {
   url: string
   status: {
     code: number
@@ -63,6 +53,16 @@ export type Response<Body> = {
   headers: Record<string, string>
   body: Body
 }
+
+/**
+ * @since 0.5.0
+ */
+export type HttpError =
+  | { readonly _tag: 'BadUrl'; readonly value: string }
+  | { readonly _tag: 'Timeout' }
+  | { readonly _tag: 'NetworkError'; readonly value: string }
+  | { readonly _tag: 'BadStatus'; readonly response: Response<string> }
+  | { readonly _tag: 'BadPayload'; readonly value: string; readonly response: Response<string> }
 
 /**
  * @since 0.5.0
@@ -118,7 +118,7 @@ function xhr<A>(req: Request<A>): Observable<Either<HttpError, A>> {
         decodeWith(req.expect)
       )
     ),
-    catchError((e: any): Observable<Either<HttpError, A>> => of(E.left(toHttpError(e))))
+    catchError((e: any): Observable<Either<HttpError, A>> => of(E.left(toHttpError(req, e))))
   )
 }
 
@@ -130,17 +130,14 @@ function toXHRRequest<A>(req: Request<A>): AjaxRequest {
       O.fold(() => 0, identity)
     ),
     async: true,
-    responseType: 'json'
+    responseType: 'text'
   }
 }
 
 function toResponse<A>(req: Request<A>): (resp: AjaxResponse) => Response<string> {
   return resp => ({
     url: req.url,
-    status: {
-      code: resp.status,
-      message: ''
-    },
+    status: { code: resp.status, message: '' },
     headers: req.headers,
     body: resp.response
   })
@@ -149,7 +146,9 @@ function toResponse<A>(req: Request<A>): (resp: AjaxResponse) => Response<string
 function decodeWith<A>(decoder: Decoder<A>): (resp: Response<string>) => Either<HttpError, A> {
   return resp =>
     pipe(
-      decoder(resp.body),
+      // By spec parsing json can only throw `SyntaxError`
+      E.parseJSON(resp.body, e => (e as SyntaxError).message),
+      E.chain(decoder),
       E.mapLeft(e => ({
         _tag: 'BadPayload',
         value: e,
@@ -158,24 +157,25 @@ function decodeWith<A>(decoder: Decoder<A>): (resp: Response<string>) => Either<
     )
 }
 
-function toHttpError(e: any): HttpError {
+function toHttpError<A>(req: Request<A>, e: any): HttpError {
   if (e instanceof AjaxTimeoutError) {
     return { _tag: 'Timeout' }
   }
 
-  // RxJS ajax method can throw errors of different types (not just `AjaxError`).
-  // These controls seem to cover every case.
   if (e instanceof AjaxError && e.status === 404) {
-    return { _tag: 'BadUrl', value: e.request.url! }
+    return { _tag: 'BadUrl', value: req.url }
   }
 
   if (e instanceof AjaxError && e.status !== 0) {
-    return { _tag: 'BadStatus', response: e.response }
-  }
-
-  // Parsing json in response could throw a `SyntaxError`.
-  if ('constructor' in e && 'name' in e.constructor && e.constructor.name === 'SyntaxError') {
-    return { _tag: 'BadPayload', value: e.message, response: e.response }
+    return {
+      _tag: 'BadStatus',
+      response: {
+        url: req.url,
+        status: { code: e.status, message: '' },
+        headers: req.headers,
+        body: e.response
+      }
+    }
   }
 
   return { _tag: 'NetworkError', value: e.message }
