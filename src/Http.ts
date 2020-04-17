@@ -118,7 +118,7 @@ function xhr<A>(req: Request<A>): Observable<Either<HttpError, A>> {
         decodeWith(req.expect)
       )
     ),
-    catchError((e: any): Observable<Either<HttpError, A>> => of(E.left(toHttpError(req, e))))
+    catchError((e: unknown): Observable<Either<HttpError, A>> => of(E.left(toHttpError(req, e))))
   )
 }
 
@@ -157,7 +157,7 @@ function decodeWith<A>(decoder: Decoder<A>): (resp: Response<string>) => Either<
     )
 }
 
-function toHttpError<A>(req: Request<A>, e: any): HttpError {
+function toHttpError<A>(req: Request<A>, e: unknown): HttpError {
   if (e instanceof AjaxTimeoutError) {
     return { _tag: 'Timeout' }
   }
@@ -178,5 +178,5 @@ function toHttpError<A>(req: Request<A>, e: any): HttpError {
     }
   }
 
-  return { _tag: 'NetworkError', value: e.message }
+  return { _tag: 'NetworkError', value: e instanceof Error ? e.message : '' }
 }

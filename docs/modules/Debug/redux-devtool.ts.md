@@ -35,7 +35,7 @@ export interface Connection<Model, Msg> {
   send(action: null, state: LiftedState<Model>): void
   send(action: Msg, state: Model): void
   init: (state: Model) => void
-  error: (message: any) => void
+  error: (message: unknown) => void
   unsubscribe: () => void
 }
 ```
