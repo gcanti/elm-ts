@@ -124,6 +124,22 @@ describe('Http', () => {
       requests[0].error()
     })
 
+    it('should handle a network error (generic non error)', async () => {
+      const oriXHR = XMLHttpRequest
+
+      // Make it throw a non `Error` in order to check the refinement
+      XMLHttpRequest = (function() {
+        throw 'booom!' // tslint:disable-line no-string-throw
+      } as unknown) as any
+
+      const request = Http.get('http://example.com/test', fromCodec(t.string))
+      const result = await Http.toTask(request)()
+
+      assert.deepStrictEqual(result, E.left({ _tag: 'NetworkError', value: '' }))
+
+      XMLHttpRequest = oriXHR
+    })
+
     it('should handle a parsing error', async () => {
       const body = '{bad:"test"}'
 

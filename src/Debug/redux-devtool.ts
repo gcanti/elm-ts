@@ -40,7 +40,7 @@ export interface Connection<Model, Msg> {
   send(action: null, state: LiftedState<Model>): void
   send(action: Msg, state: Model): void
   init: (state: Model) => void
-  error: (message: any) => void
+  error: (message: unknown) => void
   unsubscribe: () => void
 }
 
@@ -52,7 +52,7 @@ interface Start {
 
 interface Action {
   type: 'ACTION'
-  payload: any
+  payload: unknown
 }
 
 interface Monitor {
@@ -61,11 +61,11 @@ interface Monitor {
     type: 'JUMP_TO_STATE' | 'JUMP_TO_ACTION' | 'RESET' | 'ROLLBACK' | 'COMMIT' | 'IMPORT_STATE' | 'TOGGLE_ACTION'
     [k: string]: unknown
   }
-  [k: string]: any
+  [k: string]: unknown
 }
 
 interface LiftedState<Model> {
-  actionsById: Record<string, any>
+  actionsById: Record<string, unknown>
   computedStates: Array<{ state: Model }>
   currentStateIndex: number
   nextActionId: number
@@ -157,7 +157,7 @@ function handleIncomingMsg<Model, Msg>({
 
       case 'ACTION':
         return pipe(
-          E.parseJSON(msg.payload, E.toError),
+          E.parseJSON(String(msg.payload), E.toError),
           E.bimap(e => e.message, dispatchToApp)
         )
 
@@ -238,7 +238,7 @@ function handleActions<Model, Msg>({ connection }: DevToolHandlerR<Model, Msg>):
  */
 function parseJump<Model>(msg: Monitor): Either<string, Model> {
   return pipe(
-    E.parseJSON(msg.state, E.toError),
+    E.parseJSON(String(msg.state), E.toError),
     E.bimap(e => e.message, u => u as Model)
   )
 }
@@ -250,7 +250,7 @@ function parseJump<Model>(msg: Monitor): Either<string, Model> {
  */
 function parseRollback<Model>(msg: Monitor): Either<string, Model> {
   return pipe(
-    E.parseJSON(msg.state, E.toError),
+    E.parseJSON(String(msg.state), E.toError),
     E.bimap(e => e.message, u => u as Model)
   )
 }
@@ -275,11 +275,11 @@ function parseToggleAction<Model>(msg: Monitor): Either<string, [number, LiftedS
   const getId = pipe(
     msg.payload.id,
     E.fromNullable('TOGGLE_ACTION message has some bad payload...'),
-    E.map<any, number>(x => x)
+    E.map(x => x as number)
   )
 
   const parseState = pipe(
-    E.parseJSON(msg.state, E.toError),
+    E.parseJSON(String(msg.state), E.toError),
     E.bimap(e => e.message, u => u as LiftedState<Model>)
   )
 
