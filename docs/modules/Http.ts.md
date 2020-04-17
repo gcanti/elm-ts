@@ -17,9 +17,9 @@ Added in v0.5.0
 <h2 class="text-delta">Table of contents</h2>
 
 - [Request (interface)](#request-interface)
+- [Response (interface)](#response-interface)
 - [HttpError (type alias)](#httperror-type-alias)
 - [Method (type alias)](#method-type-alias)
-- [Response (type alias)](#response-type-alias)
 - [get (function)](#get-function)
 - [post (function)](#post-function)
 - [send (function)](#send-function)
@@ -40,6 +40,24 @@ export interface Request<A> {
   body?: unknown
   timeout: Option<number>
   withCredentials: boolean
+}
+```
+
+Added in v0.5.0
+
+# Response (interface)
+
+**Signature**
+
+```ts
+export interface Response<Body> {
+  url: string
+  status: {
+    code: number
+    message: string
+  }
+  headers: Record<string, string>
+  body: Body
 }
 ```
 
@@ -66,24 +84,6 @@ Added in v0.5.0
 
 ```ts
 export type Method = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE'
-```
-
-Added in v0.5.0
-
-# Response (type alias)
-
-**Signature**
-
-```ts
-export type Response<Body> = {
-  url: string
-  status: {
-    code: number
-    message: string
-  }
-  headers: Record<string, string>
-  body: Body
-}
 ```
 
 Added in v0.5.0

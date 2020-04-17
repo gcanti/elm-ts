@@ -13,6 +13,11 @@
 **Note**: Gaps between patch versions are faulty/broken releases. **Note**: A feature tagged as Experimental is in a
 high state of flux, you're at risk of it changing without notice.
 
+## 0.5.5
+
+- **Bug Fix:**
+  - fix `response` for `BadStatus` error in order to comply with `Response` type (@StefanoMagrassi)
+
 ## 0.5.4
 
 - **New Feature**
