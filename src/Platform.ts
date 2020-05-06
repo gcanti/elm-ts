@@ -59,7 +59,10 @@ export function program<Model, Msg>(
     distinctUntilChanged()
   )
 
-  const sub$ = model$.pipe(switchMap(model => subscriptions(model)))
+  const sub$ = model$.pipe(
+    startWith(init[0]), // This is needed to avoid swallowing of initial model in some situations
+    switchMap(model => subscriptions(model))
+  )
 
   return { dispatch, cmd$, sub$, model$ }
 }
