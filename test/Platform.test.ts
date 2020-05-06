@@ -5,7 +5,7 @@ import { Task, task } from 'fp-ts/lib/Task'
 import { Subject } from 'rxjs'
 import { Cmd, none } from '../src/Cmd'
 import { program, programWithFlags, run, withStop } from '../src/Platform'
-import { Model, Msg, delayedAssert, init, subscriptions, update } from './_helpers'
+import { Model, Msg, delayedAssert, init, initWithCmd, subscriptions, update } from './_helpers'
 
 const sequenceTask = array.sequence(task)
 
@@ -143,6 +143,42 @@ describe('Platform', () => {
           { x: 'foo' }
         ])
       })
+    })
+
+    it('should run the Program with initial Model and Cmds', () => {
+      // setup
+      const models: Model[] = []
+      const p = program(initWithCmd, update, subscriptions)
+      p.model$.subscribe(model => models.push(model))
+
+      // run
+      run(p)
+
+      // dispatch
+      // --- setTimeout in order to simulate a real application use
+      const to = setTimeout(() => {
+        p.dispatch({ type: 'FOO' })
+        p.dispatch({ type: 'SUB' })
+        p.dispatch({ type: 'BAR' })
+        p.dispatch({ type: 'DO-THE-THING!' })
+
+        clearTimeout(to)
+      }, 50)
+
+      // assert
+      return delayedAssert(() => {
+        assert.deepStrictEqual(models, [
+          { x: 'init' },
+          { x: 'foo' },
+          { x: 'bar' },
+          { x: 'foo' },
+          { x: 'foo' },
+          { x: 'sub' },
+          { x: 'listen' },
+          { x: 'bar' },
+          { x: 'foo' }
+        ])
+      }, 100)
     })
 
     it('should stop the Program when signal is emitted', () => {

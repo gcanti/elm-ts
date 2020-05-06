@@ -101,6 +101,7 @@ describe('Html', () => {
 
   describe('run()', () => {
     it('should run the Program', () => {
+      // setup
       const renderings: string[] = []
       const renderer = (dom: H.SimplerDom) => {
         renderings.push(`<${dom.tag}>${dom.text}</${dom.tag}>`)
@@ -108,13 +109,16 @@ describe('Html', () => {
       const view = (model: H.Model) => H.span(model.x)
       const p = program(H.init, H.update, view, H.subscriptions)
 
+      // run
       run(p, renderer)
 
+      // dispatch
       p.dispatch({ type: 'FOO' })
       p.dispatch({ type: 'SUB' })
       p.dispatch({ type: 'BAR' })
       p.dispatch({ type: 'DO-THE-THING!' })
 
+      // assert
       return H.delayedAssert(() => {
         assert.deepStrictEqual(renderings, [
           '<span></span>',
@@ -127,7 +131,47 @@ describe('Html', () => {
       })
     })
 
+    it('should run the Program with initial Model and Cmds', () => {
+      // setup
+      const renderings: string[] = []
+      const renderer = (dom: H.SimplerDom) => {
+        renderings.push(`<${dom.tag}>${dom.text}</${dom.tag}>`)
+      }
+      const view = (model: H.Model) => H.span(model.x)
+      const p = program(H.initWithCmd, H.update, view, H.subscriptions)
+
+      // run
+      run(p, renderer)
+
+      // dispatch
+      // --- setTimeout in order to simulate a real application use
+      const to = setTimeout(() => {
+        p.dispatch({ type: 'FOO' })
+        p.dispatch({ type: 'SUB' })
+        p.dispatch({ type: 'BAR' })
+        p.dispatch({ type: 'DO-THE-THING!' })
+
+        clearTimeout(to)
+      }, 50)
+
+      // assert
+      return H.delayedAssert(() => {
+        assert.deepStrictEqual(renderings, [
+          '<span>init</span>',
+          '<span>foo</span>',
+          '<span>bar</span>',
+          '<span>foo</span>',
+          '<span>foo</span>',
+          '<span>sub</span>',
+          '<span>listen</span>',
+          '<span>bar</span>',
+          '<span>foo</span>'
+        ])
+      }, 100)
+    })
+
     it('should stop the Program when signal is emitted', () => {
+      // setup
       const signal = new Subject<any>()
 
       const renderings: string[] = []
@@ -137,8 +181,10 @@ describe('Html', () => {
       const view = (model: H.Model) => H.span(model.x)
       const p = withStop(signal)(program(H.init, H.update, view, H.subscriptions))
 
+      // run
       run(p, renderer)
 
+      // dispatch
       p.dispatch({ type: 'FOO' })
       p.dispatch({ type: 'SUB' })
       p.dispatch({ type: 'BAR' })
@@ -152,6 +198,7 @@ describe('Html', () => {
       p.dispatch({ type: 'BAR' })
       p.dispatch({ type: 'DO-THE-THING!' })
 
+      // assert
       return H.delayedAssert(() => {
         assert.deepStrictEqual(renderings, [
           '<span></span>',

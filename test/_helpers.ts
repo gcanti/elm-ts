@@ -13,6 +13,11 @@ export interface Model {
 
 export const init: [Model, cmd.Cmd<Msg>] = [{ x: '' }, cmd.none]
 
+export const initWithCmd: [Model, cmd.Cmd<Msg>] = [
+  { x: 'init' },
+  cmd.batch<Msg>([cmd.of({ type: 'FOO' }), cmd.of({ type: 'DO-THE-THING!' }), cmd.of({ type: 'BAR' })])
+]
+
 // --- Messages
 export type Msg = { type: 'FOO' } | { type: 'BAR' } | { type: 'DO-THE-THING!' } | { type: 'SUB' } | { type: 'LISTEN' }
 

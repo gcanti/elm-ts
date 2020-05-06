@@ -2,7 +2,7 @@ import * as assert from 'assert'
 import * as React from 'react'
 import { Cmd, none } from '../src/Cmd'
 import { Html, map, program, programWithFlags, run } from '../src/React'
-import { Model, Msg, delayedAssert, init, subscriptions, update } from './_helpers'
+import { Model, Msg, delayedAssert, init, initWithCmd, subscriptions, update } from './_helpers'
 
 describe('React', () => {
   it('map() should map an Html<A> into an Html<msg>', () => {
@@ -70,19 +70,23 @@ describe('React', () => {
   })
 
   it('run() should run the React Program', () => {
+    // setup
     const collectRendering: Array<React.ReactElement<any>> = []
     const renderer = (dom: React.ReactElement<any>) => {
       collectRendering.push(dom)
     }
     const p = program(init, update, view, subscriptions)
 
+    // run
     run(p, renderer)
 
+    // dispatch
     p.dispatch({ type: 'FOO' })
     p.dispatch({ type: 'SUB' })
     p.dispatch({ type: 'BAR' })
     p.dispatch({ type: 'DO-THE-THING!' })
 
+    // assert
     return delayedAssert(() => {
       assert.deepStrictEqual(collectRendering.map(testRenderer), [
         { type: 'button', children: '' },
@@ -93,6 +97,44 @@ describe('React', () => {
         { type: 'button', children: 'foo' }
       ])
     })
+  })
+
+  it('run() should run the React Program with initial Model and Cmds', () => {
+    // setup
+    const collectRendering: Array<React.ReactElement<any>> = []
+    const renderer = (dom: React.ReactElement<any>) => {
+      collectRendering.push(dom)
+    }
+    const p = program(initWithCmd, update, view, subscriptions)
+
+    // run
+    run(p, renderer)
+
+    // dispatch
+    // --- setTimeout in order to simulate a real application use
+    const to = setTimeout(() => {
+      p.dispatch({ type: 'FOO' })
+      p.dispatch({ type: 'SUB' })
+      p.dispatch({ type: 'BAR' })
+      p.dispatch({ type: 'DO-THE-THING!' })
+
+      clearTimeout(to)
+    }, 50)
+
+    // assert
+    return delayedAssert(() => {
+      assert.deepStrictEqual(collectRendering.map(testRenderer), [
+        { type: 'button', children: 'init' },
+        { type: 'button', children: 'foo' },
+        { type: 'button', children: 'bar' },
+        { type: 'button', children: 'foo' },
+        { type: 'button', children: 'foo' },
+        { type: 'button', children: 'sub' },
+        { type: 'button', children: 'listen' },
+        { type: 'button', children: 'bar' },
+        { type: 'button', children: 'foo' }
+      ])
+    }, 100)
   })
 })
 
