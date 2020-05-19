@@ -59,7 +59,7 @@ Added in v0.5.0
 **Signature**
 
 ```ts
-export const URI: "Decoder" = ...
+export const URI: "elm-ts/Decoder" = ...
 ```
 
 Added in v0.5.0
