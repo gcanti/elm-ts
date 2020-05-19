@@ -14,18 +14,18 @@ Added in v0.5.0
 
 <h2 class="text-delta">Table of contents</h2>
 
-- [consoleDebugger (function)](#consoledebugger-function)
+- [consoleDebugger](#consoledebugger)
 
 ---
 
-# consoleDebugger (function)
+# consoleDebugger
 
 **[UNSAFE]** Simple debugger that uses the standard browser's `console`
 
 **Signature**
 
 ```ts
-export function consoleDebugger<Model, Msg>(): Debugger<Model, Msg> { ... }
+export declare function consoleDebugger<Model, Msg>(): Debugger<Model, Msg>
 ```
 
 Added in v0.5.4

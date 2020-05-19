@@ -18,19 +18,19 @@ Added in v0.5.0
 
 - [Decoder (interface)](#decoder-interface)
 - [URI (type alias)](#uri-type-alias)
-- [URI (constant)](#uri-constant)
-- [decoder (constant)](#decoder-constant)
-- [left (constant)](#left-constant)
-- [orElse (constant)](#orelse-constant)
-- [right (constant)](#right-constant)
-- [alt (export)](#alt-export)
-- [ap (export)](#ap-export)
-- [apFirst (export)](#apfirst-export)
-- [apSecond (export)](#apsecond-export)
-- [chain (export)](#chain-export)
-- [chainFirst (export)](#chainfirst-export)
-- [flatten (export)](#flatten-export)
-- [map (export)](#map-export)
+- [URI](#uri)
+- [alt](#alt)
+- [ap](#ap)
+- [apFirst](#apfirst)
+- [apSecond](#apsecond)
+- [chain](#chain)
+- [chainFirst](#chainfirst)
+- [decoder](#decoder)
+- [flatten](#flatten)
+- [left](#left)
+- [map](#map)
+- [orElse](#orelse)
+- [right](#right)
 
 ---
 
@@ -54,132 +54,132 @@ export type URI = typeof URI
 
 Added in v0.5.0
 
-# URI (constant)
+# URI
 
 **Signature**
 
 ```ts
-export const URI: "elm-ts/Decoder" = ...
+export declare const URI: 'elm-ts/Decoder'
 ```
 
 Added in v0.5.0
 
-# decoder (constant)
+# alt
 
 **Signature**
 
 ```ts
-export const decoder: Monad1<URI> & Alternative1<URI> = ...
+export declare const alt: <A>(that: () => Decoder<A>) => (fa: Decoder<A>) => Decoder<A>
 ```
 
 Added in v0.5.0
 
-# left (constant)
+# ap
 
 **Signature**
 
 ```ts
-export const left: <A = ...
+export declare const ap: <A>(fa: Decoder<A>) => <B>(fab: Decoder<(a: A) => B>) => Decoder<B>
 ```
 
 Added in v0.5.0
 
-# orElse (constant)
+# apFirst
 
 **Signature**
 
 ```ts
-export const orElse: <A>(f: (e: string) => Decoder<A>) => (ma: Decoder<A>) => Decoder<A> = ...
+export declare const apFirst: <B>(fb: Decoder<B>) => <A>(fa: Decoder<A>) => Decoder<A>
 ```
 
 Added in v0.5.0
 
-# right (constant)
+# apSecond
 
 **Signature**
 
 ```ts
-export const right: <A>(a: A) => Decoder<A> = ...
+export declare const apSecond: <B>(fb: Decoder<B>) => <A>(fa: Decoder<A>) => Decoder<B>
 ```
 
 Added in v0.5.0
 
-# alt (export)
+# chain
 
 **Signature**
 
 ```ts
-<A>(that: () => Decoder<A>) => (fa: Decoder<A>) => Decoder<A>
+export declare const chain: <A, B>(f: (a: A) => Decoder<B>) => (ma: Decoder<A>) => Decoder<B>
 ```
 
 Added in v0.5.0
 
-# ap (export)
+# chainFirst
 
 **Signature**
 
 ```ts
-<A>(fa: Decoder<A>) => <B>(fab: Decoder<(a: A) => B>) => Decoder<B>
+export declare const chainFirst: <A, B>(f: (a: A) => Decoder<B>) => (ma: Decoder<A>) => Decoder<A>
 ```
 
 Added in v0.5.0
 
-# apFirst (export)
+# decoder
 
 **Signature**
 
 ```ts
-<B>(fb: Decoder<B>) => <A>(fa: Decoder<A>) => Decoder<A>
+export declare const decoder: Monad1<'elm-ts/Decoder'> & Alternative1<'elm-ts/Decoder'>
 ```
 
 Added in v0.5.0
 
-# apSecond (export)
+# flatten
 
 **Signature**
 
 ```ts
-<B>(fb: Decoder<B>) => <A>(fa: Decoder<A>) => Decoder<B>
+export declare const flatten: <A>(mma: Decoder<Decoder<A>>) => Decoder<A>
 ```
 
 Added in v0.5.0
 
-# chain (export)
+# left
 
 **Signature**
 
 ```ts
-<A, B>(f: (a: A) => Decoder<B>) => (ma: Decoder<A>) => Decoder<B>
+export declare const left: <A = never>(e: string) => Decoder<A>
 ```
 
 Added in v0.5.0
 
-# chainFirst (export)
+# map
 
 **Signature**
 
 ```ts
-<A, B>(f: (a: A) => Decoder<B>) => (ma: Decoder<A>) => Decoder<A>
+export declare const map: <A, B>(f: (a: A) => B) => (fa: Decoder<A>) => Decoder<B>
 ```
 
 Added in v0.5.0
 
-# flatten (export)
+# orElse
 
 **Signature**
 
 ```ts
-<A>(mma: Decoder<Decoder<A>>) => Decoder<A>
+export declare const orElse: <A>(f: (e: string) => Decoder<A>) => (ma: Decoder<A>) => Decoder<A>
 ```
 
 Added in v0.5.0
 
-# map (export)
+# right
 
 **Signature**
 
 ```ts
-<A, B>(f: (a: A) => B) => (fa: Decoder<A>) => Decoder<B>
+export declare const right: <A>(a: A) => Decoder<A>
 ```
 
 Added in v0.5.0

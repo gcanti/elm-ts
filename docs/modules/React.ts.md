@@ -17,10 +17,10 @@ Added in v0.5.0
 - [Dom (interface)](#dom-interface)
 - [Html (interface)](#html-interface)
 - [Program (interface)](#program-interface)
-- [map (function)](#map-function)
-- [program (function)](#program-function)
-- [programWithFlags (function)](#programwithflags-function)
-- [run (function)](#run-function)
+- [map](#map)
+- [program](#program)
+- [programWithFlags](#programwithflags)
+- [run](#run)
 
 ---
 
@@ -58,60 +58,60 @@ export interface Program<Model, Msg> extends html.Program<Model, Msg, Dom> {}
 
 Added in v0.5.0
 
-# map (function)
+# map
 
 `map()` is `Html.map()` with `Html` type constrained to the specialized version for `React`.
 
 **Signature**
 
 ```ts
-export function map<A, Msg>(f: (a: A) => Msg): (ha: Html<A>) => Html<Msg> { ... }
+export declare function map<A, Msg>(f: (a: A) => Msg): (ha: Html<A>) => Html<Msg>
 ```
 
 Added in v0.5.0
 
-# program (function)
+# program
 
 `program()` is `Html.program()` with `Html` type constrained to the specialized version for `React`.
 
 **Signature**
 
 ```ts
-export function program<Model, Msg>(
+export declare function program<Model, Msg>(
   init: [Model, Cmd<Msg>],
   update: (msg: Msg, model: Model) => [Model, Cmd<Msg>],
   view: (model: Model) => html.Html<Dom, Msg>,
   subscriptions?: (model: Model) => Sub<Msg>
-): Program<Model, Msg> { ... }
+): Program<Model, Msg>
 ```
 
 Added in v0.5.0
 
-# programWithFlags (function)
+# programWithFlags
 
 Same as `program()` but with `Flags` that can be passed when the `Program` is created in order to manage initial values.
 
 **Signature**
 
 ```ts
-export function programWithFlags<Flags, Model, Msg>(
+export declare function programWithFlags<Flags, Model, Msg>(
   init: (flags: Flags) => [Model, Cmd<Msg>],
   update: (msg: Msg, model: Model) => [Model, Cmd<Msg>],
   view: (model: Model) => html.Html<Dom, Msg>,
   subscriptions?: (model: Model) => Sub<Msg>
-): (flags: Flags) => Program<Model, Msg> { ... }
+): (flags: Flags) => Program<Model, Msg>
 ```
 
 Added in v0.5.0
 
-# run (function)
+# run
 
 `run()` is `Html.run()` with `dom` type constrained to the specialized version for `React`.
 
 **Signature**
 
 ```ts
-export function run<Model, Msg>(program: Program<Model, Msg>, renderer: html.Renderer<Dom>): Observable<Model> { ... }
+export declare function run<Model, Msg>(program: Program<Model, Msg>, renderer: html.Renderer<Dom>): Observable<Model>
 ```
 
 Added in v0.5.0

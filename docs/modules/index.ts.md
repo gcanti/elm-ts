@@ -12,104 +12,104 @@ Added in v0.5.0
 
 <h2 class="text-delta">Table of contents</h2>
 
-- [cmd (export)](#cmd-export)
-- [decode (export)](#decode-export)
-- [html (export)](#html-export)
-- [http (export)](#http-export)
-- [platform (export)](#platform-export)
-- [react (export)](#react-export)
-- [sub (export)](#sub-export)
-- [task (export)](#task-export)
-- [time (export)](#time-export)
+- [cmd](#cmd)
+- [decode](#decode)
+- [html](#html)
+- [http](#http)
+- [platform](#platform)
+- [react](#react)
+- [sub](#sub)
+- [task](#task)
+- [time](#time)
 
 ---
 
-# cmd (export)
+# cmd
 
 **Signature**
 
 ```ts
-typeof cmd
+export declare const cmd: typeof cmd
 ```
 
 Added in v0.5.0
 
-# decode (export)
+# decode
 
 **Signature**
 
 ```ts
-typeof decode
+export declare const decode: typeof decode
 ```
 
 Added in v0.5.0
 
-# html (export)
+# html
 
 **Signature**
 
 ```ts
-typeof html
+export declare const html: typeof html
 ```
 
 Added in v0.5.0
 
-# http (export)
+# http
 
 **Signature**
 
 ```ts
-typeof http
+export declare const http: typeof http
 ```
 
 Added in v0.5.0
 
-# platform (export)
+# platform
 
 **Signature**
 
 ```ts
-typeof platform
+export declare const platform: typeof platform
 ```
 
 Added in v0.5.0
 
-# react (export)
+# react
 
 **Signature**
 
 ```ts
-typeof react
+export declare const react: typeof react
 ```
 
 Added in v0.5.0
 
-# sub (export)
+# sub
 
 **Signature**
 
 ```ts
-typeof sub
+export declare const sub: typeof sub
 ```
 
 Added in v0.5.0
 
-# task (export)
+# task
 
 **Signature**
 
 ```ts
-typeof task
+export declare const task: typeof task
 ```
 
 Added in v0.5.0
 
-# time (export)
+# time
 
 **Signature**
 
 ```ts
-typeof time
+export declare const time: typeof time
 ```
 
 Added in v0.5.0

@@ -20,10 +20,10 @@ Added in v0.5.0
 - [Response (interface)](#response-interface)
 - [HttpError (type alias)](#httperror-type-alias)
 - [Method (type alias)](#method-type-alias)
-- [get (function)](#get-function)
-- [post (function)](#post-function)
-- [send (function)](#send-function)
-- [toTask (function)](#totask-function)
+- [get](#get)
+- [post](#post)
+- [send](#send)
+- [toTask](#totask)
 
 ---
 
@@ -88,44 +88,44 @@ export type Method = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE'
 
 Added in v0.5.0
 
-# get (function)
+# get
 
 **Signature**
 
 ```ts
-export function get<A>(url: string, decoder: Decoder<A>): Request<A> { ... }
+export declare function get<A>(url: string, decoder: Decoder<A>): Request<A>
 ```
 
 Added in v0.5.0
 
-# post (function)
+# post
 
 **Signature**
 
 ```ts
-export function post<A>(url: string, body: unknown, decoder: Decoder<A>): Request<A> { ... }
+export declare function post<A>(url: string, body: unknown, decoder: Decoder<A>): Request<A>
 ```
 
 Added in v0.5.0
 
-# send (function)
+# send
 
 Executes as `Cmd` the provided call to remote resource, mapping result to a `Msg`.
 
 **Signature**
 
 ```ts
-export function send<A, Msg>(f: (e: Either<HttpError, A>) => Msg): (req: Request<A>) => Cmd<Msg> { ... }
+export declare function send<A, Msg>(f: (e: Either<HttpError, A>) => Msg): (req: Request<A>) => Cmd<Msg>
 ```
 
 Added in v0.5.0
 
-# toTask (function)
+# toTask
 
 **Signature**
 
 ```ts
-export function toTask<A>(req: Request<A>): TaskEither<HttpError, A> { ... }
+export declare function toTask<A>(req: Request<A>): TaskEither<HttpError, A>
 ```
 
 Added in v0.5.0

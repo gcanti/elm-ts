@@ -23,10 +23,10 @@ Added in v0.5.0
 - [DebugData (type alias)](#debugdata-type-alias)
 - [Global (type alias)](#global-type-alias)
 - [MsgWithDebug (type alias)](#msgwithdebug-type-alias)
-- [debugInit (function)](#debuginit-function)
-- [debugMsg (function)](#debugmsg-function)
-- [runDebugger (function)](#rundebugger-function)
-- [updateWithDebug (function)](#updatewithdebug-function)
+- [debugInit](#debuginit)
+- [debugMsg](#debugmsg)
+- [runDebugger](#rundebugger)
+- [updateWithDebug](#updatewithdebug)
 
 ---
 
@@ -147,31 +147,31 @@ export type MsgWithDebug<Model, Msg> =
 
 Added in v0.5.0
 
-# debugInit (function)
+# debugInit
 
 Creates a `DebugInit`
 
 **Signature**
 
 ```ts
-export const debugInit = (): DebugInit => ...
+export declare const debugInit: () => DebugInit
 ```
 
 Added in v0.5.0
 
-# debugMsg (function)
+# debugMsg
 
 Creates a `DebugMsg`
 
 **Signature**
 
 ```ts
-export const debugMsg = <Msg>(payload: Msg): DebugMsg<Msg> => ...
+export declare const debugMsg: <Msg>(payload: Msg) => DebugMsg<Msg>
 ```
 
 Added in v0.5.0
 
-# runDebugger (function)
+# runDebugger
 
 Checks which type of debugger can be used (standard `console` or _Redux DevTool Extension_) based on provided `window` and prepares the subscription to the "debug" stream
 
@@ -180,15 +180,15 @@ Checks which type of debugger can be used (standard `console` or _Redux DevTool 
 **Signature**
 
 ```ts
-export function runDebugger<Model, Msg>(
+export declare function runDebugger<Model, Msg>(
   win: Global,
   stop$: Observable<unknown>
-): (deps: DebuggerR<Model, Msg>) => IO<void> { ... }
+): (deps: DebuggerR<Model, Msg>) => IO<void>
 ```
 
 Added in v0.5.4
 
-# updateWithDebug (function)
+# updateWithDebug
 
 Adds debugging capability to the provided `update` function.
 
@@ -215,10 +215,10 @@ or applying a message with:
 **Signature**
 
 ```ts
-export function updateWithDebug<Model, Msg>(
+export declare function updateWithDebug<Model, Msg>(
   debug$: BehaviorSubject<DebugData<Model, Msg>>,
   update: (msg: Msg, model: Model) => [Model, Cmd<Msg>]
-): (msg: MsgWithDebug<Model, Msg>, model: Model) => [Model, Cmd<Msg>] { ... }
+): (msg: MsgWithDebug<Model, Msg>, model: Model) => [Model, Cmd<Msg>]
 ```
 
 Added in v0.5.3

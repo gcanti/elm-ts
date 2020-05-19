@@ -13,9 +13,14 @@
 **Note**: Gaps between patch versions are faulty/broken releases. **Note**: A feature tagged as Experimental is in a
 high state of flux, you're at risk of it changing without notice.
 
+## 0.5.6
+
+- **Internal**
+  - add a namespace to `Decoder`'s `URI` in order to avoid name collision (@StefanoMagrassi)
+
 ## 0.5.5
 
-- **Bug Fix:**
+- **Bug Fix**
   - fix `response` for `BadStatus` error in order to comply with `Response` type (@StefanoMagrassi)
 
 ## 0.5.4

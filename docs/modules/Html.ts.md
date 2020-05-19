@@ -20,11 +20,11 @@ Added in v0.5.0
 - [Html (interface)](#html-interface)
 - [Program (interface)](#program-interface)
 - [Renderer (interface)](#renderer-interface)
-- [map (function)](#map-function)
-- [program (function)](#program-function)
-- [programWithFlags (function)](#programwithflags-function)
-- [run (function)](#run-function)
-- [withStop (function)](#withstop-function)
+- [map](#map)
+- [program](#program)
+- [programWithFlags](#programwithflags)
+- [run](#run)
+- [withStop](#withstop)
 
 ---
 
@@ -73,19 +73,19 @@ export interface Renderer<Dom> {
 
 Added in v0.5.0
 
-# map (function)
+# map
 
 Maps a view which carries a message of type `A` into a view which carries a message of type `B`.
 
 **Signature**
 
 ```ts
-export function map<Dom, A, Msg>(f: (a: A) => Msg): (ha: Html<Dom, A>) => Html<Dom, Msg> { ... }
+export declare function map<Dom, A, Msg>(f: (a: A) => Msg): (ha: Html<Dom, A>) => Html<Dom, Msg>
 ```
 
 Added in v0.5.0
 
-# program (function)
+# program
 
 Returns a `Program` specialized for `Html`.
 
@@ -96,34 +96,34 @@ Underneath it uses `Platform.program()`.
 **Signature**
 
 ```ts
-export function program<Model, Msg, Dom>(
+export declare function program<Model, Msg, Dom>(
   init: [Model, Cmd<Msg>],
   update: (msg: Msg, model: Model) => [Model, Cmd<Msg>],
   view: (model: Model) => Html<Dom, Msg>,
   subscriptions: (model: Model) => Sub<Msg> = () => none
-): Program<Model, Msg, Dom> { ... }
+): Program<Model, Msg, Dom>
 ```
 
 Added in v0.5.0
 
-# programWithFlags (function)
+# programWithFlags
 
 Same as `program()` but with `Flags` that can be passed when the `Program` is created in order to manage initial values.
 
 **Signature**
 
 ```ts
-export function programWithFlags<Flags, Model, Msg, Dom>(
+export declare function programWithFlags<Flags, Model, Msg, Dom>(
   init: (flags: Flags) => [Model, Cmd<Msg>],
   update: (msg: Msg, model: Model) => [Model, Cmd<Msg>],
   view: (model: Model) => Html<Dom, Msg>,
   subscriptions?: (model: Model) => Sub<Msg>
-): (flags: Flags) => Program<Model, Msg, Dom> { ... }
+): (flags: Flags) => Program<Model, Msg, Dom>
 ```
 
 Added in v0.5.0
 
-# run (function)
+# run
 
 Runs the `Program`.
 
@@ -134,21 +134,24 @@ It subscribes to the views stream (`html$`) and runs `Renderer` for each new val
 **Signature**
 
 ```ts
-export function run<Model, Msg, Dom>(program: Program<Model, Msg, Dom>, renderer: Renderer<Dom>): Observable<Model> { ... }
+export declare function run<Model, Msg, Dom>(
+  program: Program<Model, Msg, Dom>,
+  renderer: Renderer<Dom>
+): Observable<Model>
 ```
 
 Added in v0.5.0
 
-# withStop (function)
+# withStop
 
 Stops the `program` when `signal` Observable emits a value.
 
 **Signature**
 
 ```ts
-export function withStop(
+export declare function withStop(
   signal: Observable<unknown>
-): <Model, Msg, Dom>(program: Program<Model, Msg, Dom>) => Program<Model, Msg, Dom> { ... }
+): <Model, Msg, Dom>(program: Program<Model, Msg, Dom>) => Program<Model, Msg, Dom>
 ```
 
 Added in v0.5.4

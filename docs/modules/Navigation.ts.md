@@ -17,9 +17,9 @@ Added in v0.5.0
 <h2 class="text-delta">Table of contents</h2>
 
 - [Location (type alias)](#location-type-alias)
-- [program (function)](#program-function)
-- [programWithFlags (function)](#programwithflags-function)
-- [push (function)](#push-function)
+- [program](#program)
+- [programWithFlags](#programwithflags)
+- [push](#push)
 
 ---
 
@@ -33,7 +33,7 @@ export type Location = H.Location
 
 Added in v0.5.0
 
-# program (function)
+# program
 
 Returns a `Program` specialized for `Navigation`.
 
@@ -44,43 +44,43 @@ Underneath it consumes `location$` stream (applying `locationToMsg()` on its val
 **Signature**
 
 ```ts
-export function program<Model, Msg, Dom>(
+export declare function program<Model, Msg, Dom>(
   locationToMessage: (location: Location) => Msg,
   init: (location: Location) => [Model, Cmd<Msg>],
   update: (msg: Msg, model: Model) => [Model, Cmd<Msg>],
   view: (model: Model) => html.Html<Dom, Msg>,
   subscriptions: (model: Model) => Sub<Msg> = () => none
-): html.Program<Model, Msg, Dom> { ... }
+): html.Program<Model, Msg, Dom>
 ```
 
 Added in v0.5.0
 
-# programWithFlags (function)
+# programWithFlags
 
 Same as `program()` but with `Flags` that can be passed when the `Program` is created in order to manage initial values.
 
 **Signature**
 
 ```ts
-export function programWithFlags<Flags, Model, Msg, Dom>(
+export declare function programWithFlags<Flags, Model, Msg, Dom>(
   locationToMessage: (location: Location) => Msg,
   init: (flags: Flags) => (location: Location) => [Model, Cmd<Msg>],
   update: (msg: Msg, model: Model) => [Model, Cmd<Msg>],
   view: (model: Model) => html.Html<Dom, Msg>,
   subscriptions: (model: Model) => Sub<Msg> = () => none
-): (flags: Flags) => html.Program<Model, Msg, Dom> { ... }
+): (flags: Flags) => html.Program<Model, Msg, Dom>
 ```
 
 Added in v0.5.0
 
-# push (function)
+# push
 
 Generates a `Cmd` that adds a new location to the history's list.
 
 **Signature**
 
 ```ts
-export function push<Msg>(url: string): Cmd<Msg> { ... }
+export declare function push<Msg>(url: string): Cmd<Msg>
 ```
 
 Added in v0.5.0

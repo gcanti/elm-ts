@@ -18,27 +18,27 @@ Added in v0.5.0
 
 <h2 class="text-delta">Table of contents</h2>
 
-- [~~programWithDebugger~~ (constant)](#programwithdebugger-constant)
-- [~~programWithDebuggerWithFlags~~ (constant)](#programwithdebuggerwithflags-constant)
+- [~~programWithDebuggerWithFlags~~](#programwithdebuggerwithflags)
+- [~~programWithDebugger~~](#programwithdebugger)
 
 ---
 
-# ~~programWithDebugger~~ (constant)
+# ~~programWithDebuggerWithFlags~~
 
 **Signature**
 
 ```ts
-export const programWithDebugger: typeof HtmlDebugger.programWithDebugger = ...
+export declare const programWithDebuggerWithFlags: typeof HtmlDebugger.programWithDebuggerWithFlags
 ```
 
 Added in v0.5.0
 
-# ~~programWithDebuggerWithFlags~~ (constant)
+# ~~programWithDebugger~~
 
 **Signature**
 
 ```ts
-export const programWithDebuggerWithFlags: typeof HtmlDebugger.programWithDebuggerWithFlags = ...
+export declare const programWithDebugger: typeof HtmlDebugger.programWithDebugger
 ```
 
 Added in v0.5.0

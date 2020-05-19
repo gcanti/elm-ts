@@ -18,10 +18,10 @@ Added in v0.5.0
 
 - [Dispatch (interface)](#dispatch-interface)
 - [Program (interface)](#program-interface)
-- [program (function)](#program-function)
-- [programWithFlags (function)](#programwithflags-function)
-- [run (function)](#run-function)
-- [withStop (function)](#withstop-function)
+- [program](#program)
+- [programWithFlags](#programwithflags)
+- [run](#run)
+- [withStop](#withstop)
 
 ---
 
@@ -54,7 +54,7 @@ export interface Program<Model, Msg> {
 
 Added in v0.5.0
 
-# program (function)
+# program
 
 `program()` is the real core of `elm-ts`.
 
@@ -65,32 +65,32 @@ Every time `dispatch()` is called a new value, computed by the `update()` functi
 **Signature**
 
 ```ts
-export function program<Model, Msg>(
+export declare function program<Model, Msg>(
   init: [Model, Cmd<Msg>],
   update: (msg: Msg, model: Model) => [Model, Cmd<Msg>],
   subscriptions: (model: Model) => Sub<Msg> = () => none
-): Program<Model, Msg> { ... }
+): Program<Model, Msg>
 ```
 
 Added in v0.5.0
 
-# programWithFlags (function)
+# programWithFlags
 
 Same as `program()` but with `Flags` that can be passed when the `Program` is created in order to manage initial values.
 
 **Signature**
 
 ```ts
-export function programWithFlags<Flags, Model, Msg>(
+export declare function programWithFlags<Flags, Model, Msg>(
   init: (flags: Flags) => [Model, Cmd<Msg>],
   update: (msg: Msg, model: Model) => [Model, Cmd<Msg>],
   subscriptions: (model: Model) => Sub<Msg> = () => none
-): (flags: Flags) => Program<Model, Msg> { ... }
+): (flags: Flags) => Program<Model, Msg>
 ```
 
 Added in v0.5.0
 
-# run (function)
+# run
 
 Runs the `Program`.
 
@@ -99,21 +99,21 @@ Because the program essentially is an object of streams, "running it" means subs
 **Signature**
 
 ```ts
-export function run<Model, Msg>(program: Program<Model, Msg>): Observable<Model> { ... }
+export declare function run<Model, Msg>(program: Program<Model, Msg>): Observable<Model>
 ```
 
 Added in v0.5.0
 
-# withStop (function)
+# withStop
 
 Stops the `program` when `signal` Observable emits a value.
 
 **Signature**
 
 ```ts
-export function withStop(
+export declare function withStop(
   signal: Observable<unknown>
-): <Model, Msg>(program: Program<Model, Msg>) => Program<Model, Msg> { ... }
+): <Model, Msg>(program: Program<Model, Msg>) => Program<Model, Msg>
 ```
 
 Added in v0.5.4

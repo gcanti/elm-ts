@@ -18,8 +18,8 @@ Added in v0.5.0
 
 - [Connection (interface)](#connection-interface)
 - [Extension (interface)](#extension-interface)
-- [getConnection (function)](#getconnection-function)
-- [reduxDevToolDebugger (function)](#reduxdevtooldebugger-function)
+- [getConnection](#getconnection)
+- [reduxDevToolDebugger](#reduxdevtooldebugger)
 
 ---
 
@@ -56,26 +56,26 @@ export interface Extension {
 
 Added in v0.5.0
 
-# getConnection (function)
+# getConnection
 
 Gets a _Redux DevTool Extension_ connection in case the extension is available
 
 **Signature**
 
 ```ts
-export function getConnection<Model, Msg>(global: Global): IO<Option<Connection<Model, Msg>>> { ... }
+export declare function getConnection<Model, Msg>(global: Global): IO<Option<Connection<Model, Msg>>>
 ```
 
 Added in v0.5.0
 
-# reduxDevToolDebugger (function)
+# reduxDevToolDebugger
 
 **[UNSAFE]** Debug through _Redux DevTool Extension_
 
 **Signature**
 
 ```ts
-export function reduxDevToolDebugger<Model, Msg>(connection: Connection<Model, Msg>): Debugger<Model, Msg> { ... }
+export declare function reduxDevToolDebugger<Model, Msg>(connection: Connection<Model, Msg>): Debugger<Model, Msg>
 ```
 
 Added in v0.5.4

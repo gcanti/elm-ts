@@ -41,14 +41,14 @@ Added in v0.5.3
 
 <h2 class="text-delta">Table of contents</h2>
 
-- [programWithDebugger (function)](#programwithdebugger-function)
-- [programWithDebuggerWithFlags (function)](#programwithdebuggerwithflags-function)
-- [programWithDebuggerWithFlagsWithStop (function)](#programwithdebuggerwithflagswithstop-function)
-- [programWithDebuggerWithStop (function)](#programwithdebuggerwithstop-function)
+- [programWithDebugger](#programwithdebugger)
+- [programWithDebuggerWithFlags](#programwithdebuggerwithflags)
+- [programWithDebuggerWithFlagsWithStop](#programwithdebuggerwithflagswithstop)
+- [programWithDebuggerWithStop](#programwithdebuggerwithstop)
 
 ---
 
-# programWithDebugger (function)
+# programWithDebugger
 
 Adds a debugging capability to a generic `Navigation` `Program`.
 
@@ -75,43 +75,43 @@ or applying a message with:
 **Signature**
 
 ```ts
-export function programWithDebugger<Model, Msg, Dom>(
+export declare function programWithDebugger<Model, Msg, Dom>(
   locationToMessage: (location: Location) => Msg,
   init: (location: Location) => [Model, Cmd<Msg>],
   update: (msg: Msg, model: Model) => [Model, Cmd<Msg>],
   view: (model: Model) => Html<Dom, Msg>,
   subscriptions?: (model: Model) => Sub<Msg>
-): Program<Model, Msg, Dom> { ... }
+): Program<Model, Msg, Dom>
 ```
 
 Added in v0.5.3
 
-# programWithDebuggerWithFlags (function)
+# programWithDebuggerWithFlags
 
 Same as `programWithDebugger()` but with `Flags` that can be passed when the `Program` is created in order to manage initial values.
 
 **Signature**
 
 ```ts
-export function programWithDebuggerWithFlags<Flags, Model, Msg, Dom>(
+export declare function programWithDebuggerWithFlags<Flags, Model, Msg, Dom>(
   locationToMessage: (location: Location) => Msg,
   init: (flags: Flags) => (location: Location) => [Model, Cmd<Msg>],
   update: (msg: Msg, model: Model) => [Model, Cmd<Msg>],
   view: (model: Model) => Html<Dom, Msg>,
   subscriptions?: (model: Model) => Sub<Msg>
-): (flags: Flags) => Program<Model, Msg, Dom> { ... }
+): (flags: Flags) => Program<Model, Msg, Dom>
 ```
 
 Added in v0.5.3
 
-# programWithDebuggerWithFlagsWithStop (function)
+# programWithDebuggerWithFlagsWithStop
 
 Same as `programWithDebuggerWithStop()` but with `Flags` that can be passed when the `Program` is created in order to manage initial values.
 
 **Signature**
 
 ```ts
-export function programWithDebuggerWithFlagsWithStop<Model, Msg, Dom>(
+export declare function programWithDebuggerWithFlagsWithStop<Model, Msg, Dom>(
   stopDebuggerOn: Observable<unknown>
 ): <Flags, S extends Model, M extends Msg, D extends Dom>(
   locationToMessage: (location: Location) => M,
@@ -119,19 +119,19 @@ export function programWithDebuggerWithFlagsWithStop<Model, Msg, Dom>(
   update: (msg: M, model: S) => [S, Cmd<M>],
   view: (model: S) => Html<D, M>,
   subscriptions?: (model: S) => Sub<M>
-) => (flags: Flags) => Program<S, M, D> { ... }
+) => (flags: Flags) => Program<S, M, D>
 ```
 
 Added in v0.5.4
 
-# programWithDebuggerWithStop (function)
+# programWithDebuggerWithStop
 
 A function that requires an `Observable` and returns a `programWithDebugger()` function: the underlying debugger will stop when the `Observable` emits a value.
 
 **Signature**
 
 ```ts
-export function programWithDebuggerWithStop<Model, Msg, Dom>(
+export declare function programWithDebuggerWithStop<Model, Msg, Dom>(
   stopDebuggerOn: Observable<unknown>
 ): <S extends Model, M extends Msg, D extends Dom>(
   locationToMessage: (location: Location) => M,
@@ -139,7 +139,7 @@ export function programWithDebuggerWithStop<Model, Msg, Dom>(
   update: (msg: M, model: S) => [S, Cmd<M>],
   view: (model: S) => Html<D, M>,
   subscriptions?: (model: S) => Sub<M>
-) => Program<S, M, D> { ... }
+) => Program<S, M, D>
 ```
 
 Added in v0.5.4
