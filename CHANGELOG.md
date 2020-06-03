@@ -13,6 +13,11 @@
 **Note**: Gaps between patch versions are faulty/broken releases. **Note**: A feature tagged as Experimental is in a
 high state of flux, you're at risk of it changing without notice.
 
+# 0.4.4
+
+- **Bug Fix**
+  - rename imported type to avoid conflict with local, #42 (@minedeljkovic)
+
 # 0.4.3
 
 - **Bug Fix**
