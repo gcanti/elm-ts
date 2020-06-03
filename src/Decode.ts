@@ -1,8 +1,8 @@
 import { Either } from 'fp-ts/lib/Either'
-import { Type, mixed } from 'io-ts'
+import { Type, mixed as ioMixed } from 'io-ts'
 import { failure } from 'io-ts/lib/PathReporter'
 
-export type mixed = mixed
+export type mixed = ioMixed
 
 export interface Decoder<a> {
   decode: (value: mixed) => Either<string, a>
