@@ -8,17 +8,17 @@ export type Model = number
 
 interface Up {
   type: 'Up'
-  group: 'A'
+  group: 'Counter'
 }
 
-const Up: Up = { type: 'Up', group: 'A' }
+const Up: Up = { type: 'Up', group: 'Counter' }
 
 interface Down {
   type: 'Down'
-  group: 'A'
+  group: 'Counter'
 }
 
-const Down: Down = { type: 'Down', group: 'A' }
+const Down: Down = { type: 'Down', group: 'Counter' }
 
 export type Msg = Up | Down
 

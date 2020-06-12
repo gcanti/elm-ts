@@ -12,18 +12,18 @@ export type Model = string
 
 interface AddChar {
   type: 'AddChar'
-  group: 'B'
+  group: 'StringBuilder'
   char: string
 }
 
-const AddChar = (char: string): AddChar => ({ type: 'AddChar', group: 'B', char })
+const AddChar = (char: string): AddChar => ({ type: 'AddChar', group: 'StringBuilder', char })
 
 interface Reset {
   type: 'Reset'
-  group: 'B'
+  group: 'StringBuilder'
 }
 
-const Reset: Reset = { type: 'Reset', group: 'B' }
+const Reset: Reset = { type: 'Reset', group: 'StringBuilder' }
 
 export type Msg = AddChar | Reset
 
