@@ -122,6 +122,7 @@ React.run(main(component.flags), dom => render(dom, document.getElementById('app
 
 ## Examples
 
+- [Composability](examples/Composability/index.tsx)
 - [Counter](examples/Counter.tsx)
 - [Labeled Checkboxes (with a sprinkle of functional optics)](examples/LabeledCheckboxes.tsx)
 - [Task, Time and Option](examples/Task.tsx)
