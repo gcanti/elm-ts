@@ -6,6 +6,14 @@ import * as cmd from '../src/Cmd'
 import { Html } from '../src/Html'
 import { Dispatch } from '../src/Platform'
 
+const withModel = (model: Model): [Model, cmd.Cmd<Msg>] => [model, cmd.none]
+
+const withEffect = (model: Model, cmd: cmd.Cmd<Msg>): [Model, cmd.Cmd<Msg>] => [model, cmd]
+
+const dispatchFoo = of(task.of(some<Msg>({ type: 'FOO' })))
+
+const dispatchBaz = of(task.of(some<Msg>({ type: 'BAZ' })))
+
 // --- Model
 export interface Model {
   x: string
@@ -13,16 +21,18 @@ export interface Model {
 
 export const init: [Model, cmd.Cmd<Msg>] = [{ x: '' }, cmd.none]
 
+export const initWithCmd: [Model, cmd.Cmd<Msg>] = [{ x: '' }, dispatchBaz]
+
 // --- Messages
-export type Msg = { type: 'FOO' } | { type: 'BAR' } | { type: 'DO-THE-THING!' } | { type: 'SUB' } | { type: 'LISTEN' }
+export type Msg =
+  | { type: 'FOO' }
+  | { type: 'BAR' }
+  | { type: 'BAZ' }
+  | { type: 'DO-THE-THING!' }
+  | { type: 'SUB' }
+  | { type: 'LISTEN' }
 
 // --- Update
-const withModel = (model: Model): [Model, cmd.Cmd<Msg>] => [model, cmd.none]
-
-const withEffect = (model: Model, cmd: cmd.Cmd<Msg>): [Model, cmd.Cmd<Msg>] => [model, cmd]
-
-const dispatchFoo = of(task.of(some<Msg>({ type: 'FOO' })))
-
 export function update(msg: Msg, model: Model): [Model, cmd.Cmd<Msg>] {
   switch (msg.type) {
     case 'FOO':
@@ -30,6 +40,9 @@ export function update(msg: Msg, model: Model): [Model, cmd.Cmd<Msg>] {
 
     case 'BAR':
       return withModel({ ...model, x: 'bar' })
+
+    case 'BAZ':
+      return withModel({ ...model, x: 'baz' })
 
     case 'DO-THE-THING!':
       return withEffect(model, dispatchFoo)
