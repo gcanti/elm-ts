@@ -5,7 +5,8 @@ import { Task, task } from 'fp-ts/lib/Task'
 import { Subject } from 'rxjs'
 import { Cmd, none } from '../src/Cmd'
 import { map, program, programWithFlags, run, withStop } from '../src/Html'
-import * as H from './_helpers'
+import * as App from './helpers/app'
+import { delayedAssert } from './helpers/utils'
 
 const sequenceTask = array.sequence(task)
 
@@ -13,9 +14,9 @@ describe('Html', () => {
   describe('map()', () => {
     it('should map an `Html<dom, A>` into an `Html<dom, B>`', () => {
       const state: string[] = []
-      const btn = H.button('A button')
-      const dispatch = (msg: H.Msg) => state.push(msg.type)
-      const m = map<H.Dom, H.Msg, H.Msg>(() => ({ type: 'BAR' as const }))
+      const btn = App.button('A button')
+      const dispatch = (msg: App.Msg) => state.push(msg.type)
+      const m = map<App.Dom, App.Msg, App.Msg>(() => ({ type: 'BAR' as const }))
 
       btn(dispatch).onclick()
       m(btn)(dispatch).onclick()
@@ -26,9 +27,9 @@ describe('Html', () => {
 
   describe('program()', () => {
     it('should return the Model/Cmd/Sub/Html streams and Dispatch function - no subscription', () => {
-      const collectSub$: H.Msg[] = []
-      const collectView$: H.View[] = []
-      const { dispatch, html$, sub$ } = program(H.init, H.update, H.view)
+      const collectSub$: App.Msg[] = []
+      const collectView$: App.View[] = []
+      const { dispatch, html$, sub$ } = program(App.init, App.update, App.view)
 
       html$.subscribe(v => collectView$.push(v))
       sub$.subscribe(v => collectSub$.push(v))
@@ -42,9 +43,9 @@ describe('Html', () => {
     })
 
     it('should return the Model/Cmd/Sub/Html streams and Dispatch function - with subscription', () => {
-      const collectView$: H.View[] = []
-      const collectSub$: H.Msg[] = []
-      const { sub$, html$, dispatch } = program(H.init, H.update, H.view, H.subscriptions)
+      const collectView$: App.View[] = []
+      const collectSub$: App.Msg[] = []
+      const { sub$, html$, dispatch } = program(App.init, App.update, App.view, App.subscriptions)
 
       html$.subscribe(v => collectView$.push(v))
       sub$.subscribe(v => collectSub$.push(v))
@@ -60,9 +61,9 @@ describe('Html', () => {
 
   describe('programWithFlags()', () => {
     it('should return a function that returns a program() with flags on `init`', () => {
-      const collectView$: H.View[] = []
-      const initWithFlags = (f: string): [H.Model, Cmd<H.Msg>] => [{ x: f }, none]
-      const withFlags = programWithFlags(initWithFlags, H.update, H.view, H.subscriptions)
+      const collectView$: App.View[] = []
+      const initWithFlags = (f: string): [App.Model, Cmd<App.Msg>] => [{ x: f }, none]
+      const withFlags = programWithFlags(initWithFlags, App.update, App.view, App.subscriptions)
       const { dispatch, html$ } = withFlags('start!')
 
       html$.subscribe(v => collectView$.push(v))
@@ -75,10 +76,12 @@ describe('Html', () => {
     it('should stop the Program when a signal is emitted', async () => {
       const signal = new Subject<any>()
 
-      const views: H.View[] = []
-      const cmds: Array<Task<Option<H.Msg>>> = []
-      const subs: H.Msg[] = []
-      const { sub$, html$, cmd$, dispatch } = withStop(signal)(program(H.init, H.update, H.view, H.subscriptions))
+      const views: App.View[] = []
+      const cmds: Array<Task<Option<App.Msg>>> = []
+      const subs: App.Msg[] = []
+      const { sub$, html$, cmd$, dispatch } = withStop(signal)(
+        program(App.init, App.update, App.view, App.subscriptions)
+      )
 
       cmd$.subscribe(v => cmds.push(v))
       html$.subscribe(v => views.push(v))
@@ -108,11 +111,11 @@ describe('Html', () => {
   describe('run()', () => {
     it('should run the Program', () => {
       const renderings: string[] = []
-      const renderer = (dom: H.Dom) => {
+      const renderer = (dom: App.Dom) => {
         renderings.push(`<${dom.tag}>${dom.text}</${dom.tag}>`)
       }
-      const view = (model: H.Model) => H.span(model.x)
-      const p = program(H.init, H.update, view, H.subscriptions)
+      const view = (model: App.Model) => App.span(model.x)
+      const p = program(App.init, App.update, view, App.subscriptions)
 
       run(p, renderer)
 
@@ -121,7 +124,7 @@ describe('Html', () => {
       p.dispatch({ type: 'BAR' })
       p.dispatch({ type: 'DO-THE-THING!' })
 
-      return H.delayedAssert(() => {
+      return delayedAssert(() => {
         assert.deepStrictEqual(renderings, [
           '<span></span>',
           '<span>foo</span>',
@@ -137,11 +140,11 @@ describe('Html', () => {
       const signal = new Subject<any>()
 
       const renderings: string[] = []
-      const renderer = (dom: H.Dom) => {
+      const renderer = (dom: App.Dom) => {
         renderings.push(`<${dom.tag}>${dom.text}</${dom.tag}>`)
       }
-      const view = (model: H.Model) => H.span(model.x)
-      const p = withStop(signal)(program(H.init, H.update, view, H.subscriptions))
+      const view = (model: App.Model) => App.span(model.x)
+      const p = withStop(signal)(program(App.init, App.update, view, App.subscriptions))
 
       run(p, renderer)
 
@@ -158,7 +161,7 @@ describe('Html', () => {
       p.dispatch({ type: 'BAR' })
       p.dispatch({ type: 'DO-THE-THING!' })
 
-      return H.delayedAssert(() => {
+      return delayedAssert(() => {
         assert.deepStrictEqual(renderings, [
           '<span></span>',
           '<span>foo</span>',

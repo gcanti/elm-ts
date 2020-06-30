@@ -1,15 +1,14 @@
-// --- Helpers
-import * as H from './_helpers'
-
 // --- Mocking `History` module - super tricky...
-import { mocked } from 'ts-jest/utils'
-jest.mock('history')
 import * as history from 'history'
-const historyM = mocked(history)
+import { mocked } from 'ts-jest/utils'
+import { createMockHistory } from './helpers/mock-history'
 
+jest.mock('history')
+
+const historyM = mocked(history)
 const log: string[] = []
 
-historyM.createHashHistory.mockImplementation(H.createMockHistory(log))
+historyM.createHashHistory.mockImplementation(createMockHistory(log))
 // --- /Mocking
 
 import * as assert from 'assert'
@@ -20,6 +19,7 @@ import { Cmd, none } from '../src/Cmd'
 import { Html } from '../src/Html'
 import { Location, program, programWithFlags, push } from '../src/Navigation'
 import { Sub } from '../src/Sub'
+import * as App from './helpers/app'
 
 beforeEach(() => {
   log.splice(0, log.length)
@@ -49,7 +49,7 @@ describe('Navigation', () => {
       const views: NavView[] = []
       const cmds: Array<T.Task<O.Option<NavMsg>>> = []
 
-      const { dispatch, html$, cmd$, sub$ } = program(locationToMsg, initWithLocation, navUpdate, H.view)
+      const { dispatch, html$, cmd$, sub$ } = program(locationToMsg, initWithLocation, navUpdate, App.view)
 
       cmd$.subscribe(v => cmds.push(v))
       html$.subscribe(v => views.push(v))
@@ -75,7 +75,13 @@ describe('Navigation', () => {
       const views: NavView[] = []
       const cmds: Array<T.Task<O.Option<NavMsg>>> = []
 
-      const { dispatch, html$, cmd$, sub$ } = program(locationToMsg, initWithLocation, navUpdate, H.view, subscriptions)
+      const { dispatch, html$, cmd$, sub$ } = program(
+        locationToMsg,
+        initWithLocation,
+        navUpdate,
+        App.view,
+        subscriptions
+      )
 
       cmd$.subscribe(v => cmds.push(v))
       html$.subscribe(v => views.push(v))
@@ -103,8 +109,8 @@ describe('Navigation', () => {
     it('programWithFlags() should return a function which returns a program() with flags on `init` - no subscription', () => {
       const subs: NavMsg[] = []
       const views: NavView[] = []
-      const initWithFlags = (f: string) => (_: Location): [H.Model, Cmd<NavMsg>] => [{ x: f }, none]
-      const withFlags = programWithFlags(locationToMsg, initWithFlags, navUpdate, H.view)
+      const initWithFlags = (f: string) => (_: Location): [App.Model, Cmd<NavMsg>] => [{ x: f }, none]
+      const withFlags = programWithFlags(locationToMsg, initWithFlags, navUpdate, App.view)
       const { dispatch, html$, sub$ } = withFlags('start!')
 
       html$.subscribe(v => views.push(v))
@@ -117,8 +123,8 @@ describe('Navigation', () => {
     it('programWithFlags() should return a function which returns a program() with flags on `init` - with subscription', () => {
       const subs: NavMsg[] = []
       const views: NavView[] = []
-      const initWithFlags = (f: string) => (_: Location): [H.Model, Cmd<NavMsg>] => [{ x: f }, none]
-      const withFlags = programWithFlags(locationToMsg, initWithFlags, navUpdate, H.view, subscriptions)
+      const initWithFlags = (f: string) => (_: Location): [App.Model, Cmd<NavMsg>] => [{ x: f }, none]
+      const withFlags = programWithFlags(locationToMsg, initWithFlags, navUpdate, App.view, subscriptions)
       const { dispatch, html$, sub$ } = withFlags('start!')
 
       html$.subscribe(v => views.push(v))
@@ -133,15 +139,15 @@ describe('Navigation', () => {
 })
 
 // --- Utilities
-type NavMsg = H.Msg | { type: 'GO_TO'; path: string }
-type NavView = Html<H.Dom, NavMsg>
+type NavMsg = App.Msg | { type: 'GO_TO'; path: string }
+type NavView = Html<App.Dom, NavMsg>
 
-function navUpdate(msg: NavMsg, model: H.Model): [H.Model, Cmd<NavMsg>] {
+function navUpdate(msg: NavMsg, model: App.Model): [App.Model, Cmd<NavMsg>] {
   if (msg.type === 'GO_TO') {
     return [model, push(msg.path)]
   }
 
-  return H.update(msg, model)
+  return App.update(msg, model)
 }
 
 function locationToMsg(l: Location): NavMsg {
@@ -150,10 +156,10 @@ function locationToMsg(l: Location): NavMsg {
   } as NavMsg
 }
 
-function initWithLocation(l: Location): [H.Model, Cmd<NavMsg>] {
+function initWithLocation(l: Location): [App.Model, Cmd<NavMsg>] {
   return [{ x: l.pathname }, none]
 }
 
-function subscriptions(m: H.Model): Sub<NavMsg> {
+function subscriptions(m: App.Model): Sub<NavMsg> {
   return m.x === 'sub' ? of<NavMsg>({ type: 'LISTEN' }) : EMPTY
 }
