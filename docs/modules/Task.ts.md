@@ -4,7 +4,7 @@ nav_order: 16
 parent: Modules
 ---
 
-# Task overview
+## Task overview
 
 Handles the execution of asynchronous effectful operations.
 
@@ -16,12 +16,15 @@ Added in v0.5.0
 
 <h2 class="text-delta">Table of contents</h2>
 
-- [attempt](#attempt)
-- [perform](#perform)
+- [utils](#utils)
+  - [attempt](#attempt)
+  - [perform](#perform)
 
 ---
 
-# attempt
+# utils
+
+## attempt
 
 Executes a `Task` that can fail as a `Cmd` mapping the result (`Either`) to a `Msg`.
 
@@ -33,7 +36,7 @@ export declare function attempt<E, A, Msg>(f: (e: Either<E, A>) => Msg): (task: 
 
 Added in v0.5.0
 
-# perform
+## perform
 
 Executes a `Task` as a `Cmd` mapping the result to a `Msg`.
 

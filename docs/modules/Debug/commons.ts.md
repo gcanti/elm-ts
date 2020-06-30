@@ -4,7 +4,7 @@ nav_order: 2
 parent: Modules
 ---
 
-# commons overview
+## commons overview
 
 Common utilities and type definitions for the `Debug` module.
 
@@ -14,23 +14,57 @@ Added in v0.5.0
 
 <h2 class="text-delta">Table of contents</h2>
 
-- [Debug (interface)](#debug-interface)
-- [DebugInit (interface)](#debuginit-interface)
-- [DebugMsg (interface)](#debugmsg-interface)
-- [Debugger (interface)](#debugger-interface)
-- [DebuggerR (interface)](#debuggerr-interface)
-- [DebugAction (type alias)](#debugaction-type-alias)
-- [DebugData (type alias)](#debugdata-type-alias)
-- [Global (type alias)](#global-type-alias)
-- [MsgWithDebug (type alias)](#msgwithdebug-type-alias)
-- [debugInit](#debuginit)
-- [debugMsg](#debugmsg)
-- [runDebugger](#rundebugger)
-- [updateWithDebug](#updatewithdebug)
+- [constructors](#constructors)
+  - [debugMsg](#debugmsg)
+- [constructos](#constructos)
+  - [debugInit](#debuginit)
+- [model](#model)
+  - [Debug (interface)](#debug-interface)
+  - [DebugAction (type alias)](#debugaction-type-alias)
+  - [DebugData (type alias)](#debugdata-type-alias)
+  - [DebugInit (interface)](#debuginit-interface)
+  - [DebugMsg (interface)](#debugmsg-interface)
+  - [Debugger (interface)](#debugger-interface)
+  - [DebuggerR (interface)](#debuggerr-interface)
+  - [Global (type alias)](#global-type-alias)
+  - [MsgWithDebug (type alias)](#msgwithdebug-type-alias)
+- [utils](#utils)
+  - [runDebugger](#rundebugger)
+  - [updateWithDebug](#updatewithdebug)
 
 ---
 
-# Debug (interface)
+# constructors
+
+## debugMsg
+
+Creates a `DebugMsg`
+
+**Signature**
+
+```ts
+export declare const debugMsg: <Msg>(payload: Msg) => DebugMsg<Msg>
+```
+
+Added in v0.5.0
+
+# constructos
+
+## debugInit
+
+Creates a `DebugInit`
+
+**Signature**
+
+```ts
+export declare const debugInit: () => DebugInit
+```
+
+Added in v0.5.0
+
+# model
+
+## Debug (interface)
 
 Defines a generic debugging function
 
@@ -44,7 +78,27 @@ export interface Debug<Model, Msg> {
 
 Added in v0.5.0
 
-# DebugInit (interface)
+## DebugAction (type alias)
+
+**Signature**
+
+```ts
+export type DebugAction<Msg> = DebugInit | DebugMsg<Msg>
+```
+
+Added in v0.5.0
+
+## DebugData (type alias)
+
+**Signature**
+
+```ts
+export type DebugData<Model, Msg> = [DebugAction<Msg>, Model]
+```
+
+Added in v0.5.0
+
+## DebugInit (interface)
 
 **Signature**
 
@@ -56,7 +110,7 @@ export interface DebugInit {
 
 Added in v0.5.0
 
-# DebugMsg (interface)
+## DebugMsg (interface)
 
 **Signature**
 
@@ -69,7 +123,7 @@ export interface DebugMsg<Msg> {
 
 Added in v0.5.0
 
-# Debugger (interface)
+## Debugger (interface)
 
 Defines a generic `Debugger`
 
@@ -86,7 +140,7 @@ export interface Debugger<Model, Msg> {
 
 Added in v0.5.4
 
-# DebuggerR (interface)
+## DebuggerR (interface)
 
 Defines the dependencies for a `Debugger` function.
 
@@ -102,27 +156,7 @@ export interface DebuggerR<Model, Msg> {
 
 Added in v0.5.0
 
-# DebugAction (type alias)
-
-**Signature**
-
-```ts
-export type DebugAction<Msg> = DebugInit | DebugMsg<Msg>
-```
-
-Added in v0.5.0
-
-# DebugData (type alias)
-
-**Signature**
-
-```ts
-export type DebugData<Model, Msg> = [DebugAction<Msg>, Model]
-```
-
-Added in v0.5.0
-
-# Global (type alias)
+## Global (type alias)
 
 **Signature**
 
@@ -132,7 +166,7 @@ export type Global = typeof window
 
 Added in v0.5.0
 
-# MsgWithDebug (type alias)
+## MsgWithDebug (type alias)
 
 Extends `Msg` with a special kind of message from Debugger
 
@@ -147,31 +181,9 @@ export type MsgWithDebug<Model, Msg> =
 
 Added in v0.5.0
 
-# debugInit
+# utils
 
-Creates a `DebugInit`
-
-**Signature**
-
-```ts
-export declare const debugInit: () => DebugInit
-```
-
-Added in v0.5.0
-
-# debugMsg
-
-Creates a `DebugMsg`
-
-**Signature**
-
-```ts
-export declare const debugMsg: <Msg>(payload: Msg) => DebugMsg<Msg>
-```
-
-Added in v0.5.0
-
-# runDebugger
+## runDebugger
 
 Checks which type of debugger can be used (standard `console` or _Redux DevTool Extension_) based on provided `window` and prepares the subscription to the "debug" stream
 
@@ -188,7 +200,7 @@ export declare function runDebugger<Model, Msg>(
 
 Added in v0.5.4
 
-# updateWithDebug
+## updateWithDebug
 
 Adds debugging capability to the provided `update` function.
 

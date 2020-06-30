@@ -55,6 +55,7 @@ import { DebugData, DebuggerR, debugInit, runDebugger, updateWithDebug } from '.
  *   payload: Msg
  * }
  * ```
+ * @category constructors
  * @since 0.5.3
  */
 export function programWithDebugger<Model, Msg, Dom>(
@@ -68,6 +69,7 @@ export function programWithDebugger<Model, Msg, Dom>(
 
 /**
  * A function that requires an `Observable` and returns a `programWithDebugger()` function: the underlying debugger will stop when the `Observable` emits a value.
+ * @category constructors
  * @since 0.5.4
  */
 export function programWithDebuggerWithStop<Model, Msg, Dom>(
@@ -83,6 +85,7 @@ export function programWithDebuggerWithStop<Model, Msg, Dom>(
 
 /**
  * Same as `programWithDebugger()` but with `Flags` that can be passed when the `Program` is created in order to manage initial values.
+ * @category constructors
  * @since 0.5.3
  */
 export function programWithDebuggerWithFlags<Flags, Model, Msg, Dom>(
@@ -96,6 +99,7 @@ export function programWithDebuggerWithFlags<Flags, Model, Msg, Dom>(
 
 /**
  * Same as `programWithDebuggerWithStop()` but with `Flags` that can be passed when the `Program` is created in order to manage initial values.
+ * @category constructors
  * @since 0.5.4
  */
 export function programWithDebuggerWithFlagsWithStop<Model, Msg, Dom>(

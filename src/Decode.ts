@@ -16,11 +16,13 @@ import { pipeable } from 'fp-ts/lib/pipeable'
 import ReaderEither = RE.ReaderEither
 
 /**
+ * @category instances
  * @since 0.5.0
  */
 export const URI = 'elm-ts/Decoder'
 
 /**
+ * @category instances
  * @since 0.5.0
  */
 export type URI = typeof URI
@@ -32,26 +34,31 @@ declare module 'fp-ts/lib/HKT' {
 }
 
 /**
+ * @category model
  * @since 0.5.0
  */
 export interface Decoder<A> extends ReaderEither<unknown, string, A> {}
 
 /**
+ * @category constructors
  * @since 0.5.0
  */
 export const left: <A = never>(e: string) => Decoder<A> = RE.left
 
 /**
+ * @category constructors
  * @since 0.5.0
  */
 export const right: <A>(a: A) => Decoder<A> = RE.readerEither.of
 
 /**
+ * @category combinators
  * @since 0.5.0
  */
 export const orElse: <A>(f: (e: string) => Decoder<A>) => (ma: Decoder<A>) => Decoder<A> = RE.orElse
 
 /**
+ * @category instances
  * @since 0.5.0
  */
 export const decoder: Monad1<URI> & Alternative1<URI> = {
@@ -68,34 +75,42 @@ const { alt, ap, apFirst, apSecond, chain, chainFirst, flatten, map } = pipeable
 
 export {
   /**
+   * @category Alt
    * @since 0.5.0
    */
   alt,
   /**
+   * @category Apply
    * @since 0.5.0
    */
   ap,
   /**
+   * @category Apply
    * @since 0.5.0
    */
   apFirst,
   /**
+   * @category Apply
    * @since 0.5.0
    */
   apSecond,
   /**
+   * @category Monad
    * @since 0.5.0
    */
   chain,
   /**
+   * @category Monad
    * @since 0.5.0
    */
   chainFirst,
   /**
+   * @category Monad
    * @since 0.5.0
    */
   flatten,
   /**
+   * @category Functor
    * @since 0.5.0
    */
   map

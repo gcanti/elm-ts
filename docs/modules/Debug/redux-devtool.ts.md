@@ -4,7 +4,7 @@ nav_order: 7
 parent: Modules
 ---
 
-# redux-devtool overview
+## redux-devtool overview
 
 Integration with _Redux DevTool Extension_.
 
@@ -16,14 +16,33 @@ Added in v0.5.0
 
 <h2 class="text-delta">Table of contents</h2>
 
-- [Connection (interface)](#connection-interface)
-- [Extension (interface)](#extension-interface)
-- [getConnection](#getconnection)
-- [reduxDevToolDebugger](#reduxdevtooldebugger)
+- [constructors](#constructors)
+  - [reduxDevToolDebugger](#reduxdevtooldebugger)
+- [model](#model)
+  - [Connection (interface)](#connection-interface)
+  - [Extension (interface)](#extension-interface)
+- [utils](#utils)
+  - [getConnection](#getconnection)
 
 ---
 
-# Connection (interface)
+# constructors
+
+## reduxDevToolDebugger
+
+**[UNSAFE]** Debug through _Redux DevTool Extension_
+
+**Signature**
+
+```ts
+export declare function reduxDevToolDebugger<Model, Msg>(connection: Connection<Model, Msg>): Debugger<Model, Msg>
+```
+
+Added in v0.5.4
+
+# model
+
+## Connection (interface)
 
 Defines a _Redux DevTool Extension_ connection object.
 
@@ -42,7 +61,7 @@ export interface Connection<Model, Msg> {
 
 Added in v0.5.0
 
-# Extension (interface)
+## Extension (interface)
 
 Defines a _Redux DevTool Extension_ object.
 
@@ -56,7 +75,9 @@ export interface Extension {
 
 Added in v0.5.0
 
-# getConnection
+# utils
+
+## getConnection
 
 Gets a _Redux DevTool Extension_ connection in case the extension is available
 
@@ -67,15 +88,3 @@ export declare function getConnection<Model, Msg>(global: Global): IO<Option<Con
 ```
 
 Added in v0.5.0
-
-# reduxDevToolDebugger
-
-**[UNSAFE]** Debug through _Redux DevTool Extension_
-
-**Signature**
-
-```ts
-export declare function reduxDevToolDebugger<Model, Msg>(connection: Connection<Model, Msg>): Debugger<Model, Msg>
-```
-
-Added in v0.5.4

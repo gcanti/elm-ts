@@ -4,7 +4,7 @@ nav_order: 9
 parent: Modules
 ---
 
-# Html overview
+## Html overview
 
 A specialization of `Program` with the capability of mapping `Model` to `View`
 and rendering it into a DOM node.
@@ -17,63 +17,25 @@ Added in v0.5.0
 
 <h2 class="text-delta">Table of contents</h2>
 
-- [Html (interface)](#html-interface)
-- [Program (interface)](#program-interface)
-- [Renderer (interface)](#renderer-interface)
-- [map](#map)
-- [program](#program)
-- [programWithFlags](#programwithflags)
-- [run](#run)
-- [withStop](#withstop)
+- [Functor](#functor)
+  - [map](#map)
+- [combinators](#combinators)
+  - [withStop](#withstop)
+- [constructors](#constructors)
+  - [program](#program)
+  - [programWithFlags](#programwithflags)
+- [model](#model)
+  - [Html (interface)](#html-interface)
+  - [Program (interface)](#program-interface)
+  - [Renderer (interface)](#renderer-interface)
+- [utils](#utils)
+  - [run](#run)
 
 ---
 
-# Html (interface)
+# Functor
 
-It is defined as a function that takes a `dispatch()` function as input and returns a `Dom` as output,
-with DOM and messages types constrained.
-
-**Signature**
-
-```ts
-export interface Html<Dom, Msg> {
-  (dispatch: platform.Dispatch<Msg>): Dom
-}
-```
-
-Added in v0.5.0
-
-# Program (interface)
-
-The `Program` interface is extended with a `html$` stream (an `Observable` of views) and a `Dom` type constraint.
-
-**Signature**
-
-```ts
-export interface Program<Model, Msg, Dom> extends platform.Program<Model, Msg> {
-  html$: Observable<Html<Dom, Msg>>
-}
-```
-
-Added in v0.5.0
-
-# Renderer (interface)
-
-Defines the generalized `Renderer` as a function that takes a `Dom` as input and returns a `void`.
-
-It suggests an effectful computation.
-
-**Signature**
-
-```ts
-export interface Renderer<Dom> {
-  (dom: Dom): void
-}
-```
-
-Added in v0.5.0
-
-# map
+## map
 
 Maps a view which carries a message of type `A` into a view which carries a message of type `B`.
 
@@ -85,7 +47,25 @@ export declare function map<Dom, A, Msg>(f: (a: A) => Msg): (ha: Html<Dom, A>) =
 
 Added in v0.5.0
 
-# program
+# combinators
+
+## withStop
+
+Stops the `program` when `signal` Observable emits a value.
+
+**Signature**
+
+```ts
+export declare function withStop(
+  signal: Observable<unknown>
+): <Model, Msg, Dom>(program: Program<Model, Msg, Dom>) => Program<Model, Msg, Dom>
+```
+
+Added in v0.5.4
+
+# constructors
+
+## program
 
 Returns a `Program` specialized for `Html`.
 
@@ -106,7 +86,7 @@ export declare function program<Model, Msg, Dom>(
 
 Added in v0.5.0
 
-# programWithFlags
+## programWithFlags
 
 Same as `program()` but with `Flags` that can be passed when the `Program` is created in order to manage initial values.
 
@@ -123,7 +103,56 @@ export declare function programWithFlags<Flags, Model, Msg, Dom>(
 
 Added in v0.5.0
 
-# run
+# model
+
+## Html (interface)
+
+It is defined as a function that takes a `dispatch()` function as input and returns a `Dom` as output,
+with DOM and messages types constrained.
+
+**Signature**
+
+```ts
+export interface Html<Dom, Msg> {
+  (dispatch: platform.Dispatch<Msg>): Dom
+}
+```
+
+Added in v0.5.0
+
+## Program (interface)
+
+The `Program` interface is extended with a `html$` stream (an `Observable` of views) and a `Dom` type constraint.
+
+**Signature**
+
+```ts
+export interface Program<Model, Msg, Dom> extends platform.Program<Model, Msg> {
+  html$: Observable<Html<Dom, Msg>>
+}
+```
+
+Added in v0.5.0
+
+## Renderer (interface)
+
+Defines the generalized `Renderer` as a function that takes a `Dom` as input and returns a `void`.
+
+It suggests an effectful computation.
+
+**Signature**
+
+```ts
+export interface Renderer<Dom> {
+  (dom: Dom): void
+}
+```
+
+Added in v0.5.0
+
+# utils
+
+## run
 
 Runs the `Program`.
 
@@ -141,17 +170,3 @@ export declare function run<Model, Msg, Dom>(
 ```
 
 Added in v0.5.0
-
-# withStop
-
-Stops the `program` when `signal` Observable emits a value.
-
-**Signature**
-
-```ts
-export declare function withStop(
-  signal: Observable<unknown>
-): <Model, Msg, Dom>(program: Program<Model, Msg, Dom>) => Program<Model, Msg, Dom>
-```
-
-Added in v0.5.4
