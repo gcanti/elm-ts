@@ -5,17 +5,18 @@ import { Task, task } from 'fp-ts/lib/Task'
 import { Subject } from 'rxjs'
 import { Cmd, none } from '../src/Cmd'
 import { program, programWithFlags, run, withStop } from '../src/Platform'
-import { Model, Msg, delayedAssert, init, subscriptions, update } from './_helpers'
+import * as App from './helpers/app'
+import { delayedAssert } from './helpers/utils'
 
 const sequenceTask = array.sequence(task)
 
 describe('Platform', () => {
   describe('program()', () => {
     it('should return the Model/Cmd/Sub streams and Dispatch function - no subscription', async () => {
-      const models: Model[] = []
-      const cmds: Array<Task<Option<Msg>>> = []
-      const subs: Msg[] = []
-      const { model$, cmd$, sub$, dispatch } = program(init, update)
+      const models: App.Model[] = []
+      const cmds: Array<Task<Option<App.Msg>>> = []
+      const subs: App.Msg[] = []
+      const { model$, cmd$, sub$, dispatch } = program(App.init, App.update)
 
       cmd$.subscribe(v => cmds.push(v))
       model$.subscribe(v => models.push(v))
@@ -34,9 +35,9 @@ describe('Platform', () => {
     })
 
     it('should return the Model/Cmd/Sub streams and Dispatch function - with subscription', () => {
-      const models: Model[] = []
-      const subs: Msg[] = []
-      const { model$, sub$, dispatch } = program(init, update, subscriptions)
+      const models: App.Model[] = []
+      const subs: App.Msg[] = []
+      const { model$, sub$, dispatch } = program(App.init, App.update, App.subscriptions)
 
       model$.subscribe(v => models.push(v))
       sub$.subscribe(v => subs.push(v))
@@ -52,11 +53,11 @@ describe('Platform', () => {
 
   describe('programWithFlags()', () => {
     it('should return a function which returns a program() with flags on `init` - no subscription', () => {
-      const models: Model[] = []
-      const subs: Msg[] = []
+      const models: App.Model[] = []
+      const subs: App.Msg[] = []
 
-      const initWithFlags = (f: string): [Model, Cmd<Msg>] => [{ x: f }, none]
-      const withFlags = programWithFlags(initWithFlags, update)
+      const initWithFlags = (f: string): [App.Model, Cmd<App.Msg>] => [{ x: f }, none]
+      const withFlags = programWithFlags(initWithFlags, App.update)
       const { model$, sub$ } = withFlags('start!')
 
       model$.subscribe(v => models.push(v))
@@ -67,11 +68,11 @@ describe('Platform', () => {
     })
 
     it('should return a function which returns a program() with flags on `init` - with subscription', () => {
-      const models: Model[] = []
-      const subs: Msg[] = []
+      const models: App.Model[] = []
+      const subs: App.Msg[] = []
 
-      const initWithFlags = (f: string): [Model, Cmd<Msg>] => [{ x: f }, none]
-      const withFlags = programWithFlags(initWithFlags, update, subscriptions)
+      const initWithFlags = (f: string): [App.Model, Cmd<App.Msg>] => [{ x: f }, none]
+      const withFlags = programWithFlags(initWithFlags, App.update, App.subscriptions)
       const { model$, sub$, dispatch } = withFlags('start!')
 
       model$.subscribe(v => models.push(v))
@@ -88,10 +89,10 @@ describe('Platform', () => {
     it('should stop the Program when a signal is emitted', async () => {
       const signal = new Subject<any>()
 
-      const models: Model[] = []
-      const cmds: Array<Task<Option<Msg>>> = []
-      const subs: Msg[] = []
-      const { model$, cmd$, sub$, dispatch } = withStop(signal)(program(init, update, subscriptions))
+      const models: App.Model[] = []
+      const cmds: Array<Task<Option<App.Msg>>> = []
+      const subs: App.Msg[] = []
+      const { model$, cmd$, sub$, dispatch } = withStop(signal)(program(App.init, App.update, App.subscriptions))
 
       cmd$.subscribe(v => cmds.push(v))
       model$.subscribe(v => models.push(v))
@@ -121,8 +122,8 @@ describe('Platform', () => {
   describe('run()', () => {
     it('should run the Program', () => {
       // setup
-      const models: Model[] = []
-      const p = program(init, update, subscriptions)
+      const models: App.Model[] = []
+      const p = program(App.init, App.update, App.subscriptions)
       p.model$.subscribe(model => models.push(model))
 
       // run
@@ -150,8 +151,8 @@ describe('Platform', () => {
     it('should stop the Program when signal is emitted', () => {
       // setup
       const signal = new Subject<any>()
-      const models: Model[] = []
-      const p = withStop(signal)(program(init, update, subscriptions))
+      const models: App.Model[] = []
+      const p = withStop(signal)(program(App.init, App.update, App.subscriptions))
       p.model$.subscribe(model => models.push(model))
 
       // run

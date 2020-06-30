@@ -1,15 +1,14 @@
-// --- Helpers
-import * as H from '../_helpers'
-
 // --- Mocking `History` module - super tricky...
-import { mocked } from 'ts-jest/utils'
-jest.mock('history')
 import * as history from 'history'
-const historyM = mocked(history)
+import { mocked } from 'ts-jest/utils'
+import { createMockHistory } from '../helpers/mock-history'
 
+jest.mock('history')
+
+const historyM = mocked(history)
 const historyLog: string[] = []
 
-historyM.createHashHistory.mockImplementation(H.createMockHistory(historyLog))
+historyM.createHashHistory.mockImplementation(createMockHistory(historyLog))
 // --- /Mocking
 
 import * as assert from 'assert'

@@ -4,16 +4,17 @@ import { render, unmountComponentAtNode } from 'react-dom'
 import { act } from 'react-dom/test-utils'
 import { Cmd, none } from '../src/Cmd'
 import { Html, map, program, programWithFlags, run } from '../src/React'
-import { Model, Msg, delayedAssert, init, initWithCmd, subscriptions, update } from './_helpers'
+import * as App from './helpers/app'
+import { delayedAssert } from './helpers/utils'
 
 describe('React', () => {
   describe('map()', () => {
     it('should map an Html<A> into an Html<msg>', () => {
       const log: string[] = []
-      const dispatch = (msg: Msg) => log.push(msg.type)
+      const dispatch = (msg: App.Msg) => log.push(msg.type)
 
-      const btn01: Html<Msg> = dispatch => <button onClick={() => dispatch({ type: 'FOO' })}>Test</button>
-      const btn02 = map<Msg, Msg>(() => ({ type: 'BAR' }))(btn01)
+      const btn01: Html<App.Msg> = dispatch => <button onClick={() => dispatch({ type: 'FOO' })}>Test</button>
+      const btn02 = map<App.Msg, App.Msg>(() => ({ type: 'BAR' }))(btn01)
 
       btn01(dispatch).props.onClick()
       btn02(dispatch).props.onClick()
@@ -27,7 +28,7 @@ describe('React', () => {
       const [container, teardown] = makeEntryPoint()
       const [renderings, renderer] = makeRenderer(container)
 
-      const { dispatch, html$ } = program(init, update, viewWithMount)
+      const { dispatch, html$ } = program(App.init, App.update, viewWithMount)
 
       html$.subscribe(v => renderer(v(dispatch)))
 
@@ -44,8 +45,8 @@ describe('React', () => {
       const [container, teardown] = makeEntryPoint()
       const [renderings, renderer] = makeRenderer(container)
 
-      const subs: Msg[] = []
-      const { sub$, html$, dispatch } = program(init, update, viewWithMount, subscriptions)
+      const subs: App.Msg[] = []
+      const { sub$, html$, dispatch } = program(App.init, App.update, viewWithMount, App.subscriptions)
 
       html$.subscribe(v => renderer(v(dispatch)))
       sub$.subscribe(v => subs.push(v))
@@ -66,8 +67,8 @@ describe('React', () => {
       const [container, teardown] = makeEntryPoint()
       const [renderings, renderer] = makeRenderer(container)
 
-      const initWithFlags = (f: string): [Model, Cmd<Msg>] => [{ x: f }, none]
-      const withFlags = programWithFlags(initWithFlags, update, viewWithMount, subscriptions)
+      const initWithFlags = (f: string): [App.Model, Cmd<App.Msg>] => [{ x: f }, none]
+      const withFlags = programWithFlags(initWithFlags, App.update, viewWithMount, App.subscriptions)
       const { dispatch, html$ } = withFlags('start!')
 
       html$.subscribe(v => renderer(v(dispatch)))
@@ -83,7 +84,7 @@ describe('React', () => {
       const [container, teardown] = makeEntryPoint()
       const [renderings, renderer] = makeRenderer(container)
 
-      const p = program(init, update, view, subscriptions)
+      const p = program(App.init, App.update, view, App.subscriptions)
 
       run(p, renderer)
 
@@ -103,7 +104,7 @@ describe('React', () => {
       const [container, teardown] = makeEntryPoint()
       const [renderings, renderer] = makeRenderer(container)
 
-      const p = program(initWithCmd, update, viewWithMount, subscriptions)
+      const p = program(App.initWithCmd, App.update, viewWithMount, App.subscriptions)
 
       run(p, renderer)
 
@@ -127,11 +128,11 @@ describe('React', () => {
 })
 
 // --- Utilities
-function view(model: Model): Html<Msg> {
+function view(model: App.Model): Html<App.Msg> {
   return dispatch => <Component value={model.x} onClick={() => dispatch({ type: 'FOO' })} />
 }
 
-function viewWithMount(model: Model): Html<Msg> {
+function viewWithMount(model: App.Model): Html<App.Msg> {
   return dispatch => (
     <Component
       value={model.x}
