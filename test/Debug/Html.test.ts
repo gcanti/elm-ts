@@ -16,84 +16,86 @@ import * as Sub from '../../src/Sub'
 import { Model, Msg, mockDebugger } from './_helpers'
 
 describe('Debug', () => {
-  it('programWithDebugger() should return a Program with a Debugger (console)', done => {
-    const log: Array<DebugData<Model, Msg>> = []
+  describe('programWithDebugger()', () => {
+    it('should return a Program with a Debugger (console)', done => {
+      const log: Array<DebugData<Model, Msg>> = []
 
-    // --- Trace only console debugger
-    jest.spyOn(ConsoleDebugger, 'consoleDebugger').mockReturnValueOnce(mockDebugger(log))
+      // --- Trace only console debugger
+      jest.spyOn(ConsoleDebugger, 'consoleDebugger').mockReturnValueOnce(mockDebugger(log))
 
-    const program = programWithDebugger(init, update, view)
-    const updates = run(program, _ => undefined)
+      const program = programWithDebugger(init, update, view)
+      const updates = run(program, _ => undefined)
 
-    // the difference between the number of Model and the length of the debug log
-    // is due to `__DebugUpdateModel__` and `__DebugApplyMsg__` messages
-    // that generate a new Model update but are not tracked by the debugger
-    updates.pipe(take(7)).subscribe({
-      complete: () => {
-        assert.strictEqual(log.length, 5)
-        assert.deepStrictEqual(log, [
-          [{ type: 'INIT' }, 0],
-          [{ type: 'MESSAGE', payload: { type: 'Inc' } }, 1],
-          [{ type: 'MESSAGE', payload: { type: 'Dec' } }, 9],
-          [{ type: 'MESSAGE', payload: { type: 'Inc' } }, 10],
-          [{ type: 'MESSAGE', payload: { type: 'Inc' } }, 12]
-        ])
+      // the difference between the number of Model and the length of the debug log
+      // is due to `__DebugUpdateModel__` and `__DebugApplyMsg__` messages
+      // that generate a new Model update but are not tracked by the debugger
+      updates.pipe(take(7)).subscribe({
+        complete: () => {
+          assert.strictEqual(log.length, 5)
+          assert.deepStrictEqual(log, [
+            [{ type: 'INIT' }, 0],
+            [{ type: 'MESSAGE', payload: { type: 'Inc' } }, 1],
+            [{ type: 'MESSAGE', payload: { type: 'Dec' } }, 9],
+            [{ type: 'MESSAGE', payload: { type: 'Inc' } }, 10],
+            [{ type: 'MESSAGE', payload: { type: 'Inc' } }, 12]
+          ])
 
-        done()
-      }
+          done()
+        }
+      })
+
+      program.dispatch({ type: 'Inc' })
+      // we need to cast as any to test internal handling of this "special" message
+      program.dispatch({ type: '__DebugUpdateModel__', payload: 10 } as any)
+      program.dispatch({ type: 'Dec' })
+      program.dispatch({ type: 'Inc' })
+      // we need to cast as any to test internal handling of this "special" message
+      program.dispatch({ type: '__DebugApplyMsg__', payload: { type: 'Inc' } } as any)
+      program.dispatch({ type: 'Inc' })
     })
 
-    program.dispatch({ type: 'Inc' })
-    // we need to cast as any to test internal handling of this "special" message
-    program.dispatch({ type: '__DebugUpdateModel__', payload: 10 } as any)
-    program.dispatch({ type: 'Dec' })
-    program.dispatch({ type: 'Inc' })
-    // we need to cast as any to test internal handling of this "special" message
-    program.dispatch({ type: '__DebugApplyMsg__', payload: { type: 'Inc' } } as any)
-    program.dispatch({ type: 'Inc' })
-  })
+    it('should return a Program with a Debugger (redux devtool)', done => {
+      const log: Array<DebugData<Model, Msg>> = []
+      const win = window as any
 
-  it('programWithDebugger() should return a Program with a Debugger (redux devtool)', done => {
-    const log: Array<DebugData<Model, Msg>> = []
-    const win = window as any
-
-    // --- Mock Redux DevTool Extension
-    win.__REDUX_DEVTOOLS_EXTENSION__ = {
-      connect: () => ({})
-    }
-
-    // --- Trace only devtool debugger
-    jest.spyOn(DevToolDebugger, 'reduxDevToolDebugger').mockReturnValueOnce(mockDebugger(log))
-
-    const program = programWithDebugger(init, update, view, () => Sub.none)
-    const updates = run(program, _ => undefined)
-
-    // the difference between the number of Model and the length of the debug log
-    // is due to `__DebugUpdateModel__` and `__DebugApplyMsg__` messages
-    // that generate a new Model update but are not tracked by the debugger
-    updates.pipe(take(6)).subscribe({
-      complete: () => {
-        assert.strictEqual(log.length, 5)
-        assert.deepStrictEqual(log, [
-          [{ type: 'INIT' }, 0],
-          [{ type: 'MESSAGE', payload: { type: 'Inc' } }, 1],
-          [{ type: 'MESSAGE', payload: { type: 'Dec' } }, 9],
-          [{ type: 'MESSAGE', payload: { type: 'Inc' } }, 10],
-          [{ type: 'MESSAGE', payload: { type: 'Inc' } }, 11]
-        ])
-
-        delete win.__REDUX_DEVTOOLS_EXTENSION__
-
-        done()
+      // --- Mock Redux DevTool Extension
+      win.__REDUX_DEVTOOLS_EXTENSION__ = {
+        connect: () => ({})
       }
-    })
 
-    program.dispatch({ type: 'Inc' })
-    // we need to cast as any to test internal handling of this "special" message
-    program.dispatch({ type: '__DebugUpdateModel__', payload: 10 } as any)
-    program.dispatch({ type: 'Dec' })
-    program.dispatch({ type: 'Inc' })
-    program.dispatch({ type: 'Inc' })
+      // --- Trace only devtool debugger
+      jest.spyOn(DevToolDebugger, 'reduxDevToolDebugger').mockReturnValueOnce(mockDebugger(log))
+
+      const program = programWithDebugger(init, update, view, () => Sub.none)
+      const updates = run(program, _ => undefined)
+
+      // the difference between the number of Model and the length of the debug log
+      // is due to `__DebugUpdateModel__` and `__DebugApplyMsg__` messages
+      // that generate a new Model update but are not tracked by the debugger
+      updates.pipe(take(6)).subscribe({
+        complete: () => {
+          assert.strictEqual(log.length, 5)
+          assert.deepStrictEqual(log, [
+            [{ type: 'INIT' }, 0],
+            [{ type: 'MESSAGE', payload: { type: 'Inc' } }, 1],
+            [{ type: 'MESSAGE', payload: { type: 'Dec' } }, 9],
+            [{ type: 'MESSAGE', payload: { type: 'Inc' } }, 10],
+            [{ type: 'MESSAGE', payload: { type: 'Inc' } }, 11]
+          ])
+
+          delete win.__REDUX_DEVTOOLS_EXTENSION__
+
+          done()
+        }
+      })
+
+      program.dispatch({ type: 'Inc' })
+      // we need to cast as any to test internal handling of this "special" message
+      program.dispatch({ type: '__DebugUpdateModel__', payload: 10 } as any)
+      program.dispatch({ type: 'Dec' })
+      program.dispatch({ type: 'Inc' })
+      program.dispatch({ type: 'Inc' })
+    })
   })
 
   it('programWithDebuggerWithStop() should stop debugger when `stopDebuggerOn` emits a value', done => {

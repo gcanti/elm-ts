@@ -35,86 +35,88 @@ beforeEach(() => {
 })
 
 describe('Debug', () => {
-  it('programWithDebugger() should return a Program with a Debugger (console)', done => {
-    const log: Array<DebugData<Model, Msg>> = []
+  describe('programWithDebugger()', () => {
+    it('should return a Program with a Debugger (console)', done => {
+      const log: Array<DebugData<Model, Msg>> = []
 
-    // --- Trace only console debugger
-    jest.spyOn(ConsoleDebugger, 'consoleDebugger').mockReturnValueOnce(mockDebugger(log))
+      // --- Trace only console debugger
+      jest.spyOn(ConsoleDebugger, 'consoleDebugger').mockReturnValueOnce(mockDebugger(log))
 
-    const program = programWithDebugger(locationToMsg, init, update, view)
-    const updates = run(program, _ => undefined)
+      const program = programWithDebugger(locationToMsg, init, update, view)
+      const updates = run(program, _ => undefined)
 
-    // the difference between the number of Model and the length of the debug log
-    // is due to `__DebugUpdateModel__` and `__DebugApplyMsg__` messages
-    // that generate a new Model update but are not tracked by the debugger
-    updates.pipe(take(9)).subscribe({
-      complete: () => {
-        assert.strictEqual(log.length, 7)
-        assert.deepStrictEqual(log, [
-          [{ type: 'INIT' }, ''],
-          [{ type: 'MESSAGE', payload: { type: 'GoTo', path: '/a' } }, ''],
-          [{ type: 'MESSAGE', payload: { type: 'Route', path: '/a' } }, '/a'],
-          [{ type: 'MESSAGE', payload: { type: 'GoTo', path: '/c' } }, '/b'],
-          [{ type: 'MESSAGE', payload: { type: 'Route', path: '/c' } }, '/c'],
-          [{ type: 'MESSAGE', payload: { type: 'GoTo', path: '/e' } }, '/d'],
-          [{ type: 'MESSAGE', payload: { type: 'Route', path: '/e' } }, '/e']
-        ])
+      // the difference between the number of Model and the length of the debug log
+      // is due to `__DebugUpdateModel__` and `__DebugApplyMsg__` messages
+      // that generate a new Model update but are not tracked by the debugger
+      updates.pipe(take(9)).subscribe({
+        complete: () => {
+          assert.strictEqual(log.length, 7)
+          assert.deepStrictEqual(log, [
+            [{ type: 'INIT' }, ''],
+            [{ type: 'MESSAGE', payload: { type: 'GoTo', path: '/a' } }, ''],
+            [{ type: 'MESSAGE', payload: { type: 'Route', path: '/a' } }, '/a'],
+            [{ type: 'MESSAGE', payload: { type: 'GoTo', path: '/c' } }, '/b'],
+            [{ type: 'MESSAGE', payload: { type: 'Route', path: '/c' } }, '/c'],
+            [{ type: 'MESSAGE', payload: { type: 'GoTo', path: '/e' } }, '/d'],
+            [{ type: 'MESSAGE', payload: { type: 'Route', path: '/e' } }, '/e']
+          ])
 
-        done()
-      }
+          done()
+        }
+      })
+
+      program.dispatch({ type: 'GoTo', path: '/a' })
+      // we need to cast as any to test internal handling of this "special" message
+      program.dispatch({ type: '__DebugUpdateModel__', payload: '/b' } as any)
+      program.dispatch({ type: 'GoTo', path: '/c' })
+      // we need to cast as any to test internal handling of this "special" message
+      program.dispatch({ type: '__DebugApplyMsg__', payload: { type: 'Route', path: '/d' } } as any)
+      program.dispatch({ type: 'GoTo', path: '/e' })
     })
 
-    program.dispatch({ type: 'GoTo', path: '/a' })
-    // we need to cast as any to test internal handling of this "special" message
-    program.dispatch({ type: '__DebugUpdateModel__', payload: '/b' } as any)
-    program.dispatch({ type: 'GoTo', path: '/c' })
-    // we need to cast as any to test internal handling of this "special" message
-    program.dispatch({ type: '__DebugApplyMsg__', payload: { type: 'Route', path: '/d' } } as any)
-    program.dispatch({ type: 'GoTo', path: '/e' })
-  })
+    it('should return a Program with a Debugger (redux devtool)', done => {
+      const log: Array<DebugData<Model, Msg>> = []
+      const win = window as any
 
-  it('programWithDebugger() should return a Program with a Debugger (redux devtool)', done => {
-    const log: Array<DebugData<Model, Msg>> = []
-    const win = window as any
-
-    // --- Mock Redux DevTool Extension
-    win.__REDUX_DEVTOOLS_EXTENSION__ = {
-      connect: () => ({})
-    }
-
-    // --- Trace only devtool debugger
-    jest.spyOn(DevToolDebugger, 'reduxDevToolDebugger').mockReturnValueOnce(mockDebugger(log))
-
-    const program = programWithDebugger(locationToMsg, init, update, view, () => Sub.none)
-    const updates = run(program, _ => undefined)
-
-    // the difference between the number of Model and the length of the debug log
-    // is due to `__DebugUpdateModel__` and `__DebugApplyMsg__` messages
-    // that generate a new Model update but are not tracked by the debugger
-    updates.pipe(take(8)).subscribe({
-      complete: () => {
-        assert.strictEqual(log.length, 7)
-        assert.deepStrictEqual(log, [
-          [{ type: 'INIT' }, ''],
-          [{ type: 'MESSAGE', payload: { type: 'GoTo', path: '/a' } }, ''],
-          [{ type: 'MESSAGE', payload: { type: 'Route', path: '/a' } }, '/a'],
-          [{ type: 'MESSAGE', payload: { type: 'GoTo', path: '/c' } }, '/b'],
-          [{ type: 'MESSAGE', payload: { type: 'Route', path: '/c' } }, '/c'],
-          [{ type: 'MESSAGE', payload: { type: 'GoTo', path: '/d' } }, '/c'],
-          [{ type: 'MESSAGE', payload: { type: 'Route', path: '/d' } }, '/d']
-        ])
-
-        delete win.__REDUX_DEVTOOLS_EXTENSION__
-
-        done()
+      // --- Mock Redux DevTool Extension
+      win.__REDUX_DEVTOOLS_EXTENSION__ = {
+        connect: () => ({})
       }
-    })
 
-    program.dispatch({ type: 'GoTo', path: '/a' })
-    // we need to cast as any to test internal handling of this "special" message
-    program.dispatch({ type: '__DebugUpdateModel__', payload: '/b' } as any)
-    program.dispatch({ type: 'GoTo', path: '/c' })
-    program.dispatch({ type: 'GoTo', path: '/d' })
+      // --- Trace only devtool debugger
+      jest.spyOn(DevToolDebugger, 'reduxDevToolDebugger').mockReturnValueOnce(mockDebugger(log))
+
+      const program = programWithDebugger(locationToMsg, init, update, view, () => Sub.none)
+      const updates = run(program, _ => undefined)
+
+      // the difference between the number of Model and the length of the debug log
+      // is due to `__DebugUpdateModel__` and `__DebugApplyMsg__` messages
+      // that generate a new Model update but are not tracked by the debugger
+      updates.pipe(take(8)).subscribe({
+        complete: () => {
+          assert.strictEqual(log.length, 7)
+          assert.deepStrictEqual(log, [
+            [{ type: 'INIT' }, ''],
+            [{ type: 'MESSAGE', payload: { type: 'GoTo', path: '/a' } }, ''],
+            [{ type: 'MESSAGE', payload: { type: 'Route', path: '/a' } }, '/a'],
+            [{ type: 'MESSAGE', payload: { type: 'GoTo', path: '/c' } }, '/b'],
+            [{ type: 'MESSAGE', payload: { type: 'Route', path: '/c' } }, '/c'],
+            [{ type: 'MESSAGE', payload: { type: 'GoTo', path: '/d' } }, '/c'],
+            [{ type: 'MESSAGE', payload: { type: 'Route', path: '/d' } }, '/d']
+          ])
+
+          delete win.__REDUX_DEVTOOLS_EXTENSION__
+
+          done()
+        }
+      })
+
+      program.dispatch({ type: 'GoTo', path: '/a' })
+      // we need to cast as any to test internal handling of this "special" message
+      program.dispatch({ type: '__DebugUpdateModel__', payload: '/b' } as any)
+      program.dispatch({ type: 'GoTo', path: '/c' })
+      program.dispatch({ type: 'GoTo', path: '/d' })
+    })
   })
 
   it('programWithDebuggerWithStop() should stop debugger when `stopDebuggerOn` emits a value', done => {

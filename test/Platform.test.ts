@@ -84,36 +84,38 @@ describe('Platform', () => {
     })
   })
 
-  it('withStop() should stop the Program when a signal is emitted', async () => {
-    const signal = new Subject<any>()
+  describe('withStop()', () => {
+    it('should stop the Program when a signal is emitted', async () => {
+      const signal = new Subject<any>()
 
-    const models: Model[] = []
-    const cmds: Array<Task<Option<Msg>>> = []
-    const subs: Msg[] = []
-    const { model$, cmd$, sub$, dispatch } = withStop(signal)(program(init, update, subscriptions))
+      const models: Model[] = []
+      const cmds: Array<Task<Option<Msg>>> = []
+      const subs: Msg[] = []
+      const { model$, cmd$, sub$, dispatch } = withStop(signal)(program(init, update, subscriptions))
 
-    cmd$.subscribe(v => cmds.push(v))
-    model$.subscribe(v => models.push(v))
-    sub$.subscribe(v => subs.push(v))
+      cmd$.subscribe(v => cmds.push(v))
+      model$.subscribe(v => models.push(v))
+      sub$.subscribe(v => subs.push(v))
 
-    dispatch({ type: 'FOO' })
-    dispatch({ type: 'BAR' })
-    dispatch({ type: 'DO-THE-THING!' })
-    dispatch({ type: 'SUB' })
+      dispatch({ type: 'FOO' })
+      dispatch({ type: 'BAR' })
+      dispatch({ type: 'DO-THE-THING!' })
+      dispatch({ type: 'SUB' })
 
-    // Emit stop signal and the other changes are bypassed
-    signal.next('stop me!')
+      // Emit stop signal and the other changes are bypassed
+      signal.next('stop me!')
 
-    dispatch({ type: 'FOO' })
-    dispatch({ type: 'BAR' })
-    dispatch({ type: 'DO-THE-THING!' })
-    dispatch({ type: 'SUB' })
+      dispatch({ type: 'FOO' })
+      dispatch({ type: 'BAR' })
+      dispatch({ type: 'DO-THE-THING!' })
+      dispatch({ type: 'SUB' })
 
-    const commands = await sequenceTask(cmds)()
+      const commands = await sequenceTask(cmds)()
 
-    assert.deepStrictEqual(models, [{ x: '' }, { x: 'foo' }, { x: 'bar' }, { x: 'sub' }])
-    assert.deepStrictEqual(commands, [some({ type: 'FOO' })])
-    assert.deepStrictEqual(subs, [{ type: 'LISTEN' }])
+      assert.deepStrictEqual(models, [{ x: '' }, { x: 'foo' }, { x: 'bar' }, { x: 'sub' }])
+      assert.deepStrictEqual(commands, [some({ type: 'FOO' })])
+      assert.deepStrictEqual(subs, [{ type: 'LISTEN' }])
+    })
   })
 
   describe('run()', () => {

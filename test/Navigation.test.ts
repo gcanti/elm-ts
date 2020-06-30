@@ -30,14 +30,16 @@ afterAll(() => {
 })
 
 describe('Navigation', () => {
-  it('push() should push a new path into history and return a Cmd<msg>', done => {
-    return push('/a-path').subscribe(async to => {
-      const result = await to()
+  describe('push()', () => {
+    it('should push a new path into history and return a Cmd<msg>', done => {
+      return push('/a-path').subscribe(async to => {
+        const result = await to()
 
-      assert.deepStrictEqual(result, O.none)
-      assert.deepStrictEqual(log, ['/a-path'])
+        assert.deepStrictEqual(result, O.none)
+        assert.deepStrictEqual(log, ['/a-path'])
 
-      done()
+        done()
+      })
     })
   })
 
