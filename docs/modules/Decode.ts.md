@@ -4,7 +4,7 @@ nav_order: 8
 parent: Modules
 ---
 
-# Decode overview
+## Decode overview
 
 Defines a `Decoder`, namely a function that receives an `unknown` value and tries to decodes it in an `A` value.
 
@@ -16,55 +16,35 @@ Added in v0.5.0
 
 <h2 class="text-delta">Table of contents</h2>
 
-- [Decoder (interface)](#decoder-interface)
-- [URI (type alias)](#uri-type-alias)
-- [URI](#uri)
-- [alt](#alt)
-- [ap](#ap)
-- [apFirst](#apfirst)
-- [apSecond](#apsecond)
-- [chain](#chain)
-- [chainFirst](#chainfirst)
-- [decoder](#decoder)
-- [flatten](#flatten)
-- [left](#left)
-- [map](#map)
-- [orElse](#orelse)
-- [right](#right)
+- [Alt](#alt)
+  - [alt](#alt)
+- [Apply](#apply)
+  - [ap](#ap)
+  - [apFirst](#apfirst)
+  - [apSecond](#apsecond)
+- [Functor](#functor)
+  - [map](#map)
+- [Monad](#monad)
+  - [chain](#chain)
+  - [chainFirst](#chainfirst)
+  - [flatten](#flatten)
+- [combinators](#combinators)
+  - [orElse](#orelse)
+- [constructors](#constructors)
+  - [left](#left)
+  - [right](#right)
+- [instances](#instances)
+  - [URI](#uri)
+  - [URI (type alias)](#uri-type-alias)
+  - [decoder](#decoder)
+- [model](#model)
+  - [Decoder (interface)](#decoder-interface)
 
 ---
 
-# Decoder (interface)
+# Alt
 
-**Signature**
-
-```ts
-export interface Decoder<A> extends ReaderEither<unknown, string, A> {}
-```
-
-Added in v0.5.0
-
-# URI (type alias)
-
-**Signature**
-
-```ts
-export type URI = typeof URI
-```
-
-Added in v0.5.0
-
-# URI
-
-**Signature**
-
-```ts
-export declare const URI: 'elm-ts/Decoder'
-```
-
-Added in v0.5.0
-
-# alt
+## alt
 
 **Signature**
 
@@ -74,7 +54,9 @@ export declare const alt: <A>(that: () => Decoder<A>) => (fa: Decoder<A>) => Dec
 
 Added in v0.5.0
 
-# ap
+# Apply
+
+## ap
 
 **Signature**
 
@@ -84,7 +66,7 @@ export declare const ap: <A>(fa: Decoder<A>) => <B>(fab: Decoder<(a: A) => B>) =
 
 Added in v0.5.0
 
-# apFirst
+## apFirst
 
 **Signature**
 
@@ -94,7 +76,7 @@ export declare const apFirst: <B>(fb: Decoder<B>) => <A>(fa: Decoder<A>) => Deco
 
 Added in v0.5.0
 
-# apSecond
+## apSecond
 
 **Signature**
 
@@ -104,57 +86,9 @@ export declare const apSecond: <B>(fb: Decoder<B>) => <A>(fa: Decoder<A>) => Dec
 
 Added in v0.5.0
 
-# chain
+# Functor
 
-**Signature**
-
-```ts
-export declare const chain: <A, B>(f: (a: A) => Decoder<B>) => (ma: Decoder<A>) => Decoder<B>
-```
-
-Added in v0.5.0
-
-# chainFirst
-
-**Signature**
-
-```ts
-export declare const chainFirst: <A, B>(f: (a: A) => Decoder<B>) => (ma: Decoder<A>) => Decoder<A>
-```
-
-Added in v0.5.0
-
-# decoder
-
-**Signature**
-
-```ts
-export declare const decoder: Monad1<'elm-ts/Decoder'> & Alternative1<'elm-ts/Decoder'>
-```
-
-Added in v0.5.0
-
-# flatten
-
-**Signature**
-
-```ts
-export declare const flatten: <A>(mma: Decoder<Decoder<A>>) => Decoder<A>
-```
-
-Added in v0.5.0
-
-# left
-
-**Signature**
-
-```ts
-export declare const left: <A = never>(e: string) => Decoder<A>
-```
-
-Added in v0.5.0
-
-# map
+## map
 
 **Signature**
 
@@ -164,7 +98,41 @@ export declare const map: <A, B>(f: (a: A) => B) => (fa: Decoder<A>) => Decoder<
 
 Added in v0.5.0
 
-# orElse
+# Monad
+
+## chain
+
+**Signature**
+
+```ts
+export declare const chain: <A, B>(f: (a: A) => Decoder<B>) => (ma: Decoder<A>) => Decoder<B>
+```
+
+Added in v0.5.0
+
+## chainFirst
+
+**Signature**
+
+```ts
+export declare const chainFirst: <A, B>(f: (a: A) => Decoder<B>) => (ma: Decoder<A>) => Decoder<A>
+```
+
+Added in v0.5.0
+
+## flatten
+
+**Signature**
+
+```ts
+export declare const flatten: <A>(mma: Decoder<Decoder<A>>) => Decoder<A>
+```
+
+Added in v0.5.0
+
+# combinators
+
+## orElse
 
 **Signature**
 
@@ -174,12 +142,68 @@ export declare const orElse: <A>(f: (e: string) => Decoder<A>) => (ma: Decoder<A
 
 Added in v0.5.0
 
-# right
+# constructors
+
+## left
+
+**Signature**
+
+```ts
+export declare const left: <A = never>(e: string) => Decoder<A>
+```
+
+Added in v0.5.0
+
+## right
 
 **Signature**
 
 ```ts
 export declare const right: <A>(a: A) => Decoder<A>
+```
+
+Added in v0.5.0
+
+# instances
+
+## URI
+
+**Signature**
+
+```ts
+export declare const URI: 'elm-ts/Decoder'
+```
+
+Added in v0.5.0
+
+## URI (type alias)
+
+**Signature**
+
+```ts
+export type URI = typeof URI
+```
+
+Added in v0.5.0
+
+## decoder
+
+**Signature**
+
+```ts
+export declare const decoder: Monad1<'elm-ts/Decoder'> & Alternative1<'elm-ts/Decoder'>
+```
+
+Added in v0.5.0
+
+# model
+
+## Decoder (interface)
+
+**Signature**
+
+```ts
+export interface Decoder<A> extends ReaderEither<unknown, string, A> {}
 ```
 
 Added in v0.5.0

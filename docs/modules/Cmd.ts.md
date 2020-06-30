@@ -4,7 +4,7 @@ nav_order: 1
 parent: Modules
 ---
 
-# Cmd overview
+## Cmd overview
 
 Defines `Cmd`s as streams of asynchronous operations which can not fail and that can optionally carry a message.
 
@@ -16,37 +16,36 @@ Added in v0.5.0
 
 <h2 class="text-delta">Table of contents</h2>
 
-- [Cmd (interface)](#cmd-interface)
-- [batch](#batch)
-- [map](#map)
-- [none](#none)
-- [of](#of)
+- [Applicative](#applicative)
+  - [of](#of)
+- [Functor](#functor)
+  - [map](#map)
+- [constructors](#constructors)
+  - [none](#none)
+- [model](#model)
+  - [Cmd (interface)](#cmd-interface)
+- [utils](#utils)
+  - [batch](#batch)
 
 ---
 
-# Cmd (interface)
+# Applicative
+
+## of
+
+Creates a new `Cmd` that carries the provided `Msg`.
 
 **Signature**
 
 ```ts
-export interface Cmd<Msg> extends Observable<Task<Option<Msg>>> {}
+export declare function of<Msg>(m: Msg): Cmd<Msg>
 ```
 
 Added in v0.5.0
 
-# batch
+# Functor
 
-Batches the execution of a list of commands.
-
-**Signature**
-
-```ts
-export declare function batch<Msg>(arr: Array<Cmd<Msg>>): Cmd<Msg>
-```
-
-Added in v0.5.0
-
-# map
+## map
 
 Maps the carried `Msg` of a `Cmd` into another `Msg`.
 
@@ -58,7 +57,9 @@ export declare function map<A, Msg>(f: (a: A) => Msg): (cmd: Cmd<A>) => Cmd<Msg>
 
 Added in v0.5.0
 
-# none
+# constructors
+
+## none
 
 A `none` command is an empty stream.
 
@@ -70,14 +71,28 @@ export declare const none: Cmd<never>
 
 Added in v0.5.0
 
-# of
+# model
 
-Creates a new `Cmd` that carries the provided `Msg`.
+## Cmd (interface)
 
 **Signature**
 
 ```ts
-export declare function of<Msg>(m: Msg): Cmd<Msg>
+export interface Cmd<Msg> extends Observable<Task<Option<Msg>>> {}
+```
+
+Added in v0.5.0
+
+# utils
+
+## batch
+
+Batches the execution of a list of commands.
+
+**Signature**
+
+```ts
+export declare function batch<Msg>(arr: Array<Cmd<Msg>>): Cmd<Msg>
 ```
 
 Added in v0.5.0

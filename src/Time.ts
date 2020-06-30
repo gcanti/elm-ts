@@ -13,6 +13,7 @@ import { Sub } from './Sub'
 
 /**
  * Get the current unix time as a `Task`.
+ * @category constructors
  * @since 0.5.0
  */
 export function now(): Task<number> {
@@ -21,6 +22,7 @@ export function now(): Task<number> {
 
 /**
  * Get the current unix time periodically.
+ * @category utils
  * @since 0.5.0
  */
 export function every<Msg>(time: number, f: (time: number) => Msg): Sub<Msg> {

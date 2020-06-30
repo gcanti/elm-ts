@@ -4,7 +4,7 @@ nav_order: 3
 parent: Modules
 ---
 
-# console overview
+## console overview
 
 Debug via standard browser's `console`.
 
@@ -14,11 +14,14 @@ Added in v0.5.0
 
 <h2 class="text-delta">Table of contents</h2>
 
-- [consoleDebugger](#consoledebugger)
+- [constructors](#constructors)
+  - [consoleDebugger](#consoledebugger)
 
 ---
 
-# consoleDebugger
+# constructors
+
+## consoleDebugger
 
 **[UNSAFE]** Simple debugger that uses the standard browser's `console`
 

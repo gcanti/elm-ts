@@ -13,6 +13,7 @@ import { Cmd } from './Cmd'
 import { Sub, none } from './Sub'
 
 /**
+ * @category model
  * @since 0.5.0
  */
 export interface Dispatch<Msg> {
@@ -22,6 +23,7 @@ export interface Dispatch<Msg> {
 /**
  * Program` is just an object that exposes the underlying streams which compose _The Elm Architecture_.
  * Even **Commands** and **Subscriptions** are expressed as `Observables` in order to mix them with ease.
+ * @category model
  * @since 0.5.0
  */
 export interface Program<Model, Msg> {
@@ -37,6 +39,7 @@ export interface Program<Model, Msg> {
  * When a new `Program` is defined, a `BehaviorSubject` is created (because an initial value is needed) that will track every change to the `Model` and every `Cmd` executed.
  *
  * Every time `dispatch()` is called a new value, computed by the `update()` function, is added to the the stream.
+ * @category constructors
  * @since 0.5.0
  */
 export function program<Model, Msg>(
@@ -66,6 +69,7 @@ export function program<Model, Msg>(
 
 /**
  * Same as `program()` but with `Flags` that can be passed when the `Program` is created in order to manage initial values.
+ * @category constructors
  * @since 0.5.0
  */
 export function programWithFlags<Flags, Model, Msg>(
@@ -78,6 +82,7 @@ export function programWithFlags<Flags, Model, Msg>(
 
 /**
  * Stops the `program` when `signal` Observable emits a value.
+ * @category combinators
  * @since 0.5.4
  */
 export function withStop(
@@ -99,6 +104,7 @@ export function withStop(
  * Runs the `Program`.
  *
  * Because the program essentially is an object of streams, "running it" means subscribing to these streams and starting to consume values.
+ * @category utils
  * @since 0.5.0
  */
 export function run<Model, Msg>(program: Program<Model, Msg>): Observable<Model> {

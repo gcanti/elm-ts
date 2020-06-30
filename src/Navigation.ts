@@ -15,6 +15,7 @@ import * as html from './Html'
 import { Sub, batch, none } from './Sub'
 
 /**
+ * @category model
  * @since 0.5.0
  */
 export type Location = H.Location
@@ -32,6 +33,7 @@ history.listen(location => {
 
 /**
  * Generates a `Cmd` that adds a new location to the history's list.
+ * @category utils
  * @since 0.5.0
  */
 export function push<Msg>(url: string): Cmd<Msg> {
@@ -48,6 +50,7 @@ export function push<Msg>(url: string): Cmd<Msg> {
  * The `Program` is a `Html.Program` but it needs a `locationToMsg()` function which converts location changes to messages.
  *
  * Underneath it consumes `location$` stream (applying `locationToMsg()` on its values).
+ * @category constructors
  * @since 0.5.0
  */
 export function program<Model, Msg, Dom>(
@@ -66,6 +69,7 @@ export function program<Model, Msg, Dom>(
 
 /**
  * Same as `program()` but with `Flags` that can be passed when the `Program` is created in order to manage initial values.
+ * @category constructors
  * @since 0.5.0
  */
 export function programWithFlags<Flags, Model, Msg, Dom>(

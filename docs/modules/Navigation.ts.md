@@ -4,7 +4,7 @@ nav_order: 12
 parent: Modules
 ---
 
-# Navigation overview
+## Navigation overview
 
 A specialization of `Program` that handles application navigation via location's hash.
 
@@ -16,24 +16,19 @@ Added in v0.5.0
 
 <h2 class="text-delta">Table of contents</h2>
 
-- [Location (type alias)](#location-type-alias)
-- [program](#program)
-- [programWithFlags](#programwithflags)
-- [push](#push)
+- [constructors](#constructors)
+  - [program](#program)
+  - [programWithFlags](#programwithflags)
+- [model](#model)
+  - [Location (type alias)](#location-type-alias)
+- [utils](#utils)
+  - [push](#push)
 
 ---
 
-# Location (type alias)
+# constructors
 
-**Signature**
-
-```ts
-export type Location = H.Location
-```
-
-Added in v0.5.0
-
-# program
+## program
 
 Returns a `Program` specialized for `Navigation`.
 
@@ -55,7 +50,7 @@ export declare function program<Model, Msg, Dom>(
 
 Added in v0.5.0
 
-# programWithFlags
+## programWithFlags
 
 Same as `program()` but with `Flags` that can be passed when the `Program` is created in order to manage initial values.
 
@@ -73,7 +68,21 @@ export declare function programWithFlags<Flags, Model, Msg, Dom>(
 
 Added in v0.5.0
 
-# push
+# model
+
+## Location (type alias)
+
+**Signature**
+
+```ts
+export type Location = H.Location
+```
+
+Added in v0.5.0
+
+# utils
+
+## push
 
 Generates a `Cmd` that adds a new location to the history's list.
 

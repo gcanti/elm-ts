@@ -4,7 +4,7 @@ nav_order: 10
 parent: Modules
 ---
 
-# Http overview
+## Http overview
 
 Makes http calls to remote resources as `Cmd`s.
 
@@ -16,18 +16,83 @@ Added in v0.5.0
 
 <h2 class="text-delta">Table of contents</h2>
 
-- [Request (interface)](#request-interface)
-- [Response (interface)](#response-interface)
-- [HttpError (type alias)](#httperror-type-alias)
-- [Method (type alias)](#method-type-alias)
-- [get](#get)
-- [post](#post)
-- [send](#send)
-- [toTask](#totask)
+- [creators](#creators)
+  - [get](#get)
+  - [post](#post)
+- [destructors](#destructors)
+  - [toTask](#totask)
+- [model](#model)
+  - [HttpError (type alias)](#httperror-type-alias)
+  - [Method (type alias)](#method-type-alias)
+  - [Request (interface)](#request-interface)
+  - [Response (interface)](#response-interface)
+- [utils](#utils)
+  - [send](#send)
 
 ---
 
-# Request (interface)
+# creators
+
+## get
+
+**Signature**
+
+```ts
+export declare function get<A>(url: string, decoder: Decoder<A>): Request<A>
+```
+
+Added in v0.5.0
+
+## post
+
+**Signature**
+
+```ts
+export declare function post<A>(url: string, body: unknown, decoder: Decoder<A>): Request<A>
+```
+
+Added in v0.5.0
+
+# destructors
+
+## toTask
+
+**Signature**
+
+```ts
+export declare function toTask<A>(req: Request<A>): TaskEither<HttpError, A>
+```
+
+Added in v0.5.0
+
+# model
+
+## HttpError (type alias)
+
+**Signature**
+
+```ts
+export type HttpError =
+  | { readonly _tag: 'BadUrl'; readonly value: string }
+  | { readonly _tag: 'Timeout' }
+  | { readonly _tag: 'NetworkError'; readonly value: string }
+  | { readonly _tag: 'BadStatus'; readonly response: Response<string> }
+  | { readonly _tag: 'BadPayload'; readonly value: string; readonly response: Response<string> }
+```
+
+Added in v0.5.0
+
+## Method (type alias)
+
+**Signature**
+
+```ts
+export type Method = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE'
+```
+
+Added in v0.5.0
+
+## Request (interface)
 
 **Signature**
 
@@ -45,7 +110,7 @@ export interface Request<A> {
 
 Added in v0.5.0
 
-# Response (interface)
+## Response (interface)
 
 **Signature**
 
@@ -63,52 +128,9 @@ export interface Response<Body> {
 
 Added in v0.5.0
 
-# HttpError (type alias)
+# utils
 
-**Signature**
-
-```ts
-export type HttpError =
-  | { readonly _tag: 'BadUrl'; readonly value: string }
-  | { readonly _tag: 'Timeout' }
-  | { readonly _tag: 'NetworkError'; readonly value: string }
-  | { readonly _tag: 'BadStatus'; readonly response: Response<string> }
-  | { readonly _tag: 'BadPayload'; readonly value: string; readonly response: Response<string> }
-```
-
-Added in v0.5.0
-
-# Method (type alias)
-
-**Signature**
-
-```ts
-export type Method = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE'
-```
-
-Added in v0.5.0
-
-# get
-
-**Signature**
-
-```ts
-export declare function get<A>(url: string, decoder: Decoder<A>): Request<A>
-```
-
-Added in v0.5.0
-
-# post
-
-**Signature**
-
-```ts
-export declare function post<A>(url: string, body: unknown, decoder: Decoder<A>): Request<A>
-```
-
-Added in v0.5.0
-
-# send
+## send
 
 Executes as `Cmd` the provided call to remote resource, mapping result to a `Msg`.
 
@@ -116,16 +138,6 @@ Executes as `Cmd` the provided call to remote resource, mapping result to a `Msg
 
 ```ts
 export declare function send<A, Msg>(f: (e: Either<HttpError, A>) => Msg): (req: Request<A>) => Cmd<Msg>
-```
-
-Added in v0.5.0
-
-# toTask
-
-**Signature**
-
-```ts
-export declare function toTask<A>(req: Request<A>): TaskEither<HttpError, A>
 ```
 
 Added in v0.5.0

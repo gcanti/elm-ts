@@ -4,7 +4,7 @@ nav_order: 4
 parent: Modules
 ---
 
-# Html overview
+## Html overview
 
 This module makes available a debugging utility for `elm-ts` applications running `Html` programs.
 
@@ -39,14 +39,17 @@ Added in v0.5.3
 
 <h2 class="text-delta">Table of contents</h2>
 
-- [programWithDebugger](#programwithdebugger)
-- [programWithDebuggerWithFlags](#programwithdebuggerwithflags)
-- [programWithDebuggerWithFlagsWithStop](#programwithdebuggerwithflagswithstop)
-- [programWithDebuggerWithStop](#programwithdebuggerwithstop)
+- [constructors](#constructors)
+  - [programWithDebugger](#programwithdebugger)
+  - [programWithDebuggerWithFlags](#programwithdebuggerwithflags)
+  - [programWithDebuggerWithFlagsWithStop](#programwithdebuggerwithflagswithstop)
+  - [programWithDebuggerWithStop](#programwithdebuggerwithstop)
 
 ---
 
-# programWithDebugger
+# constructors
+
+## programWithDebugger
 
 Adds a debugging capability to a generic `Html` `Program`.
 
@@ -83,7 +86,7 @@ export declare function programWithDebugger<Model, Msg, Dom>(
 
 Added in v0.5.3
 
-# programWithDebuggerWithFlags
+## programWithDebuggerWithFlags
 
 Same as `programWithDebugger()` but with `Flags` that can be passed when the `Program` is created in order to manage initial values.
 
@@ -100,7 +103,7 @@ export declare function programWithDebuggerWithFlags<Flags, Model, Msg, Dom>(
 
 Added in v0.5.3
 
-# programWithDebuggerWithFlagsWithStop
+## programWithDebuggerWithFlagsWithStop
 
 Same as `programWithDebuggerWithStop()` but with `Flags` that can be passed when the `Program` is created in order to manage initial values.
 
@@ -119,7 +122,7 @@ export declare function programWithDebuggerWithFlagsWithStop<Model, Msg, Dom>(
 
 Added in v0.5.4
 
-# programWithDebuggerWithStop
+## programWithDebuggerWithStop
 
 A function that requires an `Observable` and returns a `programWithDebugger()` function: the underlying debugger will stop when the `Observable` emits a value.
 

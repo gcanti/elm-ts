@@ -13,38 +13,47 @@ import * as time from './Time'
 
 export {
   /**
+   * @category instances
    * @since 0.5.0
    */
   cmd,
   /**
+   * @category instances
    * @since 0.5.0
    */
   decode,
   /**
+   * @category instances
    * @since 0.5.0
    */
   html,
   /**
+   * @category instances
    * @since 0.5.0
    */
   http,
   /**
+   * @category instances
    * @since 0.5.0
    */
   platform,
   /**
+   * @category instances
    * @since 0.5.0
    */
   react,
   /**
+   * @category instances
    * @since 0.5.0
    */
   sub,
   /**
+   * @category instances
    * @since 0.5.0
    */
   task,
   /**
+   * @category instances
    * @since 0.5.0
    */
   time

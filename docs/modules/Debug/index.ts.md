@@ -4,7 +4,7 @@ nav_order: 5
 parent: Modules
 ---
 
-# index overview
+## index overview
 
 This module makes available a debugging utility for `elm-ts` applications.
 
@@ -18,12 +18,15 @@ Added in v0.5.0
 
 <h2 class="text-delta">Table of contents</h2>
 
-- [~~programWithDebuggerWithFlags~~](#programwithdebuggerwithflags)
-- [~~programWithDebugger~~](#programwithdebugger)
+- [constructors](#constructors)
+  - [~~programWithDebuggerWithFlags~~](#programwithdebuggerwithflags)
+  - [~~programWithDebugger~~](#programwithdebugger)
 
 ---
 
-# ~~programWithDebuggerWithFlags~~
+# constructors
+
+## ~~programWithDebuggerWithFlags~~
 
 **Signature**
 
@@ -33,7 +36,7 @@ export declare const programWithDebuggerWithFlags: typeof HtmlDebugger.programWi
 
 Added in v0.5.0
 
-# ~~programWithDebugger~~
+## ~~programWithDebugger~~
 
 **Signature**
 

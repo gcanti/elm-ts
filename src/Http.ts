@@ -24,11 +24,13 @@ import Either = E.Either
 import TaskEither = TE.TaskEither
 
 /**
+ * @category model
  * @since 0.5.0
  */
 export type Method = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE'
 
 /**
+ * @category model
  * @since 0.5.0
  */
 export interface Request<A> {
@@ -42,6 +44,7 @@ export interface Request<A> {
 }
 
 /**
+ * @category model
  * @since 0.5.0
  */
 export interface Response<Body> {
@@ -55,6 +58,7 @@ export interface Response<Body> {
 }
 
 /**
+ * @category model
  * @since 0.5.0
  */
 export type HttpError =
@@ -65,6 +69,7 @@ export type HttpError =
   | { readonly _tag: 'BadPayload'; readonly value: string; readonly response: Response<string> }
 
 /**
+ * @category destructors
  * @since 0.5.0
  */
 export function toTask<A>(req: Request<A>): TaskEither<HttpError, A> {
@@ -73,6 +78,7 @@ export function toTask<A>(req: Request<A>): TaskEither<HttpError, A> {
 
 /**
  * Executes as `Cmd` the provided call to remote resource, mapping result to a `Msg`.
+ * @category utils
  * @since 0.5.0
  */
 export function send<A, Msg>(f: (e: Either<HttpError, A>) => Msg): (req: Request<A>) => Cmd<Msg> {
@@ -80,6 +86,7 @@ export function send<A, Msg>(f: (e: Either<HttpError, A>) => Msg): (req: Request
 }
 
 /**
+ * @category creators
  * @since 0.5.0
  */
 export function get<A>(url: string, decoder: Decoder<A>): Request<A> {
@@ -95,6 +102,7 @@ export function get<A>(url: string, decoder: Decoder<A>): Request<A> {
 }
 
 /**
+ * @category creators
  * @since 0.5.0
  */
 export function post<A>(url: string, body: unknown, decoder: Decoder<A>): Request<A> {
@@ -112,12 +120,7 @@ export function post<A>(url: string, body: unknown, decoder: Decoder<A>): Reques
 // --- Helpers
 function xhr<A>(req: Request<A>): Observable<Either<HttpError, A>> {
   return ajax(toXHRRequest(req)).pipe(
-    map(
-      flow(
-        toResponse(req),
-        decodeWith(req.expect)
-      )
-    ),
+    map(flow(toResponse(req), decodeWith(req.expect))),
     catchError((e: unknown): Observable<Either<HttpError, A>> => of(E.left(toHttpError(req, e))))
   )
 }

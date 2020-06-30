@@ -12,23 +12,27 @@ import { Sub } from './Sub'
 
 /**
  * `Dom` is a `ReactElement`.
+ * @category model
  * @since 0.5.0
  */
 export interface Dom extends ReactElement<any> {}
 
 /**
  * `Html` has `Dom` type constrained to the specialized version for `React`.
+ * @category model
  * @since 0.5.0
  */
 export interface Html<Msg> extends html.Html<Dom, Msg> {}
 
 /**
+ * @category model
  * @since 0.5.0
  */
 export interface Program<Model, Msg> extends html.Program<Model, Msg, Dom> {}
 
 /**
  * `map()` is `Html.map()` with `Html` type constrained to the specialized version for `React`.
+ * @category Functor
  * @since 0.5.0
  */
 export function map<A, Msg>(f: (a: A) => Msg): (ha: Html<A>) => Html<Msg> {
@@ -37,6 +41,7 @@ export function map<A, Msg>(f: (a: A) => Msg): (ha: Html<A>) => Html<Msg> {
 
 /**
  * `program()` is `Html.program()` with `Html` type constrained to the specialized version for `React`.
+ * @category constructors
  * @since 0.5.0
  */
 export function program<Model, Msg>(
@@ -50,6 +55,7 @@ export function program<Model, Msg>(
 
 /**
  * Same as `program()` but with `Flags` that can be passed when the `Program` is created in order to manage initial values.
+ * @category constructors
  * @since 0.5.0
  */
 export function programWithFlags<Flags, Model, Msg>(
@@ -63,6 +69,7 @@ export function programWithFlags<Flags, Model, Msg>(
 
 /**
  * `run()` is `Html.run()` with `dom` type constrained to the specialized version for `React`.
+ * @category utils
  * @since 0.5.0
  */
 export function run<Model, Msg>(program: Program<Model, Msg>, renderer: html.Renderer<Dom>): Observable<Model> {

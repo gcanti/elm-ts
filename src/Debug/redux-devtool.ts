@@ -25,6 +25,7 @@ type Unsubscription = () => void
 
 /**
  * Defines a _Redux DevTool Extension_ object.
+ * @category model
  * @since 0.5.0
  */
 export interface Extension {
@@ -33,6 +34,7 @@ export interface Extension {
 
 /**
  * Defines a _Redux DevTool Extension_ connection object.
+ * @category model
  * @since 0.5.0
  */
 export interface Connection<Model, Msg> {
@@ -80,6 +82,7 @@ interface DevToolHandlerR<Model, Msg> extends DebuggerR<Model, Msg> {
 
 /**
  * Gets a _Redux DevTool Extension_ connection in case the extension is available
+ * @category utils
  * @since 0.5.0
  */
 export function getConnection<Model, Msg>(global: Global): IO<Option<Connection<Model, Msg>>> {
@@ -98,6 +101,7 @@ function hasExtension(global: Global): global is Global & { __REDUX_DEVTOOLS_EXT
 
 /**
  * **[UNSAFE]** Debug through _Redux DevTool Extension_
+ * @category constructors
  * @since 0.5.4
  */
 export function reduxDevToolDebugger<Model, Msg>(connection: Connection<Model, Msg>): Debugger<Model, Msg> {
@@ -116,7 +120,6 @@ export function reduxDevToolDebugger<Model, Msg>(connection: Connection<Model, M
 
 /**
  * **[UNSAFE]** Handles the execution of an effect related to an incoming messages sent from extension monitor.
- *
  * @since 0.5.0
  */
 function handleSubscription<Model, Msg>(deps: DevToolHandlerR<Model, Msg>): (msg: DevToolMsg) => void {
@@ -125,7 +128,10 @@ function handleSubscription<Model, Msg>(deps: DevToolHandlerR<Model, Msg>): (msg
   return msg =>
     pipe(
       handler(msg),
-      E.fold(err => console.warn('[REDUX DEV TOOL]', err), eff => eff())
+      E.fold(
+        err => console.warn('[REDUX DEV TOOL]', err),
+        eff => eff()
+      )
     )
 }
 
@@ -165,10 +171,7 @@ function handleIncomingMsg<Model, Msg>({
         switch (msg.payload.type) {
           case 'JUMP_TO_STATE':
           case 'JUMP_TO_ACTION':
-            return pipe(
-              parseJump<Model>(msg),
-              E.map(update)
-            )
+            return pipe(parseJump<Model>(msg), E.map(update))
 
           case 'RESET':
             return E.right(
@@ -206,12 +209,7 @@ function handleIncomingMsg<Model, Msg>({
           case 'TOGGLE_ACTION':
             return pipe(
               parseToggleAction<Model>(msg),
-              E.map(([id, liftedState]) =>
-                pipe(
-                  toggle(id, liftedState),
-                  IO_.chain(liftState)
-                )
-              )
+              E.map(([id, liftedState]) => pipe(toggle(id, liftedState), IO_.chain(liftState)))
             )
 
           default:
@@ -239,7 +237,10 @@ function handleActions<Model, Msg>({ connection }: DevToolHandlerR<Model, Msg>):
 function parseJump<Model>(msg: Monitor): Either<string, Model> {
   return pipe(
     E.parseJSON(String(msg.state), E.toError),
-    E.bimap(e => e.message, u => u as Model)
+    E.bimap(
+      e => e.message,
+      u => u as Model
+    )
   )
 }
 
@@ -251,7 +252,10 @@ function parseJump<Model>(msg: Monitor): Either<string, Model> {
 function parseRollback<Model>(msg: Monitor): Either<string, Model> {
   return pipe(
     E.parseJSON(String(msg.state), E.toError),
-    E.bimap(e => e.message, u => u as Model)
+    E.bimap(
+      e => e.message,
+      u => u as Model
+    )
   )
 }
 
@@ -280,7 +284,10 @@ function parseToggleAction<Model>(msg: Monitor): Either<string, [number, LiftedS
 
   const parseState = pipe(
     E.parseJSON(String(msg.state), E.toError),
-    E.bimap(e => e.message, u => u as LiftedState<Model>)
+    E.bimap(
+      e => e.message,
+      u => u as LiftedState<Model>
+    )
   )
 
   return sequenceTEither(getId, parseState)

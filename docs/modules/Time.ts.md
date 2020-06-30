@@ -4,7 +4,7 @@ nav_order: 17
 parent: Modules
 ---
 
-# Time overview
+## Time overview
 
 Exposes some utilities to work with unix time.
 
@@ -16,24 +16,16 @@ Added in v0.5.0
 
 <h2 class="text-delta">Table of contents</h2>
 
-- [every](#every)
-- [now](#now)
+- [constructors](#constructors)
+  - [now](#now)
+- [utils](#utils)
+  - [every](#every)
 
 ---
 
-# every
+# constructors
 
-Get the current unix time periodically.
-
-**Signature**
-
-```ts
-export declare function every<Msg>(time: number, f: (time: number) => Msg): Sub<Msg>
-```
-
-Added in v0.5.0
-
-# now
+## now
 
 Get the current unix time as a `Task`.
 
@@ -41,6 +33,20 @@ Get the current unix time as a `Task`.
 
 ```ts
 export declare function now(): Task<number>
+```
+
+Added in v0.5.0
+
+# utils
+
+## every
+
+Get the current unix time periodically.
+
+**Signature**
+
+```ts
+export declare function every<Msg>(time: number, f: (time: number) => Msg): Sub<Msg>
 ```
 
 Added in v0.5.0

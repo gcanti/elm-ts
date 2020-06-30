@@ -14,6 +14,7 @@ import { Cmd } from './Cmd'
 
 /**
  * Executes a `Task` as a `Cmd` mapping the result to a `Msg`.
+ * @category utils
  * @since 0.5.0
  */
 export function perform<A, Msg>(f: (a: A) => Msg): (t: Task<A>) => Cmd<Msg> {
@@ -22,6 +23,7 @@ export function perform<A, Msg>(f: (a: A) => Msg): (t: Task<A>) => Cmd<Msg> {
 
 /**
  * Executes a `Task` that can fail as a `Cmd` mapping the result (`Either`) to a `Msg`.
+ * @category utils
  * @since 0.5.0
  */
 export function attempt<E, A, Msg>(f: (e: Either<E, A>) => Msg): (task: Task<Either<E, A>>) => Cmd<Msg> {

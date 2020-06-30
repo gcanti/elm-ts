@@ -10,6 +10,7 @@ import { DebugMsg, Debugger } from './commons'
 
 /**
  * **[UNSAFE]** Simple debugger that uses the standard browser's `console`
+ * @category constructors
  * @since 0.5.4
  */
 export function consoleDebugger<Model, Msg>(): Debugger<Model, Msg> {

@@ -12,12 +12,14 @@ import { EMPTY, Observable, merge, of as RxOf } from 'rxjs'
 import { map as RxMap } from 'rxjs/operators'
 
 /**
+ * @category model
  * @since 0.5.0
  */
 export interface Cmd<Msg> extends Observable<Task<Option<Msg>>> {}
 
 /**
  * Creates a new `Cmd` that carries the provided `Msg`.
+ * @category Applicative
  * @since 0.5.0
  */
 export function of<Msg>(m: Msg): Cmd<Msg> {
@@ -26,6 +28,7 @@ export function of<Msg>(m: Msg): Cmd<Msg> {
 
 /**
  * Maps the carried `Msg` of a `Cmd` into another `Msg`.
+ * @category Functor
  * @since 0.5.0
  */
 export function map<A, Msg>(f: (a: A) => Msg): (cmd: Cmd<A>) => Cmd<Msg> {
@@ -34,6 +37,7 @@ export function map<A, Msg>(f: (a: A) => Msg): (cmd: Cmd<A>) => Cmd<Msg> {
 
 /**
  * Batches the execution of a list of commands.
+ * @category utils
  * @since 0.5.0
  */
 export function batch<Msg>(arr: Array<Cmd<Msg>>): Cmd<Msg> {
@@ -42,6 +46,7 @@ export function batch<Msg>(arr: Array<Cmd<Msg>>): Cmd<Msg> {
 
 /**
  * A `none` command is an empty stream.
+ * @category constructors
  * @since 0.5.0
  */
 export const none: Cmd<never> = EMPTY

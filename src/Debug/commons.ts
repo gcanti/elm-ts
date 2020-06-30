@@ -14,21 +14,25 @@ import { consoleDebugger } from './console'
 import { getConnection, reduxDevToolDebugger } from './redux-devtool'
 
 /**
+ * @category model
  * @since 0.5.0
  */
 export type Global = typeof window
 
 /**
+ * @category model
  * @since 0.5.0
  */
 export type DebugData<Model, Msg> = [DebugAction<Msg>, Model]
 
 /**
+ * @category model
  * @since 0.5.0
  */
 export type DebugAction<Msg> = DebugInit | DebugMsg<Msg>
 
 /**
+ * @category model
  * @since 0.5.0
  */
 export interface DebugInit {
@@ -36,11 +40,13 @@ export interface DebugInit {
 }
 /**
  * Creates a `DebugInit`
+ * @category constructos
  * @since 0.5.0
  */
 export const debugInit = (): DebugInit => ({ type: 'INIT' })
 
 /**
+ * @category model
  * @since 0.5.0
  */
 export interface DebugMsg<Msg> {
@@ -49,12 +55,14 @@ export interface DebugMsg<Msg> {
 }
 /**
  * Creates a `DebugMsg`
+ * @category constructors
  * @since 0.5.0
  */
 export const debugMsg = <Msg>(payload: Msg): DebugMsg<Msg> => ({ type: 'MESSAGE', payload })
 
 /**
  * Extends `Msg` with a special kind of message from Debugger
+ * @category model
  * @since 0.5.0
  */
 export type MsgWithDebug<Model, Msg> =
@@ -64,6 +72,7 @@ export type MsgWithDebug<Model, Msg> =
 
 /**
  * Defines a generic debugging function
+ * @category model
  * @since 0.5.0
  */
 export interface Debug<Model, Msg> {
@@ -72,6 +81,7 @@ export interface Debug<Model, Msg> {
 
 /**
  * Defines a generic `Debugger`
+ * @category model
  * @since 0.5.4
  */
 export interface Debugger<Model, Msg> {
@@ -83,6 +93,7 @@ export interface Debugger<Model, Msg> {
 
 /**
  * Defines the dependencies for a `Debugger` function.
+ * @category model
  * @since 0.5.0
  */
 export interface DebuggerR<Model, Msg> {
@@ -112,6 +123,7 @@ export interface DebuggerR<Model, Msg> {
  *   payload: Msg
  * }
  * ```
+ * @category utils
  * @since 0.5.3
  */
 export function updateWithDebug<Model, Msg>(
@@ -141,6 +153,7 @@ export function updateWithDebug<Model, Msg>(
  * Checks which type of debugger can be used (standard `console` or _Redux DevTool Extension_) based on provided `window` and prepares the subscription to the "debug" stream
  *
  * **Warning:** this function **SHOULD** be considered as an internal method; using it in your application **SHOULD** be avoided.
+ * @category utils
  * @since 0.5.4
  */
 export function runDebugger<Model, Msg>(

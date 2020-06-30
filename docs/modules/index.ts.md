@@ -4,7 +4,7 @@ nav_order: 11
 parent: Modules
 ---
 
-# index overview
+## index overview
 
 Added in v0.5.0
 
@@ -12,19 +12,22 @@ Added in v0.5.0
 
 <h2 class="text-delta">Table of contents</h2>
 
-- [cmd](#cmd)
-- [decode](#decode)
-- [html](#html)
-- [http](#http)
-- [platform](#platform)
-- [react](#react)
-- [sub](#sub)
-- [task](#task)
-- [time](#time)
+- [instances](#instances)
+  - [cmd](#cmd)
+  - [decode](#decode)
+  - [html](#html)
+  - [http](#http)
+  - [platform](#platform)
+  - [react](#react)
+  - [sub](#sub)
+  - [task](#task)
+  - [time](#time)
 
 ---
 
-# cmd
+# instances
+
+## cmd
 
 **Signature**
 
@@ -34,7 +37,7 @@ export declare const cmd: typeof cmd
 
 Added in v0.5.0
 
-# decode
+## decode
 
 **Signature**
 
@@ -44,7 +47,7 @@ export declare const decode: typeof decode
 
 Added in v0.5.0
 
-# html
+## html
 
 **Signature**
 
@@ -54,7 +57,7 @@ export declare const html: typeof html
 
 Added in v0.5.0
 
-# http
+## http
 
 **Signature**
 
@@ -64,7 +67,7 @@ export declare const http: typeof http
 
 Added in v0.5.0
 
-# platform
+## platform
 
 **Signature**
 
@@ -74,7 +77,7 @@ export declare const platform: typeof platform
 
 Added in v0.5.0
 
-# react
+## react
 
 **Signature**
 
@@ -84,7 +87,7 @@ export declare const react: typeof react
 
 Added in v0.5.0
 
-# sub
+## sub
 
 **Signature**
 
@@ -94,7 +97,7 @@ export declare const sub: typeof sub
 
 Added in v0.5.0
 
-# task
+## task
 
 **Signature**
 
@@ -104,7 +107,7 @@ export declare const task: typeof task
 
 Added in v0.5.0
 
-# time
+## time
 
 **Signature**
 

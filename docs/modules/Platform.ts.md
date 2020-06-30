@@ -4,7 +4,7 @@ nav_order: 13
 parent: Modules
 ---
 
-# Platform overview
+## Platform overview
 
 The `Platform` module is the backbone of `elm-ts`.
 It defines the base `program()` and `run()` functions which will be extended by more specialized modules.
@@ -16,45 +16,38 @@ Added in v0.5.0
 
 <h2 class="text-delta">Table of contents</h2>
 
-- [Dispatch (interface)](#dispatch-interface)
-- [Program (interface)](#program-interface)
-- [program](#program)
-- [programWithFlags](#programwithflags)
-- [run](#run)
-- [withStop](#withstop)
+- [combinators](#combinators)
+  - [withStop](#withstop)
+- [constructors](#constructors)
+  - [program](#program)
+  - [programWithFlags](#programwithflags)
+- [model](#model)
+  - [Dispatch (interface)](#dispatch-interface)
+  - [Program (interface)](#program-interface)
+- [utils](#utils)
+  - [run](#run)
 
 ---
 
-# Dispatch (interface)
+# combinators
+
+## withStop
+
+Stops the `program` when `signal` Observable emits a value.
 
 **Signature**
 
 ```ts
-export interface Dispatch<Msg> {
-  (msg: Msg): void
-}
+export declare function withStop(
+  signal: Observable<unknown>
+): <Model, Msg>(program: Program<Model, Msg>) => Program<Model, Msg>
 ```
 
-Added in v0.5.0
+Added in v0.5.4
 
-# Program (interface)
+# constructors
 
-Program`is just an object that exposes the underlying streams which compose _The Elm Architecture_. Even **Commands** and **Subscriptions** are expressed as`Observables` in order to mix them with ease.
-
-**Signature**
-
-```ts
-export interface Program<Model, Msg> {
-  dispatch: Dispatch<Msg>
-  cmd$: Cmd<Msg>
-  sub$: Sub<Msg>
-  model$: Observable<Model>
-}
-```
-
-Added in v0.5.0
-
-# program
+## program
 
 `program()` is the real core of `elm-ts`.
 
@@ -74,7 +67,7 @@ export declare function program<Model, Msg>(
 
 Added in v0.5.0
 
-# programWithFlags
+## programWithFlags
 
 Same as `program()` but with `Flags` that can be passed when the `Program` is created in order to manage initial values.
 
@@ -90,7 +83,40 @@ export declare function programWithFlags<Flags, Model, Msg>(
 
 Added in v0.5.0
 
-# run
+# model
+
+## Dispatch (interface)
+
+**Signature**
+
+```ts
+export interface Dispatch<Msg> {
+  (msg: Msg): void
+}
+```
+
+Added in v0.5.0
+
+## Program (interface)
+
+Program`is just an object that exposes the underlying streams which compose _The Elm Architecture_. Even **Commands** and **Subscriptions** are expressed as`Observables` in order to mix them with ease.
+
+**Signature**
+
+```ts
+export interface Program<Model, Msg> {
+  dispatch: Dispatch<Msg>
+  cmd$: Cmd<Msg>
+  sub$: Sub<Msg>
+  model$: Observable<Model>
+}
+```
+
+Added in v0.5.0
+
+# utils
+
+## run
 
 Runs the `Program`.
 
@@ -103,17 +129,3 @@ export declare function run<Model, Msg>(program: Program<Model, Msg>): Observabl
 ```
 
 Added in v0.5.0
-
-# withStop
-
-Stops the `program` when `signal` Observable emits a value.
-
-**Signature**
-
-```ts
-export declare function withStop(
-  signal: Observable<unknown>
-): <Model, Msg>(program: Program<Model, Msg>) => Program<Model, Msg>
-```
-
-Added in v0.5.4

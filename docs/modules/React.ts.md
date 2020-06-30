@@ -4,7 +4,7 @@ nav_order: 14
 parent: Modules
 ---
 
-# React overview
+## React overview
 
 A specialization of `Html` that uses `React` as renderer.
 
@@ -14,51 +14,23 @@ Added in v0.5.0
 
 <h2 class="text-delta">Table of contents</h2>
 
-- [Dom (interface)](#dom-interface)
-- [Html (interface)](#html-interface)
-- [Program (interface)](#program-interface)
-- [map](#map)
-- [program](#program)
-- [programWithFlags](#programwithflags)
-- [run](#run)
+- [Functor](#functor)
+  - [map](#map)
+- [constructors](#constructors)
+  - [program](#program)
+  - [programWithFlags](#programwithflags)
+- [model](#model)
+  - [Dom (interface)](#dom-interface)
+  - [Html (interface)](#html-interface)
+  - [Program (interface)](#program-interface)
+- [utils](#utils)
+  - [run](#run)
 
 ---
 
-# Dom (interface)
+# Functor
 
-`Dom` is a `ReactElement`.
-
-**Signature**
-
-```ts
-export interface Dom extends ReactElement<any> {}
-```
-
-Added in v0.5.0
-
-# Html (interface)
-
-`Html` has `Dom` type constrained to the specialized version for `React`.
-
-**Signature**
-
-```ts
-export interface Html<Msg> extends html.Html<Dom, Msg> {}
-```
-
-Added in v0.5.0
-
-# Program (interface)
-
-**Signature**
-
-```ts
-export interface Program<Model, Msg> extends html.Program<Model, Msg, Dom> {}
-```
-
-Added in v0.5.0
-
-# map
+## map
 
 `map()` is `Html.map()` with `Html` type constrained to the specialized version for `React`.
 
@@ -70,7 +42,9 @@ export declare function map<A, Msg>(f: (a: A) => Msg): (ha: Html<A>) => Html<Msg
 
 Added in v0.5.0
 
-# program
+# constructors
+
+## program
 
 `program()` is `Html.program()` with `Html` type constrained to the specialized version for `React`.
 
@@ -87,7 +61,7 @@ export declare function program<Model, Msg>(
 
 Added in v0.5.0
 
-# programWithFlags
+## programWithFlags
 
 Same as `program()` but with `Flags` that can be passed when the `Program` is created in order to manage initial values.
 
@@ -104,7 +78,45 @@ export declare function programWithFlags<Flags, Model, Msg>(
 
 Added in v0.5.0
 
-# run
+# model
+
+## Dom (interface)
+
+`Dom` is a `ReactElement`.
+
+**Signature**
+
+```ts
+export interface Dom extends ReactElement<any> {}
+```
+
+Added in v0.5.0
+
+## Html (interface)
+
+`Html` has `Dom` type constrained to the specialized version for `React`.
+
+**Signature**
+
+```ts
+export interface Html<Msg> extends html.Html<Dom, Msg> {}
+```
+
+Added in v0.5.0
+
+## Program (interface)
+
+**Signature**
+
+```ts
+export interface Program<Model, Msg> extends html.Program<Model, Msg, Dom> {}
+```
+
+Added in v0.5.0
+
+# utils
+
+## run
 
 `run()` is `Html.run()` with `dom` type constrained to the specialized version for `React`.
 
