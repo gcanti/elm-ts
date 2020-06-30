@@ -10,16 +10,18 @@ import * as H from './_helpers'
 const sequenceTask = array.sequence(task)
 
 describe('Html', () => {
-  it('map() should map an `Html<dom, A>` into an `Html<dom, B>`', () => {
-    const state: string[] = []
-    const btn = H.button('A button')
-    const dispatch = (msg: H.Msg) => state.push(msg.type)
-    const m = map<H.Dom, H.Msg, H.Msg>(() => ({ type: 'BAR' as const }))
+  describe('map()', () => {
+    it('should map an `Html<dom, A>` into an `Html<dom, B>`', () => {
+      const state: string[] = []
+      const btn = H.button('A button')
+      const dispatch = (msg: H.Msg) => state.push(msg.type)
+      const m = map<H.Dom, H.Msg, H.Msg>(() => ({ type: 'BAR' as const }))
 
-    btn(dispatch).onclick()
-    m(btn)(dispatch).onclick()
+      btn(dispatch).onclick()
+      m(btn)(dispatch).onclick()
 
-    assert.deepStrictEqual(state, ['FOO', 'BAR'])
+      assert.deepStrictEqual(state, ['FOO', 'BAR'])
+    })
   })
 
   describe('program()', () => {
@@ -56,47 +58,51 @@ describe('Html', () => {
     })
   })
 
-  it('programWithFlags() should return a function that returns a program() with flags on `init`', () => {
-    const collectView$: H.View[] = []
-    const initWithFlags = (f: string): [H.Model, Cmd<H.Msg>] => [{ x: f }, none]
-    const withFlags = programWithFlags(initWithFlags, H.update, H.view, H.subscriptions)
-    const { dispatch, html$ } = withFlags('start!')
+  describe('programWithFlags()', () => {
+    it('should return a function that returns a program() with flags on `init`', () => {
+      const collectView$: H.View[] = []
+      const initWithFlags = (f: string): [H.Model, Cmd<H.Msg>] => [{ x: f }, none]
+      const withFlags = programWithFlags(initWithFlags, H.update, H.view, H.subscriptions)
+      const { dispatch, html$ } = withFlags('start!')
 
-    html$.subscribe(v => collectView$.push(v))
+      html$.subscribe(v => collectView$.push(v))
 
-    assert.deepStrictEqual(collectView$.map(x => x(dispatch).text), ['start!'])
+      assert.deepStrictEqual(collectView$.map(x => x(dispatch).text), ['start!'])
+    })
   })
 
-  it('withStop() should stop the Program when a signal is emitted', async () => {
-    const signal = new Subject<any>()
+  describe('withStop()', () => {
+    it('should stop the Program when a signal is emitted', async () => {
+      const signal = new Subject<any>()
 
-    const views: H.View[] = []
-    const cmds: Array<Task<Option<H.Msg>>> = []
-    const subs: H.Msg[] = []
-    const { sub$, html$, cmd$, dispatch } = withStop(signal)(program(H.init, H.update, H.view, H.subscriptions))
+      const views: H.View[] = []
+      const cmds: Array<Task<Option<H.Msg>>> = []
+      const subs: H.Msg[] = []
+      const { sub$, html$, cmd$, dispatch } = withStop(signal)(program(H.init, H.update, H.view, H.subscriptions))
 
-    cmd$.subscribe(v => cmds.push(v))
-    html$.subscribe(v => views.push(v))
-    sub$.subscribe(v => subs.push(v))
+      cmd$.subscribe(v => cmds.push(v))
+      html$.subscribe(v => views.push(v))
+      sub$.subscribe(v => subs.push(v))
 
-    dispatch({ type: 'FOO' })
-    dispatch({ type: 'BAR' })
-    dispatch({ type: 'DO-THE-THING!' })
-    dispatch({ type: 'SUB' })
+      dispatch({ type: 'FOO' })
+      dispatch({ type: 'BAR' })
+      dispatch({ type: 'DO-THE-THING!' })
+      dispatch({ type: 'SUB' })
 
-    // Emit stop signal and the other changes are bypassed
-    signal.next('stop me!')
+      // Emit stop signal and the other changes are bypassed
+      signal.next('stop me!')
 
-    dispatch({ type: 'FOO' })
-    dispatch({ type: 'BAR' })
-    dispatch({ type: 'DO-THE-THING!' })
-    dispatch({ type: 'SUB' })
+      dispatch({ type: 'FOO' })
+      dispatch({ type: 'BAR' })
+      dispatch({ type: 'DO-THE-THING!' })
+      dispatch({ type: 'SUB' })
 
-    const commands = await sequenceTask(cmds)()
+      const commands = await sequenceTask(cmds)()
 
-    assert.deepStrictEqual(views.map(x => x(dispatch).text), ['', 'foo', 'bar', 'sub'])
-    assert.deepStrictEqual(commands, [some({ type: 'FOO' })])
-    assert.deepStrictEqual(subs, [{ type: 'LISTEN' }])
+      assert.deepStrictEqual(views.map(x => x(dispatch).text), ['', 'foo', 'bar', 'sub'])
+      assert.deepStrictEqual(commands, [some({ type: 'FOO' })])
+      assert.deepStrictEqual(subs, [{ type: 'LISTEN' }])
+    })
   })
 
   describe('run()', () => {
