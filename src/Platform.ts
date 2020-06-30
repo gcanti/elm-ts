@@ -8,7 +8,7 @@
 
 import * as O from 'fp-ts/lib/Option'
 import { BehaviorSubject, Observable } from 'rxjs'
-import { distinctUntilChanged, map, mergeAll, switchMap, takeUntil } from 'rxjs/operators'
+import { distinctUntilChanged, map, mergeAll, startWith, switchMap, takeUntil } from 'rxjs/operators'
 import { Cmd } from './Cmd'
 import { Sub, none } from './Sub'
 
@@ -48,6 +48,7 @@ export function program<Model, Msg>(
   const dispatch: Dispatch<Msg> = msg => state$.next(update(msg, state$.getValue()[0]))
 
   const cmd$ = state$.pipe(
+    startWith(init),
     map(state => state[1]),
     distinctUntilChanged(),
     mergeAll()
