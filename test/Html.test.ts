@@ -102,7 +102,7 @@ describe('Html', () => {
   describe('run()', () => {
     it('should run the Program', () => {
       const renderings: string[] = []
-      const renderer = (dom: H.SimplerDom) => {
+      const renderer = (dom: H.Dom) => {
         renderings.push(`<${dom.tag}>${dom.text}</${dom.tag}>`)
       }
       const view = (model: H.Model) => H.span(model.x)
@@ -131,7 +131,7 @@ describe('Html', () => {
       const signal = new Subject<any>()
 
       const renderings: string[] = []
-      const renderer = (dom: H.SimplerDom) => {
+      const renderer = (dom: H.Dom) => {
         renderings.push(`<${dom.tag}>${dom.text}</${dom.tag}>`)
       }
       const view = (model: H.Model) => H.span(model.x)
