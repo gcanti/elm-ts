@@ -4,26 +4,31 @@ import { History, LocationDescriptorObject, LocationListener, UnregisterCallback
 import { EMPTY, Observable, of } from 'rxjs'
 import * as cmd from '../src/Cmd'
 import { Html } from '../src/Html'
-import { Dispatch } from '../src/Platform'
 
-const withModel = (model: Model): [Model, cmd.Cmd<Msg>] => [model, cmd.none]
+type State = [Model, cmd.Cmd<Msg>]
 
-const withEffect = (model: Model, cmd: cmd.Cmd<Msg>): [Model, cmd.Cmd<Msg>] => [model, cmd]
+const withModel = (model: Model): State => [model, cmd.none]
 
-const dispatchFoo = of(task.of(some<Msg>({ type: 'FOO' })))
+const withEffect = (model: Model, cmd: cmd.Cmd<Msg>): State => [model, cmd]
 
-const dispatchBaz = of(task.of(some<Msg>({ type: 'BAZ' })))
+const doFoo = of(task.of(some<Msg>({ type: 'FOO' })))
 
-// --- Model
+const doBaz = of(task.of(some<Msg>({ type: 'BAZ' })))
+
+// ---------
+// --- MODEL
+// ---------
 export interface Model {
   x: string
 }
 
-export const init: [Model, cmd.Cmd<Msg>] = [{ x: '' }, cmd.none]
+export const init: State = withModel({ x: '' })
 
-export const initWithCmd: [Model, cmd.Cmd<Msg>] = [{ x: '' }, dispatchBaz]
+export const initWithCmd: State = withEffect({ x: '' }, doBaz)
 
-// --- Messages
+// ------------
+// --- MESSAGES
+// ------------
 export type Msg =
   | { type: 'FOO' }
   | { type: 'BAR' }
@@ -32,66 +37,56 @@ export type Msg =
   | { type: 'SUB' }
   | { type: 'LISTEN' }
 
-// --- Update
-export function update(msg: Msg, model: Model): [Model, cmd.Cmd<Msg>] {
+// ----------
+// --- UPDATE
+// ----------
+export function update(msg: Msg, model: Model): State {
   switch (msg.type) {
     case 'FOO':
-      return withModel({ ...model, x: 'foo' })
-
     case 'BAR':
-      return withModel({ ...model, x: 'bar' })
-
     case 'BAZ':
-      return withModel({ ...model, x: 'baz' })
+    case 'SUB':
+    case 'LISTEN':
+      return withModel({ x: msg.type.toLowerCase() })
 
     case 'DO-THE-THING!':
-      return withEffect(model, dispatchFoo)
-
-    case 'SUB':
-      return withModel({ ...model, x: 'sub' })
-
-    case 'LISTEN':
-      return withModel({ ...model, x: 'listen' })
+      return withEffect(model, doFoo)
   }
 }
 
-// --- View
+// --------
+// --- VIEW
+// --------
 export interface Dom {
   tag: string
   text: string
   onclick: () => void
 }
 
-export type SimplerDom = Omit<Dom, 'onclick'>
-
 export type View = Html<Dom, Msg>
-type SimplerView = Html<SimplerDom, Msg>
 
 export function view(model: Model): View {
   return button(model.x)
 }
 
 export function button(x: string): View {
-  return (d: Dispatch<Msg>) => ({
-    tag: 'button',
-    text: x,
-    onclick: () => d({ type: 'FOO' })
-  })
+  return d => ({ tag: 'button', text: x, onclick: () => d({ type: 'FOO' }) })
 }
 
-export function span(x: string): SimplerView {
-  return (_: Dispatch<Msg>) => ({
-    tag: 'span',
-    text: x
-  })
+export function span(x: string): View {
+  return () => ({ tag: 'span', text: x, onclick: () => undefined })
 }
 
-// --- Subscription
+// -----------------
+// --- SUBSCRIPTIONS
+// -----------------
 export function subscriptions(m: Model): Observable<Msg> {
   return m.x === 'sub' ? of<Msg>({ type: 'LISTEN' }) : EMPTY
 }
 
-// --- Utilities
+// -------------
+// --- UTILITIES
+// -------------
 export const delayedAssert = (f: () => void, delay: number = 50): Promise<void> =>
   new Promise((resolve, reject) => {
     setTimeout(() => {
@@ -104,7 +99,9 @@ export const delayedAssert = (f: () => void, delay: number = 50): Promise<void> 
     }, delay)
   })
 
-// --- History
+// -----------
+// --- HISTORY
+// -----------
 /**
  * Creates a mocked implementation of the `history.createHashHistory()` function that tracks location changes through the `log` parameter
  */
