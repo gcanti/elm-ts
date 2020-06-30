@@ -24,7 +24,7 @@
  *
  * const main = program(locationToMsg, init, update, view)
  *
- * react.run(main, dom => render(document.getElementById('app')))
+ * react.run(main, dom => render(dom, document.getElementById('app')))
  * ```
  *
  * @since 0.5.3

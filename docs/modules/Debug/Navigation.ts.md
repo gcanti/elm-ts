@@ -32,7 +32,7 @@ const program = process.NODE_ENV === 'production' ? program : programWithDebugge
 
 const main = program(locationToMsg, init, update, view)
 
-react.run(main, dom => render(document.getElementById('app')))
+react.run(main, dom => render(dom, document.getElementById('app')))
 ```
 
 Added in v0.5.3
