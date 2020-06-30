@@ -13,8 +13,8 @@ const sequenceTask = array.sequence(task)
 describe('Platform', () => {
   describe('program()', () => {
     it('should return the Model/Cmd/Sub streams and Dispatch function - no subscription', async () => {
-      const models: App.Model[] = []
       const cmds: Array<Task<Option<App.Msg>>> = []
+      const models: App.Model[] = []
       const subs: App.Msg[] = []
       const { model$, cmd$, sub$, dispatch } = program(App.init, App.update)
 
@@ -89,8 +89,8 @@ describe('Platform', () => {
     it('should stop the Program when a signal is emitted', async () => {
       const signal = new Subject<any>()
 
-      const models: App.Model[] = []
       const cmds: Array<Task<Option<App.Msg>>> = []
+      const models: App.Model[] = []
       const subs: App.Msg[] = []
       const { model$, cmd$, sub$, dispatch } = withStop(signal)(program(App.init, App.update, App.subscriptions))
 
@@ -113,8 +113,8 @@ describe('Platform', () => {
 
       const commands = await sequenceTask(cmds)()
 
-      assert.deepStrictEqual(models, [{ x: '' }, { x: 'foo' }, { x: 'bar' }, { x: 'sub' }])
       assert.deepStrictEqual(commands, [some({ type: 'FOO' })])
+      assert.deepStrictEqual(models, [{ x: '' }, { x: 'foo' }, { x: 'bar' }, { x: 'sub' }])
       assert.deepStrictEqual(subs, [{ type: 'LISTEN' }])
     })
   })

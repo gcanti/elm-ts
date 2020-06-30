@@ -27,48 +27,48 @@ describe('Html', () => {
 
   describe('program()', () => {
     it('should return the Model/Cmd/Sub/Html streams and Dispatch function - no subscription', () => {
-      const collectSub$: App.Msg[] = []
-      const collectView$: App.View[] = []
+      const views: App.View[] = []
+      const subs: App.Msg[] = []
       const { dispatch, html$, sub$ } = program(App.init, App.update, App.view)
 
-      html$.subscribe(v => collectView$.push(v))
-      sub$.subscribe(v => collectSub$.push(v))
+      html$.subscribe(v => views.push(v))
+      sub$.subscribe(v => subs.push(v))
 
       dispatch({ type: 'FOO' })
       dispatch({ type: 'BAR' })
       dispatch({ type: 'DO-THE-THING!' })
 
-      assert.deepStrictEqual(collectSub$, [])
-      assert.deepStrictEqual(collectView$.map(x => x(dispatch).text), ['', 'foo', 'bar'])
+      assert.deepStrictEqual(views.map(x => x(dispatch).text), ['', 'foo', 'bar'])
+      assert.deepStrictEqual(subs, [])
     })
 
     it('should return the Model/Cmd/Sub/Html streams and Dispatch function - with subscription', () => {
-      const collectView$: App.View[] = []
-      const collectSub$: App.Msg[] = []
+      const views: App.View[] = []
+      const subs: App.Msg[] = []
       const { sub$, html$, dispatch } = program(App.init, App.update, App.view, App.subscriptions)
 
-      html$.subscribe(v => collectView$.push(v))
-      sub$.subscribe(v => collectSub$.push(v))
+      html$.subscribe(v => views.push(v))
+      sub$.subscribe(v => subs.push(v))
 
       dispatch({ type: 'FOO' })
       dispatch({ type: 'BAR' })
       dispatch({ type: 'SUB' })
 
-      assert.deepStrictEqual(collectSub$, [{ type: 'LISTEN' }])
-      assert.deepStrictEqual(collectView$.map(x => x(dispatch).text), ['', 'foo', 'bar', 'sub'])
+      assert.deepStrictEqual(views.map(x => x(dispatch).text), ['', 'foo', 'bar', 'sub'])
+      assert.deepStrictEqual(subs, [{ type: 'LISTEN' }])
     })
   })
 
   describe('programWithFlags()', () => {
     it('should return a function that returns a program() with flags on `init`', () => {
-      const collectView$: App.View[] = []
+      const views: App.View[] = []
       const initWithFlags = (f: string): [App.Model, Cmd<App.Msg>] => [{ x: f }, none]
       const withFlags = programWithFlags(initWithFlags, App.update, App.view, App.subscriptions)
       const { dispatch, html$ } = withFlags('start!')
 
-      html$.subscribe(v => collectView$.push(v))
+      html$.subscribe(v => views.push(v))
 
-      assert.deepStrictEqual(collectView$.map(x => x(dispatch).text), ['start!'])
+      assert.deepStrictEqual(views.map(x => x(dispatch).text), ['start!'])
     })
   })
 
@@ -76,8 +76,8 @@ describe('Html', () => {
     it('should stop the Program when a signal is emitted', async () => {
       const signal = new Subject<any>()
 
-      const views: App.View[] = []
       const cmds: Array<Task<Option<App.Msg>>> = []
+      const views: App.View[] = []
       const subs: App.Msg[] = []
       const { sub$, html$, cmd$, dispatch } = withStop(signal)(
         program(App.init, App.update, App.view, App.subscriptions)
@@ -102,8 +102,8 @@ describe('Html', () => {
 
       const commands = await sequenceTask(cmds)()
 
-      assert.deepStrictEqual(views.map(x => x(dispatch).text), ['', 'foo', 'bar', 'sub'])
       assert.deepStrictEqual(commands, [some({ type: 'FOO' })])
+      assert.deepStrictEqual(views.map(x => x(dispatch).text), ['', 'foo', 'bar', 'sub'])
       assert.deepStrictEqual(subs, [{ type: 'LISTEN' }])
     })
   })

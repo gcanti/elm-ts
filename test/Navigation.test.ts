@@ -45,9 +45,9 @@ describe('Navigation', () => {
 
   describe('program()', () => {
     it('should return a Program and listen to location changes - no subscription', () => {
-      const subs: NavMsg[] = []
-      const views: NavView[] = []
       const cmds: Array<T.Task<O.Option<NavMsg>>> = []
+      const views: NavView[] = []
+      const subs: NavMsg[] = []
 
       const { dispatch, html$, cmd$, sub$ } = program(locationToMsg, initWithLocation, navUpdate, App.view)
 
@@ -65,15 +65,15 @@ describe('Navigation', () => {
       assert.strictEqual(cmds.length, 1)
 
       return cmds[0]().then(() => {
-        assert.deepStrictEqual(subs, [{ type: 'BAR' }])
         assert.deepStrictEqual(views.map(x => x(dispatch).text), ['', 'foo', 'bar'])
+        assert.deepStrictEqual(subs, [{ type: 'BAR' }])
       })
     })
 
     it('should return a Program and listen to location changes - with subscription', () => {
-      const subs: NavMsg[] = []
-      const views: NavView[] = []
       const cmds: Array<T.Task<O.Option<NavMsg>>> = []
+      const views: NavView[] = []
+      const subs: NavMsg[] = []
 
       const { dispatch, html$, cmd$, sub$ } = program(
         locationToMsg,
@@ -99,16 +99,16 @@ describe('Navigation', () => {
 
       return cmds[0]().then(() => {
         // "BAR" is dispatch after "LISTEN" because it's dependent of `cmd()`
-        assert.deepStrictEqual(subs, [{ type: 'LISTEN' }, { type: 'BAR' }])
         assert.deepStrictEqual(views.map(x => x(dispatch).text), ['', 'foo', 'sub', 'listen', 'bar'])
+        assert.deepStrictEqual(subs, [{ type: 'LISTEN' }, { type: 'BAR' }])
       })
     })
   })
 
   describe('programWithFlags()', () => {
     it('programWithFlags() should return a function which returns a program() with flags on `init` - no subscription', () => {
-      const subs: NavMsg[] = []
       const views: NavView[] = []
+      const subs: NavMsg[] = []
       const initWithFlags = (f: string) => (_: Location): [App.Model, Cmd<NavMsg>] => [{ x: f }, none]
       const withFlags = programWithFlags(locationToMsg, initWithFlags, navUpdate, App.view)
       const { dispatch, html$, sub$ } = withFlags('start!')
@@ -121,8 +121,8 @@ describe('Navigation', () => {
     })
 
     it('programWithFlags() should return a function which returns a program() with flags on `init` - with subscription', () => {
-      const subs: NavMsg[] = []
       const views: NavView[] = []
+      const subs: NavMsg[] = []
       const initWithFlags = (f: string) => (_: Location): [App.Model, Cmd<NavMsg>] => [{ x: f }, none]
       const withFlags = programWithFlags(locationToMsg, initWithFlags, navUpdate, App.view, subscriptions)
       const { dispatch, html$, sub$ } = withFlags('start!')
