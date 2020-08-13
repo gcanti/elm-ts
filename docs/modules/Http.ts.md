@@ -28,6 +28,7 @@ Added in v0.5.0
   - [Response (interface)](#response-interface)
 - [utils](#utils)
   - [send](#send)
+  - [sendWithResp](#sendwithresp)
 
 ---
 
@@ -138,6 +139,20 @@ Executes as `Cmd` the provided call to remote resource, mapping result to a `Msg
 
 ```ts
 export declare function send<A, Msg>(f: (e: Either<HttpError, A>) => Msg): (req: Request<A>) => Cmd<Msg>
+```
+
+Added in v0.5.0
+
+## sendWithResp
+
+Executes as `Cmd` the provided call to remote resource, mapping result to a `Msg` containing the full response.
+
+**Signature**
+
+```ts
+export declare function sendWithResp<A, Msg>(
+  f: (e: Either<HttpError, Response<A>>) => Msg
+): (req: Request<A>) => Cmd<Msg>
 ```
 
 Added in v0.5.0

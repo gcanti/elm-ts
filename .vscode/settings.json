@@ -3,5 +3,10 @@
   "prettier.printWidth": 120,
   "prettier.semi": false,
   "prettier.singleQuote": true,
-  "tslint.enable": true
+  "tslint.enable": true,
+  "[typescript]": {
+    "editor.codeActionsOnSave": {
+      "source.organizeImports": false
+    }
+  }
 }
