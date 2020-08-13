@@ -45,7 +45,8 @@ describe('Http', () => {
             url: 'http://example.com/test',
             status: { code: 200, message: '' },
             headers: {},
-            body
+            body,
+            xhr: server.requests[0]
           }
         })
       )
@@ -75,7 +76,8 @@ describe('Http', () => {
             url: 'http://example.com/test',
             status: { code: 500, message: '' },
             headers: {},
-            body
+            body,
+            xhr: server.requests[0]
           }
         })
       )
@@ -128,7 +130,7 @@ describe('Http', () => {
       const oriXHR = XMLHttpRequest
 
       // Make it throw a non `Error` in order to check the refinement
-      XMLHttpRequest = (function() {
+      XMLHttpRequest = (function () {
         throw 'booom!' // tslint:disable-line no-string-throw
       } as unknown) as any
 
@@ -164,7 +166,8 @@ describe('Http', () => {
             url: 'http://example.com/test',
             status: { code: 200, message: '' },
             headers: {},
-            body
+            body,
+            xhr: server.requests[0]
           }
         })
       )
@@ -218,7 +221,78 @@ describe('Http', () => {
                 url: 'http://example.com/test',
                 status: { code: 500, message: '' },
                 headers: {},
-                body
+                body,
+                xhr: server.requests[0]
+              }
+            }
+          })
+        )
+
+        done()
+      })
+    })
+  })
+
+  describe('sendWithResp()', () => {
+    let server: sinon.SinonFakeServer
+
+    beforeEach(() => {
+      server = sinon.fakeServer.create({ respondImmediately: true })
+    })
+
+    afterEach(() => {
+      server.restore()
+    })
+
+    it('should request an http call and return a Cmd - OK', done => {
+      server.respondWith('GET', 'http://example.com/test', [200, {}, JSON.stringify({ a: 'test' })])
+
+      const request = Http.sendWithResp(E.fold(msg, msg))
+
+      const cmd = request(Http.get('http://example.com/test', fromCodec(t.type({ a: t.string }))))
+
+      return cmd.subscribe(async to => {
+        const result = await to()
+
+        assert.deepStrictEqual(
+          result,
+          some({
+            payload: {
+              url: 'http://example.com/test',
+              status: { code: 200, message: '' },
+              headers: {},
+              body: { a: 'test' },
+              xhr: server.requests[0]
+            }
+          })
+        )
+
+        done()
+      })
+    })
+
+    it('should request an http call and return a Cmd - KO', done => {
+      const body = JSON.stringify({ error: 'bad response' })
+      server.respondWith('GET', 'http://example.com/test', [500, {}, body])
+
+      const request = Http.sendWithResp(E.fold(msg, msg))
+
+      const cmd = request(Http.get('http://example.com/test', fromCodec(t.string)))
+
+      return cmd.subscribe(async to => {
+        const result = await to()
+
+        assert.deepStrictEqual(
+          result,
+          some({
+            payload: {
+              _tag: 'BadStatus',
+              response: {
+                url: 'http://example.com/test',
+                status: { code: 500, message: '' },
+                headers: {},
+                body,
+                xhr: server.requests[0]
               }
             }
           })

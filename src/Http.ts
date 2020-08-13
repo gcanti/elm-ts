@@ -55,6 +55,7 @@ export interface Response<Body> {
   }
   headers: Record<string, string>
   body: Body
+  xhr: XMLHttpRequest
 }
 
 /**
@@ -68,12 +69,14 @@ export type HttpError =
   | { readonly _tag: 'BadStatus'; readonly response: Response<string> }
   | { readonly _tag: 'BadPayload'; readonly value: string; readonly response: Response<string> }
 
+type XHR<A> = Observable<Either<HttpError, Response<A>>>
+
 /**
  * @category destructors
  * @since 0.5.0
  */
 export function toTask<A>(req: Request<A>): TaskEither<HttpError, A> {
-  return () => xhr(req).toPromise()
+  return () => toResult(xhr(req)).toPromise()
 }
 
 /**
@@ -82,7 +85,7 @@ export function toTask<A>(req: Request<A>): TaskEither<HttpError, A> {
  * @since 0.5.0
  */
 export function send<A, Msg>(f: (e: Either<HttpError, A>) => Msg): (req: Request<A>) => Cmd<Msg> {
-  return req => xhr(req).pipe(map(result => T.of(O.some(f(result)))))
+  return req => toResult(xhr(req)).pipe(map(result => T.of(O.some(f(result)))))
 }
 
 /**
@@ -91,7 +94,7 @@ export function send<A, Msg>(f: (e: Either<HttpError, A>) => Msg): (req: Request
  * @since 0.5.0
  */
 export function sendWithResp<A, Msg>(f: (e: Either<HttpError, Response<A>>) => Msg): (req: Request<A>) => Cmd<Msg> {
-  return req => xhrWithResp(req).pipe(map(result => T.of(O.some(f(result)))))
+  return req => xhr(req).pipe(map(result => T.of(O.some(f(result)))))
 }
 
 /**
@@ -127,15 +130,15 @@ export function post<A>(url: string, body: unknown, decoder: Decoder<A>): Reques
 }
 
 // --- Helpers
-function xhrWithResp<A>(req: Request<A>): Observable<Either<HttpError, Response<A>>> {
-  return ajax(toXHRRequest(req)).pipe(
-    map(flow(toResponse(req), decodeWithAsResp(req.expect))),
-    catchError((e: unknown): Observable<Either<HttpError, Response<A>>> => of(E.left(toHttpError(req, e))))
-  )
+function toResult<A>(x: XHR<A>): Observable<Either<HttpError, A>> {
+  return x.pipe(map(E.map(resp => resp.body)))
 }
 
-function xhr<A>(req: Request<A>): Observable<Either<HttpError, A>> {
-  return xhrWithResp(req).pipe(map(E.map(_ => _.body)))
+function xhr<A>(req: Request<A>): XHR<A> {
+  return ajax(toXHRRequest(req)).pipe(
+    map(flow(toResponse(req), decodeWith(req.expect))),
+    catchError((e: unknown): XHR<A> => of(E.left(toHttpError(req, e))))
+  )
 }
 
 function toXHRRequest<A>(req: Request<A>): AjaxRequest {
@@ -150,34 +153,30 @@ function toXHRRequest<A>(req: Request<A>): AjaxRequest {
   }
 }
 
-function parseResponseHeaders(rawRespHeaders: string): Record<string, string> {
-  return rawRespHeaders.split('\r\n').reduce((acc, current) => {
-    const parts = current.split(':').filter(_ => _.length > 0)
-    return parts.length === 2 ? { ...acc, [parts[0].trim()]: parts[1].trim() } : acc
-  }, {})
-}
-
 function toResponse<A>(req: Request<A>): (resp: AjaxResponse) => Response<string> {
   return resp => ({
     url: req.url,
     status: { code: resp.status, message: '' },
-    headers: parseResponseHeaders(resp.xhr.getAllResponseHeaders()),
-    body: typeof resp.response === 'string' && resp.response.length > 0 ? resp.response : '{}'
+    headers: req.headers,
+    body: typeof resp.response === 'string' && resp.response.length > 0 ? resp.response : '{}',
+    xhr: resp.xhr
   })
 }
 
-function decodeWithAsResp<A>(decoder: Decoder<A>): (resp: Response<string>) => Either<HttpError, Response<A>> {
+function decodeWith<A>(decoder: Decoder<A>): (resp: Response<string>) => Either<HttpError, Response<A>> {
   return resp =>
     pipe(
       // By spec parsing json can only throw `SyntaxError`
       E.parseJSON(resp.body, e => (e as SyntaxError).message),
       E.chain(decoder),
-      E.map(body => ({ ...resp, body })),
-      E.mapLeft(e => ({
-        _tag: 'BadPayload',
-        value: e,
-        response: resp
-      }))
+      E.bimap(
+        e => ({
+          _tag: 'BadPayload',
+          value: e,
+          response: resp
+        }),
+        body => ({ ...resp, body })
+      )
     )
 }
 
@@ -197,7 +196,8 @@ function toHttpError<A>(req: Request<A>, e: unknown): HttpError {
         url: req.url,
         status: { code: e.status, message: '' },
         headers: req.headers,
-        body: e.response
+        body: e.response,
+        xhr: e.xhr
       }
     }
   }

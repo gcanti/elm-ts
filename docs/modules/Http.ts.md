@@ -124,6 +124,7 @@ export interface Response<Body> {
   }
   headers: Record<string, string>
   body: Body
+  xhr: XMLHttpRequest
 }
 ```
 
