@@ -152,7 +152,7 @@ function toXHRRequest<A>(req: Request<A>): AjaxRequest {
 
 function parseResponseHeaders(rawRespHeaders: string): Record<string, string> {
   return rawRespHeaders.split('\r\n').reduce((acc, current) => {
-    const parts = current.split(':').filter(_ => _ !== null)
+    const parts = current.split(':').filter(_ => _.length > 0)
     return parts.length === 2 ? { ...acc, [parts[0].trim()]: parts[1].trim() } : acc
   }, {})
 }
