@@ -26,8 +26,10 @@ Added in v0.5.0
   - [Method (type alias)](#method-type-alias)
   - [Request (interface)](#request-interface)
   - [Response (interface)](#response-interface)
+  - [ResponseAndXHR (interface)](#responseandxhr-interface)
 - [utils](#utils)
   - [send](#send)
+  - [sendFull](#sendfull)
 
 ---
 
@@ -128,6 +130,19 @@ export interface Response<Body> {
 
 Added in v0.5.0
 
+## ResponseAndXHR (interface)
+
+**Signature**
+
+```ts
+export interface ResponseAndXHR<A> {
+  xhr: XMLHttpRequest
+  response: Response<A>
+}
+```
+
+Added in v0.5.8
+
 # utils
 
 ## send
@@ -141,3 +156,17 @@ export declare function send<A, Msg>(f: (e: Either<HttpError, A>) => Msg): (req:
 ```
 
 Added in v0.5.0
+
+## sendFull
+
+Executes as `Cmd` the provided call to remote resource, mapping result to a `Msg` containing the full response and the original XMLHTTPRequest object.
+
+**Signature**
+
+```ts
+export declare function sendFull<A, Msg>(
+  f: (e: Either<HttpError, ResponseAndXHR<A>>) => Msg
+): (req: Request<A>) => Cmd<Msg>
+```
+
+Added in v0.5.8
