@@ -55,7 +55,6 @@ export interface Response<Body> {
   }
   headers: Record<string, string>
   body: Body
-  xhr: XMLHttpRequest
 }
 
 /**
@@ -69,14 +68,12 @@ export type HttpError =
   | { readonly _tag: 'BadStatus'; readonly response: Response<string> }
   | { readonly _tag: 'BadPayload'; readonly value: string; readonly response: Response<string> }
 
-type XHR<A> = Observable<Either<HttpError, Response<A>>>
-
 /**
  * @category destructors
  * @since 0.5.0
  */
 export function toTask<A>(req: Request<A>): TaskEither<HttpError, A> {
-  return () => toResult(xhr(req)).toPromise()
+  return () => xhr(req).toPromise()
 }
 
 /**
@@ -85,15 +82,6 @@ export function toTask<A>(req: Request<A>): TaskEither<HttpError, A> {
  * @since 0.5.0
  */
 export function send<A, Msg>(f: (e: Either<HttpError, A>) => Msg): (req: Request<A>) => Cmd<Msg> {
-  return req => toResult(xhr(req)).pipe(map(result => T.of(O.some(f(result)))))
-}
-
-/**
- * Executes as `Cmd` the provided call to remote resource, mapping result to a `Msg` containing the full response.
- * @category utils
- * @since 0.5.0
- */
-export function sendWithResp<A, Msg>(f: (e: Either<HttpError, Response<A>>) => Msg): (req: Request<A>) => Cmd<Msg> {
   return req => xhr(req).pipe(map(result => T.of(O.some(f(result)))))
 }
 
@@ -130,14 +118,10 @@ export function post<A>(url: string, body: unknown, decoder: Decoder<A>): Reques
 }
 
 // --- Helpers
-function toResult<A>(x: XHR<A>): Observable<Either<HttpError, A>> {
-  return x.pipe(map(E.map(resp => resp.body)))
-}
-
-function xhr<A>(req: Request<A>): XHR<A> {
+function xhr<A>(req: Request<A>): Observable<Either<HttpError, A>> {
   return ajax(toXHRRequest(req)).pipe(
     map(flow(toResponse(req), decodeWith(req.expect))),
-    catchError((e: unknown): XHR<A> => of(E.left(toHttpError(req, e))))
+    catchError((e: unknown): Observable<Either<HttpError, A>> => of(E.left(toHttpError(req, e))))
   )
 }
 
@@ -158,25 +142,21 @@ function toResponse<A>(req: Request<A>): (resp: AjaxResponse) => Response<string
     url: req.url,
     status: { code: resp.status, message: '' },
     headers: req.headers,
-    body: typeof resp.response === 'string' && resp.response.length > 0 ? resp.response : '{}',
-    xhr: resp.xhr
+    body: typeof resp.response === 'string' && resp.response.length > 0 ? resp.response : '{}'
   })
 }
 
-function decodeWith<A>(decoder: Decoder<A>): (resp: Response<string>) => Either<HttpError, Response<A>> {
+function decodeWith<A>(decoder: Decoder<A>): (resp: Response<string>) => Either<HttpError, A> {
   return resp =>
     pipe(
       // By spec parsing json can only throw `SyntaxError`
       E.parseJSON(resp.body, e => (e as SyntaxError).message),
       E.chain(decoder),
-      E.bimap(
-        e => ({
-          _tag: 'BadPayload',
-          value: e,
-          response: resp
-        }),
-        body => ({ ...resp, body })
-      )
+      E.mapLeft(e => ({
+        _tag: 'BadPayload',
+        value: e,
+        response: resp
+      }))
     )
 }
 
@@ -196,8 +176,7 @@ function toHttpError<A>(req: Request<A>, e: unknown): HttpError {
         url: req.url,
         status: { code: e.status, message: '' },
         headers: req.headers,
-        body: e.response,
-        xhr: e.xhr
+        body: e.response
       }
     }
   }
