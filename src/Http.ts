@@ -142,7 +142,7 @@ function toResponse<A>(req: Request<A>): (resp: AjaxResponse) => Response<string
     url: req.url,
     status: { code: resp.status, message: '' },
     headers: req.headers,
-    body: resp.response
+    body: typeof resp.response === 'string' && resp.response.length > 0 ? resp.response : '{}'
   })
 }
 

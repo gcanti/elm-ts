@@ -128,7 +128,7 @@ describe('Http', () => {
       const oriXHR = XMLHttpRequest
 
       // Make it throw a non `Error` in order to check the refinement
-      XMLHttpRequest = (function() {
+      XMLHttpRequest = (function () {
         throw 'booom!' // tslint:disable-line no-string-throw
       } as unknown) as any
 
@@ -223,6 +223,22 @@ describe('Http', () => {
             }
           })
         )
+
+        done()
+      })
+    })
+
+    it('should request an http call and return a Cmd - EMPTY', done => {
+      server.respondWith('GET', 'http://example.com/test', [204, {}, ''])
+
+      const request = Http.send(E.fold(msg, msg))
+
+      const cmd = request(Http.get('http://example.com/test', fromCodec(t.UnknownRecord)))
+
+      return cmd.subscribe(async to => {
+        const result = await to()
+
+        assert.deepStrictEqual(result, some({ payload: {} }))
 
         done()
       })
