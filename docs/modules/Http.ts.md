@@ -22,12 +22,14 @@ Added in v0.5.0
 - [destructors](#destructors)
   - [toTask](#totask)
 - [model](#model)
+  - [Headers (type alias)](#headers-type-alias)
   - [HttpError (type alias)](#httperror-type-alias)
   - [Method (type alias)](#method-type-alias)
   - [Request (interface)](#request-interface)
   - [Response (interface)](#response-interface)
 - [utils](#utils)
   - [send](#send)
+  - [sendFull](#sendfull)
 
 ---
 
@@ -67,6 +69,16 @@ Added in v0.5.0
 
 # model
 
+## Headers (type alias)
+
+**Signature**
+
+```ts
+export type Headers = Record<string, string>
+```
+
+Added in v0.5.0
+
 ## HttpError (type alias)
 
 **Signature**
@@ -101,7 +113,7 @@ export interface Request<A> {
   expect: Decoder<A>
   url: string
   method: Method
-  headers: Record<string, string>
+  headers: Headers
   body?: unknown
   timeout: Option<number>
   withCredentials: boolean
@@ -121,7 +133,7 @@ export interface Response<Body> {
     code: number
     message: string
   }
-  headers: Record<string, string>
+  headers: Headers
   body: Body
 }
 ```
@@ -141,3 +153,15 @@ export declare function send<A, Msg>(f: (e: Either<HttpError, A>) => Msg): (req:
 ```
 
 Added in v0.5.0
+
+## sendFull
+
+Executes as `Cmd` the provided call to remote resource, mapping result with full Response to a `Msg`.
+
+**Signature**
+
+```ts
+export declare function sendFull<A, Msg>(f: (e: Either<HttpError, Response<A>>) => Msg): (req: Request<A>) => Cmd<Msg>
+```
+
+Added in v0.5.9

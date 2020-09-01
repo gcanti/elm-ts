@@ -99,7 +99,7 @@ Added in v0.5.0
 
 ## Program (interface)
 
-`Program`is just an object that exposes the underlying streams which compose _The Elm Architecture_. Even **Commands** and **Subscriptions** are expressed as`Observables` in order to mix them with ease.
+Program`is just an object that exposes the underlying streams which compose _The Elm Architecture_. Even **Commands** and **Subscriptions** are expressed as`Observables` in order to mix them with ease.
 
 **Signature**
 

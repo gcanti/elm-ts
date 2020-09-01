@@ -43,7 +43,7 @@ describe('Http', () => {
           value: 'Invalid value {"a":"test"} supplied to : number',
           response: {
             url: 'http://example.com/test',
-            status: { code: 200, message: '' },
+            status: { code: 200, message: 'OK' },
             headers: {},
             body
           }
@@ -52,7 +52,7 @@ describe('Http', () => {
     })
 
     it('should handle 404', async () => {
-      server.respondWith('GET', 'http://example.com/test', [404, {}, ''])
+      server.respondWith('GET', 'http://example.com/test', [404, { 'X-Some': 'header' }, ''])
 
       const request = Http.get('http://example.com/test', fromCodec(t.string))
       const result = await Http.toTask(request)()
@@ -62,7 +62,7 @@ describe('Http', () => {
 
     it('should handle bad responses', async () => {
       const body = JSON.stringify({ error: 'bad response' })
-      server.respondWith('GET', 'http://example.com/test', [500, {}, body])
+      server.respondWith('GET', 'http://example.com/test', [500, { 'X-Some': 'header' }, body])
 
       const request = Http.get('http://example.com/test', fromCodec(t.string))
       const result = await Http.toTask(request)()
@@ -73,8 +73,8 @@ describe('Http', () => {
           _tag: 'BadStatus',
           response: {
             url: 'http://example.com/test',
-            status: { code: 500, message: '' },
-            headers: {},
+            status: { code: 500, message: 'Internal Server Error' },
+            headers: { 'X-Some': 'header' },
             body
           }
         })
@@ -162,7 +162,7 @@ describe('Http', () => {
           value: 'Unexpected token b in JSON at position 1',
           response: {
             url: 'http://example.com/test',
-            status: { code: 200, message: '' },
+            status: { code: 200, message: 'OK' },
             headers: {},
             body
           }
@@ -216,7 +216,7 @@ describe('Http', () => {
               _tag: 'BadStatus',
               response: {
                 url: 'http://example.com/test',
-                status: { code: 500, message: '' },
+                status: { code: 500, message: 'Internal Server Error' },
                 headers: {},
                 body
               }
@@ -239,6 +239,104 @@ describe('Http', () => {
         const result = await to()
 
         assert.deepStrictEqual(result, some({ payload: {} }))
+
+        done()
+      })
+    })
+  })
+
+  describe('sendFull()', () => {
+    let server: sinon.SinonFakeServer
+
+    beforeEach(() => {
+      server = sinon.fakeServer.create({ respondImmediately: true })
+    })
+
+    afterEach(() => {
+      server.restore()
+    })
+
+    it('should request an http call and return a Cmd - OK', done => {
+      server.respondWith('GET', 'http://example.com/test', [
+        200,
+        { 'Content-Type': 'application/json', 'content-length': 11 },
+        JSON.stringify({ a: 'test' })
+      ])
+
+      const request = Http.sendFull(E.fold(msg, msg))
+
+      const cmd = request(Http.get('http://example.com/test', fromCodec(t.type({ a: t.string }))))
+
+      return cmd.subscribe(async to => {
+        const result = await to()
+
+        assert.deepStrictEqual(
+          result,
+          some({
+            payload: {
+              url: 'http://example.com/test',
+              status: { code: 200, message: 'OK' },
+              headers: { 'Content-Type': 'application/json', 'content-length': '11' },
+              body: { a: 'test' }
+            }
+          })
+        )
+
+        done()
+      })
+    })
+
+    it('should request an http call and return a Cmd - KO', done => {
+      const body = JSON.stringify({ error: 'bad response' })
+      server.respondWith('GET', 'http://example.com/test', [500, { 'Content-Type': 'application/json' }, body])
+
+      const request = Http.sendFull(E.fold(msg, msg))
+
+      const cmd = request(Http.get('http://example.com/test', fromCodec(t.string)))
+
+      return cmd.subscribe(async to => {
+        const result = await to()
+
+        assert.deepStrictEqual(
+          result,
+          some({
+            payload: {
+              _tag: 'BadStatus',
+              response: {
+                url: 'http://example.com/test',
+                status: { code: 500, message: 'Internal Server Error' },
+                headers: { 'Content-Type': 'application/json' },
+                body
+              }
+            }
+          })
+        )
+
+        done()
+      })
+    })
+
+    it('should request an http call and return a Cmd - EMPTY', done => {
+      server.respondWith('GET', 'http://example.com/test', [204, { 'content-length': 0 }, ''])
+
+      const request = Http.sendFull(E.fold(msg, msg))
+
+      const cmd = request(Http.get('http://example.com/test', fromCodec(t.UnknownRecord)))
+
+      return cmd.subscribe(async to => {
+        const result = await to()
+
+        assert.deepStrictEqual(
+          result,
+          some({
+            payload: {
+              url: 'http://example.com/test',
+              status: { code: 204, message: 'No Content' },
+              headers: { 'content-length': '0' },
+              body: {}
+            }
+          })
+        )
 
         done()
       })
