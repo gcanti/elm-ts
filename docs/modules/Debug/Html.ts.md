@@ -30,7 +30,7 @@ const program = process.NODE_ENV === 'production' ? react.program : programWithD
 
 const main = program(init, update, view)
 
-react.run(main, dom => render(dom, document.getElementById('app')))
+react.run(main, (dom) => render(dom, document.getElementById('app')))
 ```
 
 Added in v0.5.3
