@@ -13,6 +13,15 @@
 **Note**: Gaps between patch versions are faulty/broken releases. **Note**: A feature tagged as Experimental is in a
 high state of flux, you're at risk of it changing without notice.
 
+## 0.6.0
+
+- **Bug Fix**
+
+  - `XMLHttpRequest`'s response headers in `Response` object (@StefanoMagrassi)
+
+- **New Feature**
+  - new `sendFull` function in `Http` module which carries the full `Response` object (@StefanoMagrassi)
+
 ## 0.5.8
 
 - **Bug Fix**
