@@ -13,7 +13,7 @@ import * as Rec from 'fp-ts/lib/Record'
 import { getLastSemigroup } from 'fp-ts/lib/Semigroup'
 import * as T from 'fp-ts/lib/Task'
 import * as TE from 'fp-ts/lib/TaskEither'
-import { flow, identity } from 'fp-ts/lib/function'
+import { flow } from 'fp-ts/lib/function'
 import { pipe } from 'fp-ts/lib/pipeable'
 import { Observable, OperatorFunction, of } from 'rxjs'
 import { AjaxError, AjaxRequest, AjaxResponse, AjaxTimeoutError, ajax } from 'rxjs/ajax'
@@ -25,8 +25,7 @@ import { Decoder } from './Decode'
 import Option = O.Option
 import Either = E.Either
 import TaskEither = TE.TaskEither
-
-const fromStrArr = Rec.fromFoldableMap(getLastSemigroup<string>(), Arr.array)
+// ---
 
 /**
  * @category model
@@ -79,15 +78,12 @@ export type HttpError =
   | { readonly _tag: 'BadStatus'; readonly response: Response<string> }
   | { readonly _tag: 'BadPayload'; readonly value: string; readonly response: Response<string> }
 
-type Result<A> = Either<HttpError, A>
-type ResultResponse<A> = Result<Response<A>>
-
 /**
  * @category destructors
  * @since 0.5.0
  */
 export function toTask<A>(req: Request<A>): TaskEither<HttpError, A> {
-  return () => xhr(req).pipe(extractBody()).toPromise()
+  return () => xhrOnlyBody(req).toPromise()
 }
 
 /**
@@ -96,11 +92,7 @@ export function toTask<A>(req: Request<A>): TaskEither<HttpError, A> {
  * @since 0.5.0
  */
 export function send<A, Msg>(f: (e: Either<HttpError, A>) => Msg): (req: Request<A>) => Cmd<Msg> {
-  return req =>
-    xhr(req).pipe(
-      extractBody(),
-      map(result => T.of(O.some(f(result))))
-    )
+  return flow(xhrOnlyBody, toMsg(f))
 }
 
 /**
@@ -109,7 +101,7 @@ export function send<A, Msg>(f: (e: Either<HttpError, A>) => Msg): (req: Request
  * @since 0.5.9
  */
 export function sendFull<A, Msg>(f: (e: Either<HttpError, Response<A>>) => Msg): (req: Request<A>) => Cmd<Msg> {
-  return req => xhr(req).pipe(map(result => T.of(O.some(f(result)))))
+  return flow(xhr, toMsg(f))
 }
 
 /**
@@ -144,7 +136,21 @@ export function post<A>(url: string, body: unknown, decoder: Decoder<A>): Reques
   }
 }
 
+// -----------
 // --- Helpers
+// -----------
+type Result<A> = Either<HttpError, A>
+type ResultResponse<A> = Result<Response<A>>
+type TO<A> = T.Task<Option<A>>
+
+const fromStrArr = Rec.fromFoldableMap(getLastSemigroup<string>(), Arr.array)
+
+const xhrOnlyBody = flow(xhr, extractBody())
+
+function toMsg<A, Msg>(project: (e: Result<A>) => Msg): OperatorFunction<Result<A>, TO<Msg>> {
+  return map(flow(project, O.some, T.of))
+}
+
 function extractBody<A>(): OperatorFunction<ResultResponse<A>, Result<A>> {
   return map(E.map(response => response.body))
 }
@@ -152,7 +158,9 @@ function extractBody<A>(): OperatorFunction<ResultResponse<A>, Result<A>> {
 type ResultResponse$<A> = Observable<ResultResponse<A>>
 
 function xhr<A>(req: Request<A>): ResultResponse$<A> {
-  return ajax(toXHRRequest(req)).pipe(
+  return pipe(
+    toXHRRequest(req),
+    ajax,
     map(flow(toResponse, decodeWith(req.expect))),
     catchError((e: unknown): ResultResponse$<A> => of(E.left(toHttpError(req, e))))
   )
@@ -161,10 +169,7 @@ function xhr<A>(req: Request<A>): ResultResponse$<A> {
 function toXHRRequest<A>(req: Request<A>): AjaxRequest {
   return {
     ...req,
-    timeout: pipe(
-      req.timeout,
-      O.fold(() => 0, identity)
-    ),
+    timeout: O.getOrElse(() => 0)(req.timeout),
     async: true,
     responseType: 'text'
   }
