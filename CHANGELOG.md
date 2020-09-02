@@ -20,7 +20,7 @@ high state of flux, you're at risk of it changing without notice.
   - `XMLHttpRequest`'s response headers in `Response` object (@StefanoMagrassi)
 
 - **New Feature**
-  - new `sendFull` function in `Http` module which carries the full `Response` object (@StefanoMagrassi)
+  - new `sendBy` function in `Http` module which carries the full `Response` object (@StefanoMagrassi)
 
 ## 0.5.8
 

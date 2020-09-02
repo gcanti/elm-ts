@@ -29,7 +29,7 @@ Added in v0.5.0
   - [Response (interface)](#response-interface)
 - [utils](#utils)
   - [send](#send)
-  - [sendFull](#sendfull)
+  - [sendBy](#sendby)
 
 ---
 
@@ -77,7 +77,7 @@ Added in v0.5.0
 export type Headers = Record<string, string>
 ```
 
-Added in v0.5.0
+Added in v0.6.0
 
 ## HttpError (type alias)
 
@@ -146,6 +146,8 @@ Added in v0.5.0
 
 Executes as `Cmd` the provided call to remote resource, mapping result to a `Msg`.
 
+It is derived from `sendBy`.
+
 **Signature**
 
 ```ts
@@ -154,14 +156,14 @@ export declare function send<A, Msg>(f: (e: Either<HttpError, A>) => Msg): (req:
 
 Added in v0.5.0
 
-## sendFull
+## sendBy
 
-Executes as `Cmd` the provided call to remote resource, mapping result with full Response to a `Msg`.
+Executes as `Cmd` the provided call to remote resource, mapping the full Response to a `Msg`.
 
 **Signature**
 
 ```ts
-export declare function sendFull<A, Msg>(f: (e: Either<HttpError, Response<A>>) => Msg): (req: Request<A>) => Cmd<Msg>
+export declare function sendBy<A, Msg>(f: (e: Either<HttpError, Response<A>>) => Msg): (req: Request<A>) => Cmd<Msg>
 ```
 
-Added in v0.5.9
+Added in v0.6.0

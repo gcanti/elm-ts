@@ -263,7 +263,7 @@ describe('Http', () => {
         JSON.stringify({ a: 'test' })
       ])
 
-      const request = Http.sendFull(E.fold(msg, msg))
+      const request = Http.sendBy(E.fold(msg, msg))
 
       const cmd = request(Http.get('http://example.com/test', fromCodec(t.type({ a: t.string }))))
 
@@ -290,7 +290,7 @@ describe('Http', () => {
       const body = JSON.stringify({ error: 'bad response' })
       server.respondWith('GET', 'http://example.com/test', [500, { 'Content-Type': 'application/json' }, body])
 
-      const request = Http.sendFull(E.fold(msg, msg))
+      const request = Http.sendBy(E.fold(msg, msg))
 
       const cmd = request(Http.get('http://example.com/test', fromCodec(t.string)))
 
@@ -319,7 +319,7 @@ describe('Http', () => {
     it('should request an http call and return a Cmd - EMPTY', done => {
       server.respondWith('GET', 'http://example.com/test', [204, { 'content-length': 0 }, ''])
 
-      const request = Http.sendFull(E.fold(msg, msg))
+      const request = Http.sendBy(E.fold(msg, msg))
 
       const cmd = request(Http.get('http://example.com/test', fromCodec(t.UnknownRecord)))
 

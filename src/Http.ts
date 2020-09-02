@@ -35,7 +35,7 @@ export type Method = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE'
 
 /**
  * @category model
- * @since 0.5.0
+ * @since 0.6.0
  */
 export type Headers = Record<string, string>
 
@@ -88,19 +88,26 @@ export function toTask<A>(req: Request<A>): TaskEither<HttpError, A> {
 
 /**
  * Executes as `Cmd` the provided call to remote resource, mapping result to a `Msg`.
+ *
+ * It is derived from `sendBy`.
  * @category utils
  * @since 0.5.0
  */
 export function send<A, Msg>(f: (e: Either<HttpError, A>) => Msg): (req: Request<A>) => Cmd<Msg> {
-  return flow(xhrOnlyBody, toMsg(f))
+  return sendBy(
+    flow(
+      E.map(r => r.body),
+      f
+    )
+  )
 }
 
 /**
- * Executes as `Cmd` the provided call to remote resource, mapping result with full Response to a `Msg`.
+ * Executes as `Cmd` the provided call to remote resource, mapping the full Response to a `Msg`.
  * @category utils
- * @since 0.5.9
+ * @since 0.6.0
  */
-export function sendFull<A, Msg>(f: (e: Either<HttpError, Response<A>>) => Msg): (req: Request<A>) => Cmd<Msg> {
+export function sendBy<A, Msg>(f: (e: Either<HttpError, Response<A>>) => Msg): (req: Request<A>) => Cmd<Msg> {
   return flow(xhr, toMsg(f))
 }
 
