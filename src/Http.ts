@@ -87,10 +87,10 @@ export function toTask<A>(req: Request<A>): TaskEither<HttpError, A> {
 }
 
 /**
- * Executes as `Cmd` the provided call to remote resource, mapping result to a `Msg`.
+ * Executes as `Cmd` the provided call to remote resource, mapping the result to a `Msg`.
  *
- * It is derived from `sendBy`.
- * @category utils
+ * Derived from [`sendBy`](#sendBy).
+ *
  * @since 0.5.0
  */
 export function send<A, Msg>(f: (e: Either<HttpError, A>) => Msg): (req: Request<A>) => Cmd<Msg> {
@@ -104,7 +104,7 @@ export function send<A, Msg>(f: (e: Either<HttpError, A>) => Msg): (req: Request
 
 /**
  * Executes as `Cmd` the provided call to remote resource, mapping the full Response to a `Msg`.
- * @category utils
+ *
  * @since 0.6.0
  */
 export function sendBy<A, Msg>(f: (e: Either<HttpError, Response<A>>) => Msg): (req: Request<A>) => Cmd<Msg> {
@@ -112,7 +112,7 @@ export function sendBy<A, Msg>(f: (e: Either<HttpError, Response<A>>) => Msg): (
 }
 
 /**
- * @category creators
+ * @category constructors
  * @since 0.5.0
  */
 export function get<A>(url: string, decoder: Decoder<A>): Request<A> {
@@ -128,7 +128,7 @@ export function get<A>(url: string, decoder: Decoder<A>): Request<A> {
 }
 
 /**
- * @category creators
+ * @category constructors
  * @since 0.5.0
  */
 export function post<A>(url: string, body: unknown, decoder: Decoder<A>): Request<A> {

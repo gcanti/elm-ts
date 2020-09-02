@@ -16,7 +16,7 @@ Added in v0.5.0
 
 <h2 class="text-delta">Table of contents</h2>
 
-- [creators](#creators)
+- [constructors](#constructors)
   - [get](#get)
   - [post](#post)
 - [destructors](#destructors)
@@ -33,7 +33,7 @@ Added in v0.5.0
 
 ---
 
-# creators
+# constructors
 
 ## get
 
@@ -144,9 +144,9 @@ Added in v0.5.0
 
 ## send
 
-Executes as `Cmd` the provided call to remote resource, mapping result to a `Msg`.
+Executes as `Cmd` the provided call to remote resource, mapping the result to a `Msg`.
 
-It is derived from `sendBy`.
+Derived from [`sendBy`](#sendBy).
 
 **Signature**
 
