@@ -21,7 +21,7 @@ export interface Dispatch<Msg> {
 }
 
 /**
- * Program` is just an object that exposes the underlying streams which compose _The Elm Architecture_.
+ * `Program` is just an object that exposes the underlying streams which compose _The Elm Architecture_.
  * Even **Commands** and **Subscriptions** are expressed as `Observables` in order to mix them with ease.
  * @category model
  * @since 0.5.0
