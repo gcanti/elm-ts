@@ -1,5 +1,6 @@
 {
-  "name": "elm-ts",
+
+  "name": "@rjdellecese/elm-ts",
   "version": "0.7.0",
   "description": "A porting of TEA to TypeScript featuring fp-ts, rxjs6 and React",
   "files": [
@@ -12,14 +13,14 @@
   "sideEffects": false,
   "repository": {
     "type": "git",
-    "url": "https://github.com/gcanti/elm-ts.git"
+    "url": "https://github.com/rjdellecese/elm-ts.git"
   },
-  "author": "Giulio Canti <giulio.canti@gmail.com>",
+  "author": "RJ Dellecese",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/gcanti/elm-ts/issues"
+    "url": "https://github.com/rjdellecese/elm-ts/issues"
   },
-  "homepage": "https://github.com/gcanti/elm-ts",
+  "homepage": "https://github.com/rjdellecese/elm-ts",
   "tags": [
     "typescript",
     "elm",
