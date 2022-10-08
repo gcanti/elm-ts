@@ -3,6 +3,8 @@ title: Home
 nav_order: 1
 ---
 
+⚠️ This is a fork of [gcanti/elm-ts](https://github.com/gcanti/elm-ts). ⚠️
+
 # elm-ts
 
 A porting of [_The Elm Architecture_](https://guide.elm-lang.org/architecture/) to TypeScript featuring `fp-ts`, `RxJS` and `React`.
